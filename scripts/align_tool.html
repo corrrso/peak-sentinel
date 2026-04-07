@@ -1,0 +1,1091 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Corridor Alignment Tool — Peak Sentinel</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.css"
+    />
+    <script src="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui;
+        background: #111;
+        color: #fff;
+        display: flex;
+        height: 100vh;
+      }
+      #map {
+        flex: 1;
+      }
+      #sidebar {
+        width: 380px;
+        padding: 15px;
+        overflow-y: auto;
+        background: #1a1a1a;
+        border-left: 1px solid #333;
+      }
+      h2 {
+        color: #ffd700;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+      h3 {
+        color: #ffd700;
+        margin: 15px 0 5px;
+        font-size: 13px;
+      }
+      .instructions {
+        color: #999;
+        font-size: 12px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+      button {
+        background: #ffd700;
+        color: #000;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 4px 2px;
+        font-size: 12px;
+      }
+      button:hover {
+        background: #ffc000;
+      }
+      button.active {
+        background: #ff4500;
+        color: white;
+      }
+      button.export {
+        background: #22c55e;
+        color: white;
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+      .pin-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0;
+        padding: 8px;
+        background: #222;
+        border-radius: 6px;
+        font-size: 11px;
+      }
+      .pin-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .pin-info {
+        flex: 1;
+      }
+      .coords {
+        font-family: monospace;
+        color: #ffd700;
+        font-size: 10px;
+      }
+      #status {
+        color: #aaa;
+        font-size: 11px;
+        margin: 10px 0;
+        padding: 8px;
+        background: #222;
+        border-radius: 4px;
+      }
+      select {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 5px 10px;
+        border-radius: 4px;
+        margin: 5px 0;
+      }
+      .accuracy {
+        padding: 8px;
+        margin: 8px 0;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .accuracy.good {
+        background: #14532d;
+        color: #22c55e;
+      }
+      .accuracy.ok {
+        background: #422006;
+        color: #f59e0b;
+      }
+      .accuracy.bad {
+        background: #450a0a;
+        color: #ef4444;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="sidebar">
+      <h2>Corridor Alignment</h2>
+      <p class="instructions">
+        The red polygon was extracted from the EIA scoping map.
+        <b>Drag the colored pins</b> to their correct locations on the real map
+        to align the corridor. The polygon updates in real-time.
+      </p>
+
+      <h3>Select Sheet</h3>
+      <select id="sheet-select" onchange="loadSheet(this.value)">
+        <option value="0">Figure 1.2G — Wirral</option>
+        <option value="1">Figure 1.2F — Chester</option>
+      </select>
+
+      <h3>Control Pins</h3>
+      <div id="pin-list"></div>
+
+      <div id="accuracy-box" class="accuracy ok">
+        Drag pins to improve alignment
+      </div>
+
+      <div id="status">Load a sheet to begin.</div>
+
+      <h3>Actions</h3>
+      <button onclick="resetPins()">Reset Pins</button>
+      <button class="export" onclick="exportGeoJSON()">Export GeoJSON</button>
+      <button onclick="downloadAll()">Download All Sheets</button>
+
+      <h3 style="margin-top: 20px">Exported Sheets</h3>
+      <div id="export-list" style="font-size: 11px; color: #888">None yet</div>
+    </div>
+
+    <script>
+      const PIN_COLORS = [
+        "#FF0000",
+        "#00FF00",
+        "#0000FF",
+        "#FF00FF",
+        "#FFFF00",
+        "#00FFFF",
+      ];
+
+      const map = new maplibregl.Map({
+        container: "map",
+        style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        center: [-3.05, 53.35],
+        zoom: 11,
+      });
+
+      let sheetData = {
+        sheets: [
+          {
+            name: "Figure 1.2G \u2014 Wirral",
+            file: "fig1_2G_wirral.png",
+            width: 2634,
+            height: 1862,
+            polygon_px: [
+              [400, 285],
+              [398, 310],
+              [405, 340],
+              [415, 370],
+              [425, 395],
+              [435, 423],
+              [432, 440],
+              [413, 472],
+              [537, 518],
+              [579, 590],
+              [577, 598],
+              [562, 614],
+              [557, 627],
+              [530, 645],
+              [496, 702],
+              [486, 707],
+              [472, 708],
+              [453, 722],
+              [449, 743],
+              [462, 759],
+              [464, 768],
+              [461, 780],
+              [444, 795],
+              [482, 841],
+              [487, 840],
+              [503, 847],
+              [520, 841],
+              [530, 841],
+              [568, 863],
+              [584, 913],
+              [589, 923],
+              [604, 936],
+              [600, 948],
+              [618, 987],
+              [619, 1009],
+              [613, 1018],
+              [627, 1059],
+              [636, 1066],
+              [666, 1066],
+              [743, 1037],
+              [753, 1044],
+              [773, 1078],
+              [821, 1070],
+              [833, 1063],
+              [850, 1059],
+              [969, 1113],
+              [974, 1120],
+              [972, 1138],
+              [975, 1171],
+              [984, 1193],
+              [984, 1203],
+              [979, 1217],
+              [980, 1232],
+              [1037, 1299],
+              [1087, 1401],
+              [1101, 1418],
+              [1099, 1428],
+              [1120, 1467],
+              [1146, 1494],
+              [1145, 1504],
+              [1152, 1521],
+              [1152, 1529],
+              [1146, 1536],
+              [1153, 1561],
+              [1151, 1568],
+              [1156, 1570],
+              [1177, 1612],
+              [1174, 1657],
+              [1179, 1664],
+              [1209, 1678],
+              [1215, 1711],
+              [1220, 1718],
+              [1218, 1730],
+              [1221, 1738],
+              [1271, 1763],
+              [1285, 1761],
+              [1302, 1770],
+              [1329, 1776],
+              [1333, 1782],
+              [1331, 1790],
+              [1304, 1802],
+              [1302, 1810],
+              [1310, 1807],
+              [1330, 1807],
+              [1343, 1800],
+              [1359, 1807],
+              [1360, 1801],
+              [1353, 1790],
+              [1339, 1780],
+              [1328, 1766],
+              [1315, 1768],
+              [1305, 1765],
+              [1289, 1755],
+              [1287, 1746],
+              [1293, 1734],
+              [1301, 1730],
+              [1331, 1739],
+              [1339, 1724],
+              [1401, 1718],
+              [1411, 1722],
+              [1421, 1741],
+              [1438, 1737],
+              [1433, 1719],
+              [1434, 1710],
+              [1403, 1659],
+              [1405, 1651],
+              [1412, 1648],
+              [1419, 1651],
+              [1451, 1700],
+              [1459, 1705],
+              [1465, 1727],
+              [1478, 1732],
+              [1500, 1784],
+              [1497, 1793],
+              [1489, 1796],
+              [1475, 1795],
+              [1465, 1800],
+              [1460, 1810],
+              [1480, 1810],
+              [1488, 1804],
+              [1495, 1806],
+              [1500, 1812],
+              [1510, 1808],
+              [1513, 1798],
+              [1495, 1763],
+              [1480, 1721],
+              [1474, 1719],
+              [1471, 1714],
+              [1473, 1705],
+              [1465, 1681],
+              [1454, 1685],
+              [1447, 1683],
+              [1417, 1639],
+              [1371, 1594],
+              [1355, 1590],
+              [1346, 1576],
+              [1330, 1568],
+              [1326, 1562],
+              [1303, 1555],
+              [1289, 1555],
+              [1276, 1559],
+              [1266, 1553],
+              [1226, 1555],
+              [1217, 1551],
+              [1188, 1551],
+              [1179, 1546],
+              [1175, 1538],
+              [1167, 1470],
+              [1143, 1447],
+              [1152, 1430],
+              [1129, 1398],
+              [1106, 1391],
+              [1103, 1365],
+              [1061, 1281],
+              [1009, 1219],
+              [1008, 1196],
+              [995, 1153],
+              [998, 1104],
+              [993, 1091],
+              [881, 1039],
+              [857, 1042],
+              [843, 1034],
+              [793, 1046],
+              [784, 1044],
+              [763, 1007],
+              [754, 1002],
+              [741, 1004],
+              [656, 1039],
+              [646, 1033],
+              [639, 1020],
+              [640, 1008],
+              [645, 998],
+              [657, 990],
+              [658, 985],
+              [651, 967],
+              [642, 963],
+              [625, 945],
+              [620, 932],
+              [621, 920],
+              [614, 914],
+              [606, 894],
+              [607, 886],
+              [599, 865],
+              [594, 839],
+              [587, 824],
+              [585, 800],
+              [607, 776],
+              [607, 759],
+              [617, 755],
+              [617, 730],
+              [614, 720],
+              [594, 714],
+              [591, 709],
+              [597, 697],
+              [594, 682],
+              [601, 675],
+              [594, 662],
+              [597, 652],
+              [594, 642],
+              [597, 637],
+              [603, 635],
+              [615, 639],
+              [638, 630],
+              [668, 625],
+              [672, 621],
+              [657, 597],
+              [652, 599],
+              [645, 596],
+              [645, 582],
+              [630, 567],
+              [577, 473],
+              [578, 402],
+              [575, 397],
+              [568, 400],
+              [560, 399],
+              [534, 410],
+              [526, 421],
+              [515, 425],
+              [494, 448],
+              [490, 458],
+              [483, 461],
+              [476, 458],
+              [468, 435],
+              [452, 416],
+              [460, 395],
+              [475, 370],
+              [490, 340],
+              [510, 310],
+              [520, 290],
+              [515, 275],
+              [500, 265],
+              [475, 260],
+              [450, 260],
+              [425, 265],
+              [410, 275],
+            ],
+            pins: [
+              { px: [460, 270], geo: [-3.13, 53.41], label: "Coast (Meols)" },
+              {
+                px: [1513, 1600],
+                geo: [-2.96, 53.29],
+                label: "South (Hooton)",
+              },
+              { px: [900, 900], geo: [-3.06, 53.35], label: "Middle" },
+            ],
+          },
+          {
+            name: "Figure 1.2F \u2014 Chester",
+            file: "fig1_2F_chester.png",
+            width: 2634,
+            height: 1862,
+            polygon_px: [
+              [146, 25],
+              [168, 71],
+              [165, 117],
+              [171, 125],
+              [200, 138],
+              [205, 169],
+              [211, 178],
+              [211, 197],
+              [217, 203],
+              [258, 222],
+              [267, 224],
+              [275, 221],
+              [293, 231],
+              [320, 236],
+              [324, 242],
+              [322, 251],
+              [296, 263],
+              [293, 271],
+              [311, 286],
+              [327, 317],
+              [332, 318],
+              [341, 314],
+              [349, 316],
+              [412, 409],
+              [435, 430],
+              [438, 438],
+              [463, 448],
+              [494, 473],
+              [521, 501],
+              [526, 515],
+              [536, 520],
+              [540, 528],
+              [626, 558],
+              [631, 569],
+              [633, 604],
+              [643, 618],
+              [651, 622],
+              [733, 621],
+              [747, 615],
+              [791, 620],
+              [855, 619],
+              [863, 623],
+              [866, 641],
+              [884, 647],
+              [897, 639],
+              [912, 645],
+              [926, 640],
+              [938, 641],
+              [950, 636],
+              [968, 638],
+              [975, 631],
+              [987, 608],
+              [993, 606],
+              [1000, 609],
+              [1001, 649],
+              [1047, 674],
+              [1056, 705],
+              [1054, 730],
+              [1065, 744],
+              [1076, 743],
+              [1084, 746],
+              [1099, 780],
+              [1132, 795],
+              [1135, 800],
+              [1134, 811],
+              [1148, 823],
+              [1159, 828],
+              [1167, 858],
+              [1191, 910],
+              [1219, 926],
+              [1240, 927],
+              [1266, 919],
+              [1282, 925],
+              [1292, 943],
+              [1291, 955],
+              [1306, 972],
+              [1320, 977],
+              [1325, 993],
+              [1320, 1004],
+              [1318, 1025],
+              [1325, 1052],
+              [1321, 1058],
+              [1315, 1060],
+              [1306, 1074],
+              [1299, 1147],
+              [1287, 1169],
+              [1290, 1185],
+              [1300, 1206],
+              [1306, 1209],
+              [1319, 1207],
+              [1335, 1214],
+              [1366, 1243],
+              [1366, 1283],
+              [1362, 1290],
+              [1362, 1304],
+              [1370, 1319],
+              [1384, 1330],
+              [1385, 1346],
+              [1405, 1382],
+              [1413, 1386],
+              [1416, 1394],
+              [1428, 1402],
+              [1435, 1417],
+              [1493, 1478],
+              [1545, 1517],
+              [1565, 1527],
+              [1596, 1504],
+              [1603, 1493],
+              [1609, 1491],
+              [1622, 1492],
+              [1697, 1472],
+              [1773, 1471],
+              [1798, 1468],
+              [1805, 1471],
+              [1807, 1480],
+              [1834, 1500],
+              [1895, 1525],
+              [1895, 1521],
+              [1885, 1516],
+              [1881, 1509],
+              [1884, 1499],
+              [1895, 1499],
+              [1894, 1493],
+              [1845, 1472],
+              [1815, 1448],
+              [1800, 1450],
+              [1780, 1441],
+              [1691, 1443],
+              [1594, 1468],
+              [1560, 1492],
+              [1554, 1490],
+              [1536, 1472],
+              [1510, 1453],
+              [1435, 1375],
+              [1419, 1347],
+              [1416, 1325],
+              [1391, 1298],
+              [1399, 1188],
+              [1388, 1172],
+              [1378, 1148],
+              [1360, 1123],
+              [1357, 1108],
+              [1341, 1081],
+              [1344, 1070],
+              [1363, 1061],
+              [1349, 1019],
+              [1353, 990],
+              [1350, 975],
+              [1323, 946],
+              [1311, 942],
+              [1305, 919],
+              [1297, 906],
+              [1286, 897],
+              [1232, 897],
+              [1224, 894],
+              [1209, 878],
+              [1181, 812],
+              [1160, 794],
+              [1159, 783],
+              [1156, 780],
+              [1140, 777],
+              [1126, 766],
+              [1108, 722],
+              [1085, 712],
+              [1077, 658],
+              [1070, 652],
+              [1050, 647],
+              [1044, 637],
+              [1030, 631],
+              [1027, 606],
+              [1012, 584],
+              [991, 577],
+              [986, 550],
+              [956, 533],
+              [938, 537],
+              [924, 534],
+              [884, 542],
+              [878, 549],
+              [869, 553],
+              [858, 547],
+              [849, 548],
+              [773, 575],
+              [765, 572],
+              [746, 551],
+              [732, 544],
+              [720, 546],
+              [698, 534],
+              [673, 529],
+              [654, 535],
+              [555, 502],
+              [549, 493],
+              [538, 460],
+              [526, 443],
+              [525, 435],
+              [513, 429],
+              [498, 415],
+              [494, 390],
+              [484, 377],
+              [469, 368],
+              [464, 360],
+              [448, 355],
+              [438, 355],
+              [423, 363],
+              [415, 361],
+              [391, 324],
+              [394, 315],
+              [411, 309],
+              [415, 304],
+              [443, 289],
+              [461, 264],
+              [469, 261],
+              [484, 264],
+              [490, 272],
+              [499, 271],
+              [504, 264],
+              [504, 258],
+              [481, 212],
+              [472, 183],
+              [465, 180],
+              [462, 175],
+              [464, 165],
+              [457, 143],
+              [454, 141],
+              [445, 146],
+              [438, 144],
+              [401, 91],
+              [360, 52],
+              [346, 49],
+              [336, 34],
+              [319, 25],
+              [310, 26],
+              [311, 36],
+              [308, 41],
+              [302, 43],
+              [274, 36],
+              [271, 31],
+              [272, 25],
+              [257, 25],
+              [256, 35],
+              [249, 38],
+              [182, 35],
+              [182, 43],
+              [194, 68],
+              [192, 96],
+              [186, 105],
+              [174, 105],
+              [171, 100],
+              [171, 65],
+              [152, 26],
+            ],
+            pins: [
+              { px: [146, 200], geo: [-2.96, 53.31], label: "North (Hooton)" },
+              {
+                px: [1895, 1500],
+                geo: [-2.54, 53.14],
+                label: "South-East (Tiverton)",
+              },
+              {
+                px: [800, 600],
+                geo: [-2.78, 53.24],
+                label: "Middle (Chester)",
+              },
+            ],
+          },
+        ],
+      };
+      let currentSheet = 0;
+      let pins = [];
+      let polygonPx = [];
+      let imgW = 0,
+        imgH = 0;
+      let exportedSheets = {};
+      let savedPinPositions = {}; // Remember pin positions per sheet
+
+      map.on("load", () => {
+        map.addSource("corridor", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "corridor-fill",
+          type: "fill",
+          source: "corridor",
+          paint: { "fill-color": "#FF4500", "fill-opacity": 0.25 },
+        });
+        map.addLayer({
+          id: "corridor-line",
+          type: "line",
+          source: "corridor",
+          paint: {
+            "line-color": "#FF4500",
+            "line-width": 2,
+            "line-opacity": 0.8,
+          },
+        });
+        map.addSource("exported", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "exported-line",
+          type: "line",
+          source: "exported",
+          paint: {
+            "line-color": "#22C55E",
+            "line-width": 1.5,
+            "line-opacity": 0.5,
+          },
+        });
+        loadSheet(0);
+      });
+
+      function loadSheet(idx) {
+        // Save current pin positions before switching
+        if (pins.length > 0) {
+          savedPinPositions[currentSheet] = pins.map(function (p) {
+            return { geo: [p.geo[0], p.geo[1]] };
+          });
+        }
+
+        // Warn if switching away from an unexported sheet with moved pins
+        if (pins.length > 0 && !exportedSheets[currentSheet]) {
+          var moved = pins.some(function (p, i) {
+            var orig = sheetData.sheets[currentSheet].pins[i].geo;
+            return (
+              Math.abs(p.geo[0] - orig[0]) > 0.0001 ||
+              Math.abs(p.geo[1] - orig[1]) > 0.0001
+            );
+          });
+          if (
+            moved &&
+            !confirm(
+              'You have NOT exported "' +
+                sheetData.sheets[currentSheet].name +
+                '" yet. Switch anyway? (Your pin positions will be remembered)',
+            )
+          ) {
+            document.getElementById("sheet-select").value = currentSheet;
+            return;
+          }
+        }
+
+        currentSheet = parseInt(idx);
+        const sheet = sheetData.sheets[currentSheet];
+        polygonPx = sheet.polygon_px;
+        imgW = sheet.width;
+        imgH = sheet.height;
+
+        pins.forEach((p) => p.marker.remove());
+        pins = [];
+
+        // Restore saved pin positions if we have them, otherwise use defaults
+        var saved = savedPinPositions[currentSheet];
+        sheet.pins.forEach((pin, i) => {
+          var geo = saved && saved[i] ? saved[i].geo : pin.geo;
+          createPin(
+            geo[0],
+            geo[1],
+            pin.px[0],
+            pin.px[1],
+            pin.label,
+            PIN_COLORS[i],
+          );
+        });
+
+        updatePolygon();
+        updatePinList();
+
+        const bounds = new maplibregl.LngLatBounds();
+        pins.forEach((p) => bounds.extend(p.marker.getLngLat()));
+        map.fitBounds(bounds, { padding: 80 });
+
+        var exported = exportedSheets[currentSheet] ? " ✓ EXPORTED" : "";
+        document.getElementById("status").textContent =
+          "Loaded " + sheet.name + "." + exported + " Drag pins to align.";
+      }
+
+      function createPin(lng, lat, pxX, pxY, label, color) {
+        const el = document.createElement("div");
+        el.style.width = "20px";
+        el.style.height = "20px";
+        el.style.background = color;
+        el.style.borderRadius = "50%";
+        el.style.border = "3px solid white";
+        el.style.cursor = "grab";
+        el.style.boxShadow = "0 2px 6px rgba(0,0,0,0.5)";
+
+        const marker = new maplibregl.Marker({ element: el, draggable: true })
+          .setLngLat([lng, lat])
+          .addTo(map);
+
+        const pin = { marker, px: [pxX, pxY], geo: [lng, lat], label, color };
+
+        marker.on("drag", () => {
+          const pos = marker.getLngLat();
+          pin.geo = [pos.lng, pos.lat];
+          updatePolygon();
+          updatePinList();
+        });
+
+        pins.push(pin);
+        return pin;
+      }
+
+      function computeTransform() {
+        if (pins.length < 3) return null;
+
+        const n = pins.length;
+        const A = [];
+        const bLon = [];
+        const bLat = [];
+
+        for (const pin of pins) {
+          A.push([pin.px[0], pin.px[1], 1]);
+          bLon.push(pin.geo[0]);
+          bLat.push(pin.geo[1]);
+        }
+
+        const lonParams = solveLeastSquares(A, bLon);
+        const latParams = solveLeastSquares(A, bLat);
+
+        if (!lonParams || !latParams) return null;
+        return { lonParams, latParams };
+      }
+
+      function solveLeastSquares(A, b) {
+        const n = A.length;
+        const m = A[0].length;
+
+        const ATA = Array(m)
+          .fill(null)
+          .map(() => Array(m).fill(0));
+        for (let i = 0; i < m; i++)
+          for (let j = 0; j < m; j++)
+            for (let k = 0; k < n; k++) ATA[i][j] += A[k][i] * A[k][j];
+
+        const ATb = Array(m).fill(0);
+        for (let i = 0; i < m; i++)
+          for (let k = 0; k < n; k++) ATb[i] += A[k][i] * b[k];
+
+        const det =
+          ATA[0][0] * (ATA[1][1] * ATA[2][2] - ATA[1][2] * ATA[2][1]) -
+          ATA[0][1] * (ATA[1][0] * ATA[2][2] - ATA[1][2] * ATA[2][0]) +
+          ATA[0][2] * (ATA[1][0] * ATA[2][1] - ATA[1][1] * ATA[2][0]);
+
+        if (Math.abs(det) < 1e-12) return null;
+
+        const result = [];
+        for (let col = 0; col < 3; col++) {
+          const M = ATA.map((row) => [...row]);
+          for (let row = 0; row < 3; row++) M[row][col] = ATb[row];
+          const d =
+            M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) -
+            M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) +
+            M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+          result.push(d / det);
+        }
+        return result;
+      }
+
+      function pxToGeo(transform, px, py) {
+        const lon =
+          transform.lonParams[0] * px +
+          transform.lonParams[1] * py +
+          transform.lonParams[2];
+        const lat =
+          transform.latParams[0] * px +
+          transform.latParams[1] * py +
+          transform.latParams[2];
+        return [lon, lat];
+      }
+
+      function updatePolygon() {
+        const transform = computeTransform();
+        if (!transform) {
+          document.getElementById("accuracy-box").className = "accuracy bad";
+          document.getElementById("accuracy-box").textContent =
+            "Need at least 3 pins";
+          return;
+        }
+
+        const geoCoords = polygonPx.map(function (pt) {
+          return pxToGeo(transform, pt[0], pt[1]);
+        });
+        if (geoCoords.length > 0) geoCoords.push(geoCoords[0]);
+
+        map.getSource("corridor").setData({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: { name: sheetData.sheets[currentSheet].name },
+              geometry: { type: "Polygon", coordinates: [geoCoords] },
+            },
+          ],
+        });
+
+        const box = document.getElementById("accuracy-box");
+        if (pins.length <= 3) {
+          box.className = "accuracy ok";
+          box.textContent =
+            "Exact fit (" +
+            pins.length +
+            " pins). Drag to align with roads/coastline.";
+        } else {
+          let maxErr = 0;
+          for (const pin of pins) {
+            const pred = pxToGeo(transform, pin.px[0], pin.px[1]);
+            const errKm = Math.sqrt(
+              Math.pow((pred[0] - pin.geo[0]) * 65.5, 2) +
+                Math.pow((pred[1] - pin.geo[1]) * 111.3, 2),
+            );
+            maxErr = Math.max(maxErr, errKm);
+          }
+          if (maxErr < 0.3) {
+            box.className = "accuracy good";
+            box.textContent =
+              "Excellent fit. Max error: " + (maxErr * 1000).toFixed(0) + "m";
+          } else if (maxErr < 1.0) {
+            box.className = "accuracy ok";
+            box.textContent =
+              "Good fit. Max error: " + (maxErr * 1000).toFixed(0) + "m";
+          } else {
+            box.className = "accuracy bad";
+            box.textContent =
+              "Poor fit. Max error: " +
+              (maxErr * 1000).toFixed(0) +
+              "m. Adjust pins.";
+          }
+        }
+      }
+
+      function updatePinList() {
+        const list = document.getElementById("pin-list");
+        while (list.firstChild) list.removeChild(list.firstChild);
+
+        pins.forEach(function (pin) {
+          const row = document.createElement("div");
+          row.className = "pin-row";
+
+          const dot = document.createElement("div");
+          dot.className = "pin-color";
+          dot.style.background = pin.color;
+          row.appendChild(dot);
+
+          const info = document.createElement("div");
+          info.className = "pin-info";
+
+          const b = document.createElement("b");
+          b.textContent = pin.label;
+          info.appendChild(b);
+
+          const small = document.createElement("small");
+          small.style.color = "#888";
+          small.style.display = "block";
+          small.textContent = "Pixel: (" + pin.px[0] + ", " + pin.px[1] + ")";
+          info.appendChild(small);
+
+          const coords = document.createElement("span");
+          coords.className = "coords";
+          coords.textContent =
+            pin.geo[0].toFixed(5) + ", " + pin.geo[1].toFixed(5);
+          info.appendChild(coords);
+
+          row.appendChild(info);
+          list.appendChild(row);
+        });
+      }
+
+      function resetPins() {
+        loadSheet(currentSheet);
+      }
+
+      function exportGeoJSON() {
+        const transform = computeTransform();
+        if (!transform) {
+          alert("Need at least 3 pins!");
+          return;
+        }
+
+        const geoCoords = polygonPx.map(function (pt) {
+          const geo = pxToGeo(transform, pt[0], pt[1]);
+          return [
+            Math.round(geo[0] * 1000000) / 1000000,
+            Math.round(geo[1] * 1000000) / 1000000,
+          ];
+        });
+        geoCoords.push(geoCoords[0]);
+
+        var sheetName = sheetData.sheets[currentSheet].name;
+        exportedSheets[currentSheet] = {
+          type: "Feature",
+          properties: { name: "Scoping Boundary — " + sheetName },
+          geometry: { type: "Polygon", coordinates: [geoCoords] },
+        };
+
+        updateExportedDisplay();
+        document.getElementById("status").textContent =
+          "Exported " + sheetName + "! Switch to next sheet or Download All.";
+      }
+
+      function updateExportedDisplay() {
+        const list = document.getElementById("export-list");
+        while (list.firstChild) list.removeChild(list.firstChild);
+
+        var features = Object.values(exportedSheets);
+        if (features.length === 0) {
+          list.textContent = "None yet";
+        } else {
+          features.forEach(function (f) {
+            const div = document.createElement("div");
+            div.style.color = "#22C55E";
+            div.textContent = "\u2713 " + f.properties.name;
+            list.appendChild(div);
+          });
+        }
+
+        map.getSource("exported").setData({
+          type: "FeatureCollection",
+          features: features,
+        });
+      }
+
+      function downloadAll() {
+        var features = Object.values(exportedSheets);
+        if (features.length === 0) {
+          alert("Export at least one sheet first!");
+          return;
+        }
+
+        var geojson = { type: "FeatureCollection", features: features };
+        var json = JSON.stringify(geojson, null, 2);
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "corridor_aligned.geojson";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        document.getElementById("status").textContent =
+          "Downloaded " +
+          features.length +
+          " sheet(s) as corridor_aligned.geojson";
+      }
+    </script>
+  </body>
+</html>

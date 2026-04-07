@@ -1,0 +1,378 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Corridor Tracing Tool — Peak Sentinel</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.css"
+    />
+    <script src="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui;
+        background: #111;
+        color: #fff;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+      #controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 15px;
+        border-radius: 8px;
+        max-width: 350px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      #controls h2 {
+        color: #ffd700;
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
+      button {
+        background: #ffd700;
+        color: #000;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 3px;
+        font-size: 12px;
+      }
+      button:hover {
+        background: #ffc000;
+      }
+      button.active {
+        background: #ff4500;
+        color: white;
+      }
+      button.danger {
+        background: #dc2626;
+        color: white;
+      }
+      #status {
+        margin-top: 8px;
+        color: #aaa;
+        font-size: 11px;
+      }
+      #coords {
+        margin-top: 5px;
+        color: #ffd700;
+        font-size: 11px;
+        font-family: monospace;
+      }
+      .mode-label {
+        color: #ffd700;
+        font-weight: bold;
+        margin-top: 10px;
+        display: block;
+      }
+      #output {
+        margin-top: 10px;
+      }
+      textarea {
+        width: 100%;
+        height: 80px;
+        background: #222;
+        color: #0f0;
+        border: 1px solid #444;
+        font-family: monospace;
+        font-size: 10px;
+        border-radius: 4px;
+        padding: 5px;
+      }
+      .instructions {
+        color: #888;
+        font-size: 11px;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="controls">
+      <h2>Corridor Tracing Tool</h2>
+      <p class="instructions">
+        Click on the map to trace the pipeline corridor centerline.<br />
+        Use the EIA Figure 1.2A as reference.
+      </p>
+
+      <span class="mode-label">Mode:</span>
+      <button id="btn-corridor" class="active" onclick="setMode('corridor')">
+        Corridor Line
+      </button>
+      <button id="btn-agi" onclick="setMode('agi')">AGI Points</button>
+
+      <br /><br />
+      <button onclick="undoLast()">Undo Last</button>
+      <button class="danger" onclick="clearAll()">Clear All</button>
+      <button onclick="exportGeoJSON()">Export GeoJSON</button>
+      <button onclick="downloadFile()">Download</button>
+
+      <div id="status">Click on the map to start tracing.</div>
+      <div id="coords">—</div>
+
+      <div id="output">
+        <textarea
+          id="geojson-out"
+          readonly
+          placeholder="GeoJSON output will appear here..."
+        ></textarea>
+      </div>
+
+      <p class="instructions" style="margin-top: 10px">
+        <b>Tips:</b><br />
+        • Trace the corridor centerline from Wirral coast → Peak District<br />
+        • Click every 1-2km along the route, more often at curves<br />
+        • Switch to AGI mode to place Above Ground Installations<br />
+        • When done, click Download to save the GeoJSON file
+      </p>
+    </div>
+
+    <script>
+      const map = new maplibregl.Map({
+        container: "map",
+        style:
+          "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+        center: [-2.5, 53.3],
+        zoom: 9,
+      });
+
+      let mode = "corridor"; // 'corridor' or 'agi'
+      let corridorPoints = [];
+      let agiPoints = [];
+      let markers = [];
+
+      function setMode(m) {
+        mode = m;
+        document.getElementById("btn-corridor").className =
+          m === "corridor" ? "active" : "";
+        document.getElementById("btn-agi").className =
+          m === "agi" ? "active" : "";
+        document.getElementById("status").textContent =
+          m === "corridor"
+            ? `Corridor mode: ${corridorPoints.length} points. Click to add.`
+            : `AGI mode: ${agiPoints.length} points. Click to place AGI.`;
+      }
+
+      map.on("load", () => {
+        // Add corridor line source
+        map.addSource("corridor-line", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "corridor-line",
+          type: "line",
+          source: "corridor-line",
+          paint: {
+            "line-color": "#FF4500",
+            "line-width": 3,
+            "line-opacity": 0.8,
+          },
+        });
+
+        // AGI source
+        map.addSource("agi-points", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "agi-circles",
+          type: "circle",
+          source: "agi-points",
+          paint: {
+            "circle-radius": 8,
+            "circle-color": "#FFD700",
+            "circle-stroke-color": "#FF0000",
+            "circle-stroke-width": 2,
+          },
+        });
+        map.addLayer({
+          id: "agi-labels",
+          type: "symbol",
+          source: "agi-points",
+          layout: {
+            "text-field": ["get", "name"],
+            "text-size": 11,
+            "text-offset": [0, 1.5],
+          },
+          paint: {
+            "text-color": "#FFD700",
+            "text-halo-color": "#000",
+            "text-halo-width": 1,
+          },
+        });
+      });
+
+      map.on("mousemove", (e) => {
+        document.getElementById("coords").textContent =
+          `${e.lngLat.lng.toFixed(5)}, ${e.lngLat.lat.toFixed(5)}`;
+      });
+
+      map.on("click", (e) => {
+        const { lng, lat } = e.lngLat;
+
+        if (mode === "corridor") {
+          corridorPoints.push([lng, lat]);
+          updateCorridorLine();
+          // Add a small marker
+          const el = document.createElement("div");
+          el.style.cssText =
+            "width:6px;height:6px;background:#FF4500;border-radius:50%;border:1px solid #fff;";
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([lng, lat])
+            .addTo(map);
+          markers.push({ type: "corridor", marker });
+          document.getElementById("status").textContent =
+            `Corridor: ${corridorPoints.length} points`;
+        } else {
+          const name = prompt(
+            'AGI name (e.g. "Coastal AGI", "Connection AGI 1"):',
+          );
+          if (!name) return;
+          const type =
+            prompt("AGI type (coastal / capture / connection / feeder):") ||
+            "connection";
+          agiPoints.push({ lng, lat, name, type });
+          updateAGIs();
+          const el = document.createElement("div");
+          el.style.cssText =
+            "width:12px;height:12px;background:#FFD700;border-radius:50%;border:2px solid #FF0000;";
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([lng, lat])
+            .addTo(map);
+          markers.push({ type: "agi", marker });
+          document.getElementById("status").textContent =
+            `AGIs: ${agiPoints.length} placed`;
+        }
+      });
+
+      function updateCorridorLine() {
+        if (corridorPoints.length < 2) return;
+        map.getSource("corridor-line").setData({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: { type: "LineString", coordinates: corridorPoints },
+            },
+          ],
+        });
+      }
+
+      function updateAGIs() {
+        map.getSource("agi-points").setData({
+          type: "FeatureCollection",
+          features: agiPoints.map((p) => ({
+            type: "Feature",
+            properties: { name: p.name, type: p.type },
+            geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+          })),
+        });
+      }
+
+      function undoLast() {
+        if (mode === "corridor" && corridorPoints.length > 0) {
+          corridorPoints.pop();
+          const last = markers.filter((m) => m.type === "corridor").pop();
+          if (last) {
+            last.marker.remove();
+            markers.pop();
+          }
+          updateCorridorLine();
+          document.getElementById("status").textContent =
+            `Corridor: ${corridorPoints.length} points`;
+        } else if (mode === "agi" && agiPoints.length > 0) {
+          agiPoints.pop();
+          const last = markers.filter((m) => m.type === "agi").pop();
+          if (last) {
+            last.marker.remove();
+            markers.pop();
+          }
+          updateAGIs();
+          document.getElementById("status").textContent =
+            `AGIs: ${agiPoints.length} placed`;
+        }
+      }
+
+      function clearAll() {
+        if (!confirm("Clear everything?")) return;
+        corridorPoints = [];
+        agiPoints = [];
+        markers.forEach((m) => m.marker.remove());
+        markers = [];
+        map
+          .getSource("corridor-line")
+          .setData({ type: "FeatureCollection", features: [] });
+        map
+          .getSource("agi-points")
+          .setData({ type: "FeatureCollection", features: [] });
+        document.getElementById("status").textContent =
+          "Cleared. Click to start.";
+        document.getElementById("geojson-out").value = "";
+      }
+
+      function exportGeoJSON() {
+        const features = [];
+
+        if (corridorPoints.length >= 2) {
+          features.push({
+            type: "Feature",
+            properties: { name: "Peak Cluster Pipeline Centerline" },
+            geometry: {
+              type: "LineString",
+              coordinates: corridorPoints.map((p) => [
+                round(p[0]),
+                round(p[1]),
+              ]),
+            },
+          });
+        }
+
+        agiPoints.forEach((p) => {
+          features.push({
+            type: "Feature",
+            properties: { name: p.name, type: p.type },
+            geometry: {
+              type: "Point",
+              coordinates: [round(p.lng), round(p.lat)],
+            },
+          });
+        });
+
+        const geojson = { type: "FeatureCollection", features };
+        const json = JSON.stringify(geojson, null, 2);
+        document.getElementById("geojson-out").value = json;
+        return json;
+      }
+
+      function round(n) {
+        return Math.round(n * 1000000) / 1000000;
+      }
+
+      function downloadFile() {
+        const json = exportGeoJSON();
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "corridor_traced.geojson";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+# Original source PDFs (large; link to official sources instead)
+docs/originalPdfs/
+docs/superpowers/
+docs/superpowers/specs
+*.pdf
+.claude
+.venv
+eia-scoping-opinion-full-text.txt
+extracted_text.txt
+document_library_complete.txt
+peak_cluster_summary.txt
+planning_inspectorate_report.md
+actionagainstccs-complete-data.md
+EIA-SCOPING-OPINION-ANALYSIS.md
+CLAUDE.md
+
+# Raw data files (LIDAR DEMs, Land Registry JSON, CSVs, etc.)
+data/raw/
+
+# Superpowers brainstorm artifacts
+.superpowers/
+
+# OS-level
+.DS_Store
+
+# Python
+pdf_venv/
+__pycache__/

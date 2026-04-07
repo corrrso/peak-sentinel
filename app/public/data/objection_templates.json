@@ -1,0 +1,40 @@
+{
+  "intro": {
+    "title": "Introduction",
+    "text": "I am writing to formally register my objection to the Peak Cluster CCS Pipeline (PINS reference EN0710001). As a resident of {postcode}, I am directly affected by the proposed development and wish to raise the following serious concerns."
+  },
+  "proximity": {
+    "title": "Proximity Risk",
+    "condition": "distance_m < 2000",
+    "text": "My property is approximately {distance_m} metres from the proposed pipeline corridor. The Health and Safety Executive's guidance on major accident hazard pipelines indicates that dense-phase CO₂ pipelines pose unique risks not comparable to natural gas pipelines. A running fracture in a CO₂ pipeline can release enormous volumes of asphyxiant gas. The Scoping Opinion (paragraphs 3.14, 4.7-4.8) notes that the applicant has NOT adequately assessed CO₂ dispersion and asphyxiation risks."
+  },
+  "topo_sink": {
+    "title": "Topographic Sink — CO₂ Accumulation Risk",
+    "condition": "in_topo_sink",
+    "text": "My property is located in a topographic depression (estimated depth ~{sink_depth_m}m below surrounding terrain). CO₂ is 1.5 times heavier than air and, in the event of a pipeline breach, would flow downhill and accumulate in low-lying areas such as this. Concentrations above 10% can cause death within minutes. The developer's own EIA Scoping Report fails to model terrain-following CO₂ dispersion, a deficiency highlighted by the Planning Inspectorate in its Scoping Opinion (paragraph 3.14)."
+  },
+  "viewshed": {
+    "title": "Visual Impact — Coastal AGI",
+    "condition": "in_viewshed",
+    "text": "The proposed Coastal AGI, including a 50-metre vent stack, is in the zone of theoretical visibility. The developer's own Zone of Theoretical Visibility analysis confirms that this industrial installation would be visible across the majority of the Wirral peninsula. This represents a significant and permanent adverse visual impact on a predominantly residential and recreational area. The Scoping Opinion (paragraphs 3.23-3.24) raises concerns about the adequacy of the landscape and visual impact assessment."
+  },
+  "property_impact": {
+    "title": "Property Value Impact",
+    "condition": "depreciation_pct < 0",
+    "text": "Academic research consistently demonstrates that proximity to major hazardous pipelines depreciates property values. Based on published studies, properties within this distance of a pipeline corridor can expect a depreciation of approximately {depreciation_pct}%. There is no proposal for compensation to affected homeowners."
+  },
+  "nearby_env": {
+    "title": "Environmental Designations at Risk",
+    "condition": "len(nearby_env) > 0",
+    "text": "The proposed corridor passes through or near the following protected sites: {nearby_env_list}. The Planning Inspectorate's Scoping Opinion (paragraphs 3.5-3.10) identifies serious deficiencies in the developer's assessment of impacts on designated sites, including the failure to consult with Natural England on several designations. Eight Ancient Woodlands lie within the corridor — irreplaceable habitats that would be permanently damaged by construction."
+  },
+  "nearby_schools": {
+    "title": "Schools and Vulnerable Populations",
+    "condition": "len(nearby_schools) > 0",
+    "text": "The following schools are located near the proposed corridor: {nearby_schools_list}. The presence of a high-pressure CO₂ pipeline near places where children gather daily represents an unacceptable risk. The Scoping Opinion (paragraphs 4.9-4.10) notes inadequate consideration of sensitive receptors."
+  },
+  "closing": {
+    "title": "Conclusion",
+    "text": "For the reasons set out above, I urge the Planning Inspectorate to refuse this application. The Peak Cluster project poses unacceptable risks to public safety, property values, and the environment, while relying on storage technology with a mixed track record, in depleted gas fields under the East Irish Sea.\n\nI reserve the right to make further representations as the examination process progresses.\n\nYours faithfully,\n[Your name]\n[Your address]"
+  }
+}

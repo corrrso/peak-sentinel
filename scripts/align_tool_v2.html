@@ -1,0 +1,1018 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Corridor Alignment Tool v2 — Peak Sentinel</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.css"
+    />
+    <script src="https://unpkg.com/maplibre-gl@4.1.1/dist/maplibre-gl.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui;
+        background: #111;
+        color: #fff;
+        display: flex;
+        height: 100vh;
+      }
+      #map {
+        flex: 1;
+      }
+      #sidebar {
+        width: 360px;
+        padding: 15px;
+        overflow-y: auto;
+        background: #1a1a1a;
+        border-left: 1px solid #333;
+      }
+      h2 {
+        color: #ffd700;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+      h3 {
+        color: #ffd700;
+        margin: 15px 0 5px;
+        font-size: 13px;
+      }
+      .instructions {
+        color: #999;
+        font-size: 12px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+      button {
+        background: #ffd700;
+        color: #000;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 4px 2px;
+        font-size: 12px;
+      }
+      button:hover {
+        background: #ffc000;
+      }
+      button.export {
+        background: #22c55e;
+        color: white;
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+      button.export:hover {
+        background: #16a34a;
+      }
+      #status {
+        color: #aaa;
+        font-size: 11px;
+        margin: 10px 0;
+        padding: 8px;
+        background: #222;
+        border-radius: 4px;
+      }
+      select {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin: 5px 0;
+        width: 100%;
+        font-size: 13px;
+      }
+      input[type="file"] {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 6px;
+        border-radius: 4px;
+        margin: 5px 0;
+        width: 100%;
+        font-size: 12px;
+      }
+      input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
+      }
+      label {
+        font-size: 12px;
+        color: #ccc;
+        display: block;
+        margin: 5px 0;
+      }
+      .step-num {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        text-align: center;
+        border-radius: 50%;
+        background: #ffd700;
+        color: #000;
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 6px;
+      }
+      .corner-info {
+        font-size: 11px;
+        margin: 3px 0;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="sidebar">
+      <h2>Corridor Alignment v2</h2>
+      <p class="instructions">
+        Load the EIA map image as a <b>semi-transparent overlay</b> on the real
+        map. Drag the <b>4 colored corner pins</b> until roads and coastline
+        match. The corridor polygon transforms automatically.
+      </p>
+
+      <h3><span class="step-num">1</span> Select Sheet</h3>
+      <select id="sheet-select" onchange="switchSheet(this.value)">
+        <option value="0">Figure 1.2G — Wirral</option>
+        <option value="1">Figure 1.2F — Chester</option>
+      </select>
+
+      <h3><span class="step-num">2</span> Load Map Image</h3>
+      <input
+        type="file"
+        id="file-input"
+        accept="image/*"
+        onchange="handleFileLoad(this)"
+      />
+
+      <h3><span class="step-num">3</span> Adjust Overlay</h3>
+      <label
+        >Opacity:
+        <input
+          type="range"
+          id="opacity-slider"
+          min="0"
+          max="100"
+          value="50"
+          oninput="setOverlayOpacity(this.value)"
+        />
+        <span id="opacity-val">50%</span></label
+      >
+      <p class="instructions">
+        Drag the colored corner pins (TL, TR, BR, BL) to align the image with
+        the real map underneath.
+      </p>
+      <div id="corner-info"></div>
+
+      <h3><span class="step-num">4</span> Export</h3>
+      <button class="export" onclick="exportSheet()">Export This Sheet</button>
+      <button onclick="downloadAll()">Download All Sheets</button>
+
+      <div id="status">Select a sheet and load its map image.</div>
+
+      <h3 style="margin-top: 20px">Exported Sheets</h3>
+      <div id="export-list" style="font-size: 11px; color: #888">None yet</div>
+    </div>
+
+    <script>
+      /* ── Sheet Data ─────────────────────────────────────────────── */
+      var SHEETS = [
+        {
+          name: "Figure 1.2G \u2014 Wirral",
+          width: 2634,
+          height: 1862,
+          defaultCorners: [
+            [-3.26, 53.49],
+            [-2.86, 53.49],
+            [-2.86, 53.21],
+            [-3.26, 53.21],
+          ],
+          polygon_px: [
+            [435, 423],
+            [432, 440],
+            [413, 472],
+            [537, 518],
+            [579, 590],
+            [577, 598],
+            [562, 614],
+            [557, 627],
+            [530, 645],
+            [496, 702],
+            [486, 707],
+            [472, 708],
+            [453, 722],
+            [449, 743],
+            [462, 759],
+            [464, 768],
+            [461, 780],
+            [444, 795],
+            [482, 841],
+            [487, 840],
+            [503, 847],
+            [520, 841],
+            [530, 841],
+            [568, 863],
+            [584, 913],
+            [589, 923],
+            [604, 936],
+            [600, 948],
+            [618, 987],
+            [619, 1009],
+            [613, 1018],
+            [627, 1059],
+            [636, 1066],
+            [666, 1066],
+            [743, 1037],
+            [753, 1044],
+            [773, 1078],
+            [821, 1070],
+            [833, 1063],
+            [850, 1059],
+            [969, 1113],
+            [974, 1120],
+            [972, 1138],
+            [975, 1171],
+            [984, 1193],
+            [984, 1203],
+            [979, 1217],
+            [980, 1232],
+            [1037, 1299],
+            [1087, 1401],
+            [1101, 1418],
+            [1099, 1428],
+            [1120, 1467],
+            [1146, 1494],
+            [1145, 1504],
+            [1152, 1521],
+            [1152, 1529],
+            [1146, 1536],
+            [1153, 1561],
+            [1151, 1568],
+            [1156, 1570],
+            [1177, 1612],
+            [1174, 1657],
+            [1179, 1664],
+            [1209, 1678],
+            [1215, 1711],
+            [1220, 1718],
+            [1218, 1730],
+            [1221, 1738],
+            [1271, 1763],
+            [1285, 1761],
+            [1302, 1770],
+            [1329, 1776],
+            [1333, 1782],
+            [1331, 1790],
+            [1304, 1802],
+            [1302, 1810],
+            [1310, 1807],
+            [1330, 1807],
+            [1343, 1800],
+            [1359, 1807],
+            [1360, 1801],
+            [1353, 1790],
+            [1339, 1780],
+            [1328, 1766],
+            [1315, 1768],
+            [1305, 1765],
+            [1289, 1755],
+            [1287, 1746],
+            [1293, 1734],
+            [1301, 1730],
+            [1331, 1739],
+            [1339, 1724],
+            [1401, 1718],
+            [1411, 1722],
+            [1421, 1741],
+            [1438, 1737],
+            [1433, 1719],
+            [1434, 1710],
+            [1403, 1659],
+            [1405, 1651],
+            [1412, 1648],
+            [1419, 1651],
+            [1451, 1700],
+            [1459, 1705],
+            [1465, 1727],
+            [1478, 1732],
+            [1500, 1784],
+            [1497, 1793],
+            [1489, 1796],
+            [1475, 1795],
+            [1465, 1800],
+            [1460, 1810],
+            [1480, 1810],
+            [1488, 1804],
+            [1495, 1806],
+            [1500, 1812],
+            [1510, 1808],
+            [1513, 1798],
+            [1495, 1763],
+            [1480, 1721],
+            [1474, 1719],
+            [1471, 1714],
+            [1473, 1705],
+            [1465, 1681],
+            [1454, 1685],
+            [1447, 1683],
+            [1417, 1639],
+            [1371, 1594],
+            [1355, 1590],
+            [1346, 1576],
+            [1330, 1568],
+            [1326, 1562],
+            [1303, 1555],
+            [1289, 1555],
+            [1276, 1559],
+            [1266, 1553],
+            [1226, 1555],
+            [1217, 1551],
+            [1188, 1551],
+            [1179, 1546],
+            [1175, 1538],
+            [1167, 1470],
+            [1143, 1447],
+            [1152, 1430],
+            [1129, 1398],
+            [1106, 1391],
+            [1103, 1365],
+            [1061, 1281],
+            [1009, 1219],
+            [1008, 1196],
+            [995, 1153],
+            [998, 1104],
+            [993, 1091],
+            [881, 1039],
+            [857, 1042],
+            [843, 1034],
+            [793, 1046],
+            [784, 1044],
+            [763, 1007],
+            [754, 1002],
+            [741, 1004],
+            [656, 1039],
+            [646, 1033],
+            [639, 1020],
+            [640, 1008],
+            [645, 998],
+            [657, 990],
+            [658, 985],
+            [651, 967],
+            [642, 963],
+            [625, 945],
+            [620, 932],
+            [621, 920],
+            [614, 914],
+            [606, 894],
+            [607, 886],
+            [599, 865],
+            [594, 839],
+            [587, 824],
+            [585, 800],
+            [607, 776],
+            [607, 759],
+            [617, 755],
+            [617, 730],
+            [614, 720],
+            [594, 714],
+            [591, 709],
+            [597, 697],
+            [594, 682],
+            [601, 675],
+            [594, 662],
+            [597, 652],
+            [594, 642],
+            [597, 637],
+            [603, 635],
+            [615, 639],
+            [638, 630],
+            [668, 625],
+            [672, 621],
+            [657, 597],
+            [652, 599],
+            [645, 596],
+            [645, 582],
+            [630, 567],
+            [577, 473],
+            [578, 402],
+            [575, 397],
+            [568, 400],
+            [560, 399],
+            [534, 410],
+            [526, 421],
+            [515, 425],
+            [494, 448],
+            [490, 458],
+            [483, 461],
+            [476, 458],
+            [468, 435],
+            [452, 416],
+          ],
+        },
+        {
+          name: "Figure 1.2F \u2014 Chester",
+          width: 2634,
+          height: 1862,
+          defaultCorners: [
+            [-3.0, 53.34],
+            [-2.48, 53.34],
+            [-2.48, 53.09],
+            [-3.0, 53.09],
+          ],
+          polygon_px: [
+            [146, 25],
+            [168, 71],
+            [165, 117],
+            [171, 125],
+            [200, 138],
+            [205, 169],
+            [211, 178],
+            [211, 197],
+            [217, 203],
+            [258, 222],
+            [267, 224],
+            [275, 221],
+            [293, 231],
+            [320, 236],
+            [324, 242],
+            [322, 251],
+            [296, 263],
+            [293, 271],
+            [311, 286],
+            [327, 317],
+            [332, 318],
+            [341, 314],
+            [349, 316],
+            [412, 409],
+            [435, 430],
+            [438, 438],
+            [463, 448],
+            [494, 473],
+            [521, 501],
+            [526, 515],
+            [536, 520],
+            [540, 528],
+            [626, 558],
+            [631, 569],
+            [633, 604],
+            [643, 618],
+            [651, 622],
+            [733, 621],
+            [747, 615],
+            [791, 620],
+            [855, 619],
+            [863, 623],
+            [866, 641],
+            [884, 647],
+            [897, 639],
+            [912, 645],
+            [926, 640],
+            [938, 641],
+            [950, 636],
+            [968, 638],
+            [975, 631],
+            [987, 608],
+            [993, 606],
+            [1000, 609],
+            [1001, 649],
+            [1047, 674],
+            [1056, 705],
+            [1054, 730],
+            [1065, 744],
+            [1076, 743],
+            [1084, 746],
+            [1099, 780],
+            [1132, 795],
+            [1135, 800],
+            [1134, 811],
+            [1148, 823],
+            [1159, 828],
+            [1167, 858],
+            [1191, 910],
+            [1219, 926],
+            [1240, 927],
+            [1266, 919],
+            [1282, 925],
+            [1292, 943],
+            [1291, 955],
+            [1306, 972],
+            [1320, 977],
+            [1325, 993],
+            [1320, 1004],
+            [1318, 1025],
+            [1325, 1052],
+            [1321, 1058],
+            [1315, 1060],
+            [1306, 1074],
+            [1299, 1147],
+            [1287, 1169],
+            [1290, 1185],
+            [1300, 1206],
+            [1306, 1209],
+            [1319, 1207],
+            [1335, 1214],
+            [1366, 1243],
+            [1366, 1283],
+            [1362, 1290],
+            [1362, 1304],
+            [1370, 1319],
+            [1384, 1330],
+            [1385, 1346],
+            [1405, 1382],
+            [1413, 1386],
+            [1416, 1394],
+            [1428, 1402],
+            [1435, 1417],
+            [1493, 1478],
+            [1545, 1517],
+            [1565, 1527],
+            [1596, 1504],
+            [1603, 1493],
+            [1609, 1491],
+            [1622, 1492],
+            [1697, 1472],
+            [1773, 1471],
+            [1798, 1468],
+            [1805, 1471],
+            [1807, 1480],
+            [1834, 1500],
+            [1895, 1525],
+            [1895, 1521],
+            [1885, 1516],
+            [1881, 1509],
+            [1884, 1499],
+            [1895, 1499],
+            [1894, 1493],
+            [1845, 1472],
+            [1815, 1448],
+            [1800, 1450],
+            [1780, 1441],
+            [1691, 1443],
+            [1594, 1468],
+            [1560, 1492],
+            [1554, 1490],
+            [1536, 1472],
+            [1510, 1453],
+            [1435, 1375],
+            [1419, 1347],
+            [1416, 1325],
+            [1391, 1298],
+            [1399, 1188],
+            [1388, 1172],
+            [1378, 1148],
+            [1360, 1123],
+            [1357, 1108],
+            [1341, 1081],
+            [1344, 1070],
+            [1363, 1061],
+            [1349, 1019],
+            [1353, 990],
+            [1350, 975],
+            [1323, 946],
+            [1311, 942],
+            [1305, 919],
+            [1297, 906],
+            [1286, 897],
+            [1232, 897],
+            [1224, 894],
+            [1209, 878],
+            [1181, 812],
+            [1160, 794],
+            [1159, 783],
+            [1156, 780],
+            [1140, 777],
+            [1126, 766],
+            [1108, 722],
+            [1085, 712],
+            [1077, 658],
+            [1070, 652],
+            [1050, 647],
+            [1044, 637],
+            [1030, 631],
+            [1027, 606],
+            [1012, 584],
+            [991, 577],
+            [986, 550],
+            [956, 533],
+            [938, 537],
+            [924, 534],
+            [884, 542],
+            [878, 549],
+            [869, 553],
+            [858, 547],
+            [849, 548],
+            [773, 575],
+            [765, 572],
+            [746, 551],
+            [732, 544],
+            [720, 546],
+            [698, 534],
+            [673, 529],
+            [654, 535],
+            [555, 502],
+            [549, 493],
+            [538, 460],
+            [526, 443],
+            [525, 435],
+            [513, 429],
+            [498, 415],
+            [494, 390],
+            [484, 377],
+            [469, 368],
+            [464, 360],
+            [448, 355],
+            [438, 355],
+            [423, 363],
+            [415, 361],
+            [391, 324],
+            [394, 315],
+            [411, 309],
+            [415, 304],
+            [443, 289],
+            [461, 264],
+            [469, 261],
+            [484, 264],
+            [490, 272],
+            [499, 271],
+            [504, 264],
+            [504, 258],
+            [481, 212],
+            [472, 183],
+            [465, 180],
+            [462, 175],
+            [464, 165],
+            [457, 143],
+            [454, 141],
+            [445, 146],
+            [438, 144],
+            [401, 91],
+            [360, 52],
+            [346, 49],
+            [336, 34],
+            [319, 25],
+            [310, 26],
+            [311, 36],
+            [308, 41],
+            [302, 43],
+            [274, 36],
+            [271, 31],
+            [272, 25],
+            [257, 25],
+            [256, 35],
+            [249, 38],
+            [182, 35],
+            [182, 43],
+            [194, 68],
+            [192, 96],
+            [186, 105],
+            [174, 105],
+            [171, 100],
+            [171, 65],
+            [152, 26],
+          ],
+        },
+      ];
+
+      /* ── State ──────────────────────────────────────────────────── */
+      var currentSheet = 0;
+      var corners = [];
+      var cornerMarkers = [];
+      var imageUrl = null;
+      var imageUrls = {};
+      var savedCorners = {};
+      var exportedSheets = {};
+      var overlayReady = false;
+
+      var CORNER_LABELS = ["TL", "TR", "BR", "BL"];
+      var CORNER_COLORS = ["#FF4444", "#44FF44", "#4444FF", "#FF44FF"];
+
+      var EMPTY_IMG =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/58BHgAIzAHUvnSKkAAAAABJRU5ErkJggg==";
+
+      /* ── Map ────────────────────────────────────────────────────── */
+      var map = new maplibregl.Map({
+        container: "map",
+        style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        center: [-3.06, 53.35],
+        zoom: 11,
+      });
+
+      map.on("load", function () {
+        map.addSource("overlay", {
+          type: "image",
+          url: EMPTY_IMG,
+          coordinates: [
+            [-3.26, 53.49],
+            [-2.86, 53.49],
+            [-2.86, 53.21],
+            [-3.26, 53.21],
+          ],
+        });
+        map.addLayer({
+          id: "overlay-layer",
+          type: "raster",
+          source: "overlay",
+          paint: { "raster-opacity": 0.5 },
+        });
+
+        map.addSource("corridor", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "corridor-fill",
+          type: "fill",
+          source: "corridor",
+          paint: { "fill-color": "#FF4500", "fill-opacity": 0.2 },
+        });
+        map.addLayer({
+          id: "corridor-line",
+          type: "line",
+          source: "corridor",
+          paint: {
+            "line-color": "#FF4500",
+            "line-width": 2,
+            "line-opacity": 0.9,
+          },
+        });
+
+        map.addSource("exported", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "exported-line",
+          type: "line",
+          source: "exported",
+          paint: {
+            "line-color": "#22C55E",
+            "line-width": 1.5,
+            "line-opacity": 0.5,
+          },
+        });
+
+        overlayReady = true;
+        switchSheet(0);
+      });
+
+      /* ── Bilinear transform: pixel to geo ───────────────────────── */
+      function pxToGeo(px, py) {
+        var sheet = SHEETS[currentSheet];
+        var u = px / sheet.width;
+        var v = py / sheet.height;
+        var lng =
+          (1 - u) * (1 - v) * corners[0][0] +
+          u * (1 - v) * corners[1][0] +
+          u * v * corners[2][0] +
+          (1 - u) * v * corners[3][0];
+        var lat =
+          (1 - u) * (1 - v) * corners[0][1] +
+          u * (1 - v) * corners[1][1] +
+          u * v * corners[2][1] +
+          (1 - u) * v * corners[3][1];
+        return [lng, lat];
+      }
+
+      /* ── Corner markers ─────────────────────────────────────────── */
+      function createCornerMarkers() {
+        cornerMarkers.forEach(function (m) {
+          m.remove();
+        });
+        cornerMarkers = [];
+
+        corners.forEach(function (c, i) {
+          var el = document.createElement("div");
+          el.style.width = "28px";
+          el.style.height = "28px";
+          el.style.background = CORNER_COLORS[i];
+          el.style.borderRadius = "50%";
+          el.style.border = "3px solid #fff";
+          el.style.cursor = "grab";
+          el.style.display = "flex";
+          el.style.alignItems = "center";
+          el.style.justifyContent = "center";
+          el.style.fontSize = "10px";
+          el.style.fontWeight = "bold";
+          el.style.color = "#fff";
+          el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.6)";
+          el.textContent = CORNER_LABELS[i];
+
+          var marker = new maplibregl.Marker({ element: el, draggable: true })
+            .setLngLat(c)
+            .addTo(map);
+
+          marker.on("drag", function () {
+            var pos = marker.getLngLat();
+            corners[i] = [pos.lng, pos.lat];
+            onCornersChanged();
+          });
+
+          cornerMarkers.push(marker);
+        });
+      }
+
+      function onCornersChanged() {
+        updateOverlay();
+        updatePolygon();
+        updateCornerInfo();
+      }
+
+      /* ── Overlay image ──────────────────────────────────────────── */
+      function handleFileLoad(input) {
+        var file = input.files[0];
+        if (!file) return;
+        var url = URL.createObjectURL(file);
+        imageUrl = url;
+        imageUrls[currentSheet] = url;
+        updateOverlay();
+        document.getElementById("status").textContent =
+          "Image loaded. Drag corner pins to align overlay with the real map.";
+      }
+
+      function updateOverlay() {
+        if (!overlayReady) return;
+        var url = imageUrl || EMPTY_IMG;
+        var coords = [
+          [corners[0][0], corners[0][1]],
+          [corners[1][0], corners[1][1]],
+          [corners[2][0], corners[2][1]],
+          [corners[3][0], corners[3][1]],
+        ];
+        var src = map.getSource("overlay");
+        if (src) {
+          src.updateImage({ url: url, coordinates: coords });
+        }
+      }
+
+      function setOverlayOpacity(val) {
+        var opacity = parseInt(val) / 100;
+        map.setPaintProperty("overlay-layer", "raster-opacity", opacity);
+        document.getElementById("opacity-val").textContent = val + "%";
+      }
+
+      /* ── Polygon rendering ──────────────────────────────────────── */
+      function updatePolygon() {
+        if (!overlayReady) return;
+        var sheet = SHEETS[currentSheet];
+        var geoCoords = sheet.polygon_px.map(function (pt) {
+          return pxToGeo(pt[0], pt[1]);
+        });
+        if (geoCoords.length > 0) geoCoords.push(geoCoords[0]);
+
+        map.getSource("corridor").setData({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: { name: sheet.name },
+              geometry: { type: "Polygon", coordinates: [geoCoords] },
+            },
+          ],
+        });
+      }
+
+      /* ── Corner info display ────────────────────────────────────── */
+      function updateCornerInfo() {
+        var container = document.getElementById("corner-info");
+        while (container.firstChild)
+          container.removeChild(container.firstChild);
+
+        corners.forEach(function (c, i) {
+          var div = document.createElement("div");
+          div.className = "corner-info";
+          div.style.color = CORNER_COLORS[i];
+          div.textContent =
+            CORNER_LABELS[i] + ": " + c[0].toFixed(4) + ", " + c[1].toFixed(4);
+          container.appendChild(div);
+        });
+      }
+
+      /* ── Sheet switching ────────────────────────────────────────── */
+      function switchSheet(idx) {
+        if (corners.length === 4) {
+          savedCorners[currentSheet] = corners.map(function (c) {
+            return [c[0], c[1]];
+          });
+        }
+
+        currentSheet = parseInt(idx);
+        var sheet = SHEETS[currentSheet];
+
+        if (savedCorners[currentSheet]) {
+          corners = savedCorners[currentSheet].map(function (c) {
+            return [c[0], c[1]];
+          });
+        } else {
+          corners = sheet.defaultCorners.map(function (c) {
+            return [c[0], c[1]];
+          });
+        }
+
+        imageUrl = imageUrls[currentSheet] || null;
+
+        createCornerMarkers();
+        updateOverlay();
+        updatePolygon();
+        updateCornerInfo();
+
+        var bounds = new maplibregl.LngLatBounds();
+        corners.forEach(function (c) {
+          bounds.extend(c);
+        });
+        map.fitBounds(bounds, { padding: 60 });
+
+        var exported = exportedSheets[currentSheet] ? " [EXPORTED]" : "";
+        document.getElementById("status").textContent =
+          "Sheet: " +
+          sheet.name +
+          exported +
+          (imageUrl ? "" : " \u2014 Load the image file to see the overlay.");
+      }
+
+      /* ── Export ──────────────────────────────────────────────────── */
+      function exportSheet() {
+        var sheet = SHEETS[currentSheet];
+        var geoCoords = sheet.polygon_px.map(function (pt) {
+          var geo = pxToGeo(pt[0], pt[1]);
+          return [
+            Math.round(geo[0] * 1000000) / 1000000,
+            Math.round(geo[1] * 1000000) / 1000000,
+          ];
+        });
+        geoCoords.push(geoCoords[0]);
+
+        exportedSheets[currentSheet] = {
+          type: "Feature",
+          properties: {
+            name: "Scoping Boundary \u2014 " + sheet.name,
+            source: "Georeferenced from EIA Scoping Report",
+            method: "Image overlay + bilinear transform (4 corners)",
+          },
+          geometry: { type: "Polygon", coordinates: [geoCoords] },
+        };
+
+        savedCorners[currentSheet] = corners.map(function (c) {
+          return [c[0], c[1]];
+        });
+        updateExportedDisplay();
+        document.getElementById("status").textContent =
+          "Exported " + sheet.name + "! Switch to next sheet or Download All.";
+      }
+
+      function updateExportedDisplay() {
+        var list = document.getElementById("export-list");
+        while (list.firstChild) list.removeChild(list.firstChild);
+
+        var features = [];
+        Object.keys(exportedSheets).forEach(function (k) {
+          features.push(exportedSheets[k]);
+          var div = document.createElement("div");
+          div.style.color = "#22C55E";
+          div.textContent = "\u2713 " + exportedSheets[k].properties.name;
+          list.appendChild(div);
+        });
+
+        if (features.length === 0) {
+          list.textContent = "None yet";
+        }
+
+        map.getSource("exported").setData({
+          type: "FeatureCollection",
+          features: features,
+        });
+      }
+
+      function downloadAll() {
+        var features = [];
+        Object.keys(exportedSheets).forEach(function (k) {
+          features.push(exportedSheets[k]);
+        });
+        if (features.length === 0) {
+          alert("Export at least one sheet first!");
+          return;
+        }
+
+        var geojson = { type: "FeatureCollection", features: features };
+        var json = JSON.stringify(geojson, null, 2);
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "corridor_aligned.geojson";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        document.getElementById("status").textContent =
+          "Downloaded " +
+          features.length +
+          " sheet(s) as corridor_aligned.geojson";
+      }
+    </script>
+  </body>
+</html>

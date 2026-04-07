@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "bvs_sites",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "name": "BVS 1", "type": "block_valve_station", "footprint": "50m x 50m", "height_m": 3 }, "geometry": { "type": "Point", "coordinates": [ -3.034077757709256, 53.315204264874559 ] } },
+{ "type": "Feature", "properties": { "name": "BVS 2", "type": "block_valve_station", "footprint": "50m x 50m", "height_m": 3 }, "geometry": { "type": "Point", "coordinates": [ -3.10736698828125, 53.365787997018145 ] } },
+{ "type": "Feature", "properties": { "name": "BVS 3", "type": "block_valve_station", "footprint": "50m x 50m", "height_m": 3 }, "geometry": { "type": "Point", "coordinates": [ -3.062410903965449, 53.337372045545784 ] } },
+{ "type": "Feature", "properties": { "name": "BVS 4", "type": "block_valve_station", "footprint": "50m x 50m", "height_m": 3 }, "geometry": { "type": "Point", "coordinates": [ -2.978240043329628, 53.278400944606744 ] } }
+]
+}
