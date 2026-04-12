@@ -49,7 +49,7 @@ export default function PostcodeLookup({ onResult, onFlyTo, initialPostcode }: P
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => event.key === "Enter" && doSearch(query)}
-          placeholder="e.g. CH47 3BX"
+          placeholder="e.g. CH47 3BX, SK17 6TH"
           className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#FFD700]"
         />
         <button

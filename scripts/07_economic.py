@@ -39,10 +39,13 @@ LR_API = "https://landregistry.data.gov.uk/data/ppi/transaction-record.json"
 
 # Fallback regional averages (ONS House Price Statistics, March 2024)
 REGIONAL_FALLBACKS = {
-    "CH": 280000,
-    "L": 205000,
-    "CW": 265000,
-    "WA": 250000,
+    "CH": 280000,     # Cheshire (Chester, Ellesmere Port)
+    "L": 205000,      # Liverpool
+    "CW": 265000,     # Crewe / mid-Cheshire
+    "WA": 250000,     # Warrington
+    "SK": 310000,     # Stockport / Macclesfield / Peak District fringe
+    "DE": 240000,     # Derbyshire (Buxton, Hope Valley)
+    "ST": 210000,     # Staffordshire (Leek, Cauldon)
 }
 DEFAULT_AVG = 260000
 

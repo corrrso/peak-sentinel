@@ -1,7 +1,7 @@
 {
   "intro": {
     "title": "Introduction",
-    "text": "I am writing to formally register my objection to the Peak Cluster CCS Pipeline (PINS reference EN0710001). As a resident of {postcode}, I am directly affected by the proposed development and wish to raise the following serious concerns."
+    "text": "I am writing to formally register my objection to the Peak Cluster Carbon Dioxide Pipeline (PINS reference EN070007). As a resident of {postcode}, I am directly affected by the proposed development and wish to raise the following serious concerns."
   },
   "proximity": {
     "title": "Proximity Risk",
@@ -16,12 +16,12 @@
   "viewshed": {
     "title": "Visual Impact — Coastal AGI",
     "condition": "in_viewshed",
-    "text": "The proposed Coastal AGI, including a 50-metre vent stack, is in the zone of theoretical visibility. The developer's own Zone of Theoretical Visibility analysis confirms that this industrial installation would be visible across the majority of the Wirral peninsula. This represents a significant and permanent adverse visual impact on a predominantly residential and recreational area. The Scoping Opinion (paragraphs 3.23-3.24) raises concerns about the adequacy of the landscape and visual impact assessment."
+    "text": "The proposed Coastal AGI, including a 50-metre vent stack, would be clearly visible from my property. The developer's own Zone of Theoretical Visibility analysis confirms that this industrial installation would be visible across the majority of the Wirral peninsula. This represents a significant and permanent adverse visual impact on a predominantly residential and recreational area. The Scoping Opinion (paragraphs 3.23-3.24) raises concerns about the adequacy of the landscape and visual impact assessment."
   },
   "property_impact": {
     "title": "Property Value Impact",
     "condition": "depreciation_pct < 0",
-    "text": "Academic research consistently demonstrates that proximity to major hazardous pipelines depreciates property values. Based on published studies, properties within this distance of a pipeline corridor can expect a depreciation of approximately {depreciation_pct}%. There is no proposal for compensation to affected homeowners."
+    "text": "Academic research consistently demonstrates that proximity to major hazardous pipelines depreciates property values. Based on published studies, I estimate a depreciation of approximately {depreciation_pct}% for my property, representing a potential loss of £{est_loss_gbp:,}. There is no proposal for compensation to affected homeowners."
   },
   "nearby_env": {
     "title": "Environmental Designations at Risk",
@@ -35,6 +35,6 @@
   },
   "closing": {
     "title": "Conclusion",
-    "text": "For the reasons set out above, I urge the Planning Inspectorate to refuse or heavily reconsider this application. The Peak Cluster project poses unacceptable risks to public safety, property values, and the environment, while serving primarily to extend the operational life of fossil fuel extraction in the East Irish Sea.\n\nI reserve the right to make further representations as the examination process progresses.\n\nYours faithfully,\n[Your name]\n[Your address]"
+    "text": "For the reasons set out above, I urge the Planning Inspectorate to refuse this application. The Peak Cluster project poses unacceptable risks to public safety, property values, and the environment, while serving primarily to extend the operational life of fossil fuel extraction in the East Irish Sea.\n\nI reserve the right to make further representations as the examination process progresses.\n\nYours faithfully,\n[Your name]\n[Your address]"
   }
 }

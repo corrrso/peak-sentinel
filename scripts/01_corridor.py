@@ -38,7 +38,7 @@ AGI_SITES = [
     {
         "name": "Connection AGI 3",
         "type": "connection",
-        "lng": -2.935, "lat": 53.280,
+        "lng": -2.9909, "lat": 53.2828,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Future capture plant connection (west Ellesmere Port area)",
@@ -46,7 +46,7 @@ AGI_SITES = [
     {
         "name": "Connection AGI 2",
         "type": "connection",
-        "lng": -2.905, "lat": 53.275,
+        "lng": -2.8871, "lat": 53.2469,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Future capture plant connection (south Ellesmere Port area)",
@@ -54,7 +54,7 @@ AGI_SITES = [
     {
         "name": "Connection AGI 1",
         "type": "connection",
-        "lng": -2.375, "lat": 53.210,
+        "lng": -2.3835, "lat": 53.2077,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Future capture plant connection (Holmes Chapel area)",
@@ -62,7 +62,7 @@ AGI_SITES = [
     {
         "name": "Central Feeder AGI",
         "type": "feeder",
-        "lng": -2.155, "lat": 53.220,
+        "lng": -2.1720, "lat": 53.2406,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Consolidates North Feeder + Cauldon pipelines (SW Macclesfield)",
@@ -70,7 +70,7 @@ AGI_SITES = [
     {
         "name": "North Feeder AGI",
         "type": "feeder",
-        "lng": -1.925, "lat": 53.340,
+        "lng": -1.9027, "lat": 53.3066,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Consolidates Hope + Tunstead pipelines (S Chapel-en-le-Frith)",
@@ -78,7 +78,7 @@ AGI_SITES = [
     {
         "name": "Hope AGI",
         "type": "capture",
-        "lng": -1.733, "lat": 53.345,
+        "lng": -1.7549, "lat": 53.3373,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Breedon Hope cement works capture facility",
@@ -86,7 +86,7 @@ AGI_SITES = [
     {
         "name": "Tunstead AGI",
         "type": "capture",
-        "lng": -1.830, "lat": 53.288,
+        "lng": -1.8550, "lat": 53.2689,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Tarmac Tunstead + Buxton Lime capture facilities",
@@ -94,7 +94,7 @@ AGI_SITES = [
     {
         "name": "Cauldon AGI",
         "type": "capture",
-        "lng": -1.850, "lat": 53.055,
+        "lng": -1.8711, "lat": 53.0425,
         "height_m": 15,
         "footprint": "100m x 100m",
         "description": "Holcim Cauldon cement works capture facility",
@@ -114,7 +114,7 @@ def main():
     merged = corridor_gdf.dissolve(by="dissolve_key")
     merged = merged.reset_index(drop=True)
     merged["name"] = "Peak Cluster Pipeline Scoping Boundary"
-    merged["source"] = "Georeferenced from EIA Scoping Report Figures 1.2F-G"
+    merged["source"] = "Peak_Cluster_AGOL FeatureServer (DEF1 Scoping Boundary v1.2)"
     merged = merged[["name", "source", "geometry"]]
 
     # Check for valid merge
@@ -208,20 +208,40 @@ def main():
     bvs_gdf = gpd.GeoDataFrame(bvs_records, crs=CRS_BNG)
     save_geojson(bvs_gdf, PROCESSED_DIR / "bvs_sites.geojson")
 
-    # ── 5. Route sections ─────────────────────────────────────────────────
-    # For now with 2 sheets, we have 2 sections. Later with all sheets
-    # this becomes the full 10-section breakdown.
-    print("\nCreating route sections...")
-    sections = []
-    for i, (_, row) in enumerate(corridor_gdf.iterrows()):
-        sections.append({
-            "name": row.get("name", f"Section {i+1}"),
-            "section": i + 1,
-            "geometry": row.geometry,
-        })
-
-    sections_gdf = gpd.GeoDataFrame(sections, crs=CRS_WGS84)
-    save_geojson(sections_gdf, PROCESSED_DIR / "route_sections.geojson")
+    # ── 5. Route sections (from official ArcGIS data) ───────────────────
+    print("\nLoading official route sections...")
+    from scripts.utils import MANUAL_DIR
+    sections_path = MANUAL_DIR / "route_sections_official.geojson"
+    if sections_path.exists():
+        sections_gdf = gpd.read_file(sections_path)
+        # Normalize column names
+        if "Name" in sections_gdf.columns:
+            sections_gdf = sections_gdf.rename(columns={"Name": "name"})
+        # Add section number from name
+        for i, row in sections_gdf.iterrows():
+            name = row.get("name", "")
+            # Extract section number from "Section N: ..."
+            parts = name.split(":")
+            if parts[0].strip().startswith("Section"):
+                try:
+                    num = int(parts[0].strip().split()[-1])
+                    sections_gdf.at[i, "section"] = num
+                except ValueError:
+                    sections_gdf.at[i, "section"] = i + 1
+            else:
+                sections_gdf.at[i, "section"] = i + 1
+        save_geojson(sections_gdf, PROCESSED_DIR / "route_sections.geojson")
+    else:
+        print("  WARNING: No official sections file, falling back to corridor polygons")
+        sections = []
+        for i, (_, row) in enumerate(corridor_gdf.iterrows()):
+            sections.append({
+                "name": row.get("name", f"Section {i+1}"),
+                "section": i + 1,
+                "geometry": row.geometry,
+            })
+        sections_gdf = gpd.GeoDataFrame(sections, crs=CRS_WGS84)
+        save_geojson(sections_gdf, PROCESSED_DIR / "route_sections.geojson")
 
     print("\n=== Done! ===")
 

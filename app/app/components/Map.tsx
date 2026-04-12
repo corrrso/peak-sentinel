@@ -19,9 +19,9 @@ const BASEMAP =
   "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 const INITIAL_VIEW = {
-  longitude: -3,
-  latitude: 53.35,
-  zoom: 10,
+  longitude: -2.45,
+  latitude: 53.24,
+  zoom: 9,
 };
 
 interface MapProps {
@@ -178,6 +178,7 @@ export default function Map({
                 <Layer
                   id="sections-label"
                   type="symbol"
+                  minzoom={10}
                   layout={{
                     "text-field": ["get", "name"],
                     "text-size": 11,
@@ -192,48 +193,6 @@ export default function Map({
                 />
               </Source>
             )}
-            {data.agi_sites && (
-              <Source id="agis" type="geojson" data={data.agi_sites}>
-                <Layer
-                  id="agi-circles"
-                  type="circle"
-                  paint={{
-                    "circle-radius": [
-                      "case",
-                      ["==", ["get", "type"], "coastal"],
-                      10,
-                      6,
-                    ],
-                    "circle-color": [
-                      "case",
-                      ["==", ["get", "type"], "coastal"],
-                      "#FF0000",
-                      ["==", ["get", "type"], "capture"],
-                      "#FF6600",
-                      "#FFD700",
-                    ],
-                    "circle-stroke-color": "#FFD700",
-                    "circle-stroke-width": 2,
-                  }}
-                />
-                <Layer
-                  id="agi-labels"
-                  type="symbol"
-                  layout={{
-                    "text-field": ["get", "name"],
-                    "text-size": 10,
-                    "text-offset": [0, 1.5],
-                    "text-allow-overlap": false,
-                  }}
-                  paint={{
-                    "text-color": "#FFD700",
-                    "text-halo-color": "#000",
-                    "text-halo-width": 1,
-                  }}
-                />
-              </Source>
-            )}
-
             {/* Layer 2: Environmental */}
             {layers.environmental && data.env_constraints && (
               <Source id="env" type="geojson" data={data.env_constraints}>
@@ -467,6 +426,53 @@ export default function Map({
                     "text-color": "#FFF",
                     "text-halo-color": "#000",
                     "text-halo-width": 1,
+                  }}
+                />
+              </Source>
+            )}
+
+            {/* AGI Sites — rendered last so they're always on top */}
+            {data.agi_sites && (
+              <Source id="agis" type="geojson" data={data.agi_sites}>
+                <Layer
+                  id="agi-circles"
+                  type="circle"
+                  paint={{
+                    "circle-radius": [
+                      "interpolate",
+                      ["linear"],
+                      ["zoom"],
+                      9,
+                      8,
+                      12,
+                      14,
+                    ],
+                    "circle-color": [
+                      "case",
+                      ["==", ["get", "type"], "coastal"],
+                      "#FF0000",
+                      ["==", ["get", "type"], "capture"],
+                      "#FF6600",
+                      "#FFD700",
+                    ],
+                    "circle-stroke-color": "#FFF",
+                    "circle-stroke-width": 3,
+                  }}
+                />
+                <Layer
+                  id="agi-labels"
+                  type="symbol"
+                  layout={{
+                    "text-field": ["get", "name"],
+                    "text-size": 12,
+                    "text-offset": [0, 1.8],
+                    "text-allow-overlap": true,
+                    "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+                  }}
+                  paint={{
+                    "text-color": "#FFF",
+                    "text-halo-color": "#000",
+                    "text-halo-width": 2,
                   }}
                 />
               </Source>
