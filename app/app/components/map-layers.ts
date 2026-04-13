@@ -72,4 +72,15 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
       return dep ? `${pc}: estimated ${dep}% depreciation` : String(pc);
     },
   },
+  "agi-circles": {
+    label: "AGI Facility",
+    color: "#FF4500",
+    detail: (p: Record<string, unknown>) => {
+      const parts: string[] = [];
+      if (p.name) parts.push(String(p.name));
+      if (p.height_m) parts.push(`${p.height_m}m tower`);
+      if (p.footprint) parts.push(String(p.footprint));
+      return parts.join(" \u2014 ");
+    },
+  },
 };

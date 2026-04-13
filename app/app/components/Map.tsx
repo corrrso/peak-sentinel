@@ -38,6 +38,7 @@ interface MapProps {
     postcode: string,
     coords: { longitude: number; latitude: number },
   ) => void;
+  onAgiClick?: (agiName: string) => void;
 }
 
 export default function Map({
@@ -46,6 +47,7 @@ export default function Map({
   highlightLocation,
   onFeatureClick,
   onPostcodeClick,
+  onAgiClick,
 }: MapProps) {
   const mapRef = useRef<MapRef>(null);
   const [data, setData] = useState<Record<string, GeoJSON>>({});
@@ -56,6 +58,7 @@ export default function Map({
     hasData,
     onFeatureClick,
     onPostcodeClick,
+    onAgiClick,
   );
 
   const onMapLoad = useCallback(async () => {
@@ -100,6 +103,18 @@ export default function Map({
         style={{ width: "100%", height: "100%" }}
         mapStyle={BASEMAP}
         onLoad={onMapLoad}
+        interactiveLayerIds={hasData && data.agi_sites ? ["agi-circles"] : []}
+        cursor="auto"
+        onMouseEnter={() => {
+          if (mapRef.current) {
+            mapRef.current.getCanvas().style.cursor = "pointer";
+          }
+        }}
+        onMouseLeave={() => {
+          if (mapRef.current) {
+            mapRef.current.getCanvas().style.cursor = "";
+          }
+        }}
       >
         <NavigationControl position="top-right" />
 
@@ -434,6 +449,32 @@ export default function Map({
             {/* AGI Sites — rendered last so they're always on top */}
             {data.agi_sites && (
               <Source id="agis" type="geojson" data={data.agi_sites}>
+                <Layer
+                  id="agi-pulse"
+                  type="circle"
+                  paint={{
+                    "circle-radius": [
+                      "interpolate",
+                      ["linear"],
+                      ["zoom"],
+                      9,
+                      16,
+                      12,
+                      28,
+                    ],
+                    "circle-color": "transparent",
+                    "circle-stroke-color": [
+                      "case",
+                      ["==", ["get", "type"], "coastal"],
+                      "#FF0000",
+                      ["==", ["get", "type"], "capture"],
+                      "#FF6600",
+                      "#FFD700",
+                    ],
+                    "circle-stroke-width": 2,
+                    "circle-stroke-opacity": 0.4,
+                  }}
+                />
                 <Layer
                   id="agi-circles"
                   type="circle"

@@ -10,6 +10,7 @@ export default function useMapInteractions(
   dataLoaded: boolean,
   onFeatureClick?: (feature: ClickedFeature | null) => void,
   onPostcodeClick?: (postcode: string, coords: { longitude: number; latitude: number }) => void,
+  onAgiClick?: (agiName: string) => void,
 ) {
   const [tooltip, setTooltip] = useState<TooltipInfo>(null);
   const [clickLocation, setClickLocation] = useState<{
@@ -19,6 +20,7 @@ export default function useMapInteractions(
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onFeatureClickRef = useRef(onFeatureClick);
   const onPostcodeClickRef = useRef(onPostcodeClick);
+  const onAgiClickRef = useRef(onAgiClick);
 
   useEffect(() => {
     onFeatureClickRef.current = onFeatureClick;
@@ -27,6 +29,10 @@ export default function useMapInteractions(
   useEffect(() => {
     onPostcodeClickRef.current = onPostcodeClick;
   }, [onPostcodeClick]);
+
+  useEffect(() => {
+    onAgiClickRef.current = onAgiClick;
+  }, [onAgiClick]);
 
   useEffect(() => {
     const map = mapRef.current?.getMap();
@@ -87,6 +93,18 @@ export default function useMapInteractions(
         [event.point.x - CLICK_RADIUS, event.point.y - CLICK_RADIUS],
         [event.point.x + CLICK_RADIUS, event.point.y + CLICK_RADIUS],
       ];
+
+      // AGI-layer priority: check for AGI site click first
+      const agiFeatures = map.queryRenderedFeatures(event.point, {
+        layers: ["agi-circles"],
+      });
+      if (agiFeatures.length > 0 && agiFeatures[0].properties?.name) {
+        const name = String(agiFeatures[0].properties.name);
+        if (onAgiClickRef.current) {
+          onAgiClickRef.current(name);
+          return;
+        }
+      }
 
       const hasPropertyLayer = !!map.getLayer("property-circles");
       const propertyFeatures = hasPropertyLayer
