@@ -13,7 +13,10 @@ const SCOPING_CHAPTERS = [
     chapter: "3.1",
     title: "Air Quality",
     items: [
-      { id: "3.1.2", text: "Dust emissions during decommissioning not assessed" },
+      {
+        id: "3.1.2",
+        text: "Dust emissions during decommissioning not assessed",
+      },
       {
         id: "3.1.3",
         text: "Vehicle movement air quality impacts during operation and decommissioning not assessed",
@@ -248,8 +251,8 @@ export default function EvidencePage() {
     <div className="max-w-4xl mx-auto px-6 py-12">
       <h1 className="text-4xl font-bold text-[#FFD700] mb-2">The Evidence</h1>
       <p className="text-gray-400 mb-12">
-        All the evidence you need to understand that Peak Cluster is not a
-        good idea.
+        All the evidence you need to understand that Peak Cluster is not a good
+        idea.
       </p>
 
       {/* ── Section 1: Physics ────────────────────────────────── */}
@@ -816,35 +819,32 @@ export default function EvidencePage() {
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
-          On <strong className="text-white">22 February 2020</strong>, a 24-inch
-          Denbury CO&#8322; pipeline ruptured in Yazoo County, Mississippi. A
-          rain-induced landslide triggered the failure.
+          On <strong className="text-white">22 February 2020</strong>, a
+          rain-induced landslide caused a 24-inch Denbury CO&#8322; pipeline to
+          rupture in Yazoo County, Mississippi. The gas settled into the valley
+          around the village of Satartia. Over 200 people were evacuated and at
+          least 45 ended up in hospital.
         </p>
         <p>
-          The released CO&#8322; &mdash; heavier than air, largely odourless,
-          and invisible &mdash; flowed downhill and settled in the valley toward
-          the village of Satartia. Over 200 people were evacuated and at least
-          45 were hospitalised.
-        </p>
-        <p>
-          Residents collapsed in their homes and on the streets. Vehicle engines
-          stalled because CO&#8322; displaces oxygen &mdash;{" "}
+          People collapsed in their homes and in the street. Car engines stalled
+          because the CO&#8322; displaced the oxygen they need to run, which
+          meant{" "}
           <strong className="text-red-400">
-            ambulances could not reach the victims
+            ambulances could not get through
           </strong>
-          . According to witness accounts, a green-tinted cloud sat in the
-          valley for hours.
+          . Witnesses described a green-tinted cloud hanging in the valley for
+          hours. Nobody received any warning.
         </p>
         <p className="text-gray-500 text-sm">
-          Source: PHMSA Failure Investigation Report &mdash; Denbury Gulf Coast
-          Pipelines (May 2022).{" "}
+          Source:{" "}
           <a
             href="https://www.pstrust.org/wp-content/uploads/2022/05/PR-5.26.22-Denbury-Failure-Report-FINAL.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 underline"
           >
-            Report PDF (Pipeline Safety Trust mirror)
+            PHMSA Failure Investigation Report, Denbury Gulf Coast Pipelines
+            (May 2022)
           </a>
         </p>
       </div>
@@ -855,22 +855,22 @@ export default function EvidencePage() {
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
           In <strong className="text-white">April 2024</strong>, the same
-          operator (Denbury, now owned by ExxonMobil) suffered another CO&#8322;
-          pipeline release in Sulphur, Louisiana &mdash; approximately{" "}
-          <strong className="text-white">2,548 barrels</strong> of liquid
-          CO&#8322; from a 24-inch pipeline at the Lake Charles Pumping Station.
+          operator (Denbury, now owned by ExxonMobil) had another CO&#8322;
+          release in Sulphur, Louisiana. About{" "}
+          <strong className="text-white">2,548 barrels </strong> of liquid
+          CO&#8322; escaped from a 24-inch pipeline at the Lake Charles Pumping
+          Station.
         </p>
         <p>
-          This was not a one-off. It demonstrated that the fundamental risks of
-          dense-phase CO&#8322; transport{" "}
-          <strong className="text-red-400">have not been solved</strong> despite
-          four years of &ldquo;lessons learned&rdquo; from Satartia. PHMSA has
+          Four years after Satartia, the fundamental risks of moving dense-phase
+          CO&#8322; through pipelines{" "}
+          <strong className="text-red-400">remain unsolved</strong>. PHMSA has
           recorded{" "}
           <strong className="text-white">
             76 CO&#8322; pipeline incidents industry-wide since 2010
           </strong>
-          . Denbury was responsible for 12 of them, but those 12 account for
-          roughly 81% of all CO&#8322; volume released.
+          . Denbury was responsible for 12, but those 12 account for roughly 81%
+          of all CO&#8322; volume released.
         </p>
         <p className="text-gray-500 text-sm">
           Source:{" "}
@@ -899,11 +899,7 @@ export default function EvidencePage() {
             color="text-orange-500"
           />
           <Stat value="$778M" label="US penalty (2022)" />
-          <Stat
-            value="8"
-            label="employees found guilty"
-            color="text-red-400"
-          />
+          <Stat value="8" label="employees found guilty" color="text-red-400" />
         </div>
       </div>
 
@@ -937,8 +933,8 @@ export default function EvidencePage() {
         <p>
           This was the first time a company was tried in France for financing
           terrorism. The conviction follows a 2022 case in the United States
-          where Lafarge admitted supporting proscribed groups and agreed to pay a{" "}
-          <strong className="text-white">$777.8 million</strong> penalty.
+          where Lafarge admitted supporting proscribed groups and agreed to pay
+          a <strong className="text-white">$777.8 million</strong> penalty.
         </p>
 
         <div className="bg-red-950/20 border border-red-900/30 rounded-lg p-4 mt-2">
