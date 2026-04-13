@@ -50,7 +50,7 @@ export default function StreetViewModal({ hotspot, onClose }: StreetViewModalPro
         tabIndex={-1}
         className="
           relative z-10 outline-none
-          w-full h-full
+          w-full h-full animate-[slideUp_300ms_ease-out]
           md:w-auto md:h-auto md:max-w-[800px] md:max-h-[90vh]
           md:rounded-xl md:animate-[scaleIn_200ms_ease-out]
           bg-[#0a0a0a] overflow-auto

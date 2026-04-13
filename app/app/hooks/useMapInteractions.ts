@@ -10,7 +10,7 @@ export default function useMapInteractions(
   dataLoaded: boolean,
   onFeatureClick?: (feature: ClickedFeature | null) => void,
   onPostcodeClick?: (postcode: string, coords: { longitude: number; latitude: number }) => void,
-  onAgiClick?: (agiName: string) => void,
+  onAgiClick?: (agiName: string) => boolean,
 ) {
   const [tooltip, setTooltip] = useState<TooltipInfo>(null);
   const [clickLocation, setClickLocation] = useState<{
@@ -94,15 +94,17 @@ export default function useMapInteractions(
         [event.point.x + CLICK_RADIUS, event.point.y + CLICK_RADIUS],
       ];
 
-      // AGI-layer priority: check for AGI site click first
-      const agiFeatures = map.queryRenderedFeatures(event.point, {
-        layers: ["agi-circles"],
-      });
+      // AGI-layer priority: notify callback, but only skip generic handling
+      // if the callback returns true (hotspot found and modal opened)
+      const hasAgiLayer = !!map.getLayer("agi-circles");
+      const agiFeatures = hasAgiLayer
+        ? map.queryRenderedFeatures(event.point, { layers: ["agi-circles"] })
+        : [];
       if (agiFeatures.length > 0 && agiFeatures[0].properties?.name) {
         const name = String(agiFeatures[0].properties.name);
         if (onAgiClickRef.current) {
-          onAgiClickRef.current(name);
-          return;
+          const consumed = onAgiClickRef.current(name);
+          if (consumed) return;
         }
       }
 

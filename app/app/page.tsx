@@ -109,14 +109,13 @@ function HomeContent() {
   );
 
   const handleAgiClick = useCallback(
-    (agiName: string) => {
-      const hotspot = getHotspot(agiName);
-      if (hotspot) {
+    (agiName: string): boolean => {
+      if (getHotspot(agiName)) {
         setSelectedAgi(agiName);
         setClickedFeature(null);
-      } else {
-        setSelectedAgi(null);
+        return true; // consumed — open modal
       }
+      return false; // not consumed — fall through to generic feature handler
     },
     [getHotspot],
   );
@@ -391,12 +390,15 @@ function HomeContent() {
         </div>
       </div>
 
-      {selectedAgi && getHotspot(selectedAgi) && (
-        <StreetViewModal
-          hotspot={getHotspot(selectedAgi)!}
-          onClose={() => setSelectedAgi(null)}
-        />
-      )}
+      {selectedAgi && (() => {
+        const hotspot = getHotspot(selectedAgi);
+        return hotspot ? (
+          <StreetViewModal
+            hotspot={hotspot}
+            onClose={() => setSelectedAgi(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }

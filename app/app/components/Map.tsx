@@ -38,7 +38,7 @@ interface MapProps {
     postcode: string,
     coords: { longitude: number; latitude: number },
   ) => void;
-  onAgiClick?: (agiName: string) => void;
+  onAgiClick?: (agiName: string) => boolean;
 }
 
 export default function Map({
