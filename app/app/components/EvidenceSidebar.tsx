@@ -59,6 +59,14 @@ export default function EvidenceSidebar() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
+  /* ── Body scroll lock ────────────────────────────────────── */
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [isOpen]);
+
   /* ── Section list (shared between desktop and mobile) ───── */
   const sectionList = (
     <nav aria-label="Table of contents">
@@ -94,6 +102,7 @@ export default function EvidenceSidebar() {
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-controls="sidebar-panel"
+          aria-label="Open table of contents"
           className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
             isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
@@ -108,12 +117,11 @@ export default function EvidenceSidebar() {
         {/* Expanded panel */}
         <div
           id="sidebar-panel"
-          className={`bg-black/85 backdrop-blur-md border border-white/10 border-l-0 rounded-r-xl p-4 pr-5 transition-all duration-200 ${
+          className={`bg-black/85 backdrop-blur-md border border-white/10 border-l-0 rounded-r-xl p-4 pr-5 min-w-[220px] transition-all duration-200 ${
             isOpen
               ? "translate-x-0 opacity-100"
               : "-translate-x-full opacity-0 pointer-events-none"
           }`}
-          style={{ minWidth: "220px" }}
         >
           <div className="text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-3">
             Contents
@@ -160,6 +168,7 @@ export default function EvidenceSidebar() {
         <div
           id="mobile-drawer"
           role="dialog"
+          aria-modal="true"
           aria-label="Table of contents"
           className={`fixed top-0 left-0 bottom-0 w-72 bg-black/95 backdrop-blur-md border-r border-white/10 z-50 p-6 pt-8 transition-transform duration-200 ${
             isOpen ? "translate-x-0" : "-translate-x-full"
@@ -171,6 +180,7 @@ export default function EvidenceSidebar() {
             </span>
             <button
               onClick={() => setIsOpen(false)}
+              aria-label="Close table of contents"
               className="text-gray-500 hover:text-white text-xl leading-none"
             >
               &times;
