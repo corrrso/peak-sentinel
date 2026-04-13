@@ -27,6 +27,8 @@ export function TerracedHouses({ height, x, baseY }: SilhouetteProps) {
   const houseW = height * 0.7;
   const roofH = height * 0.35;
   const wallH = height * 0.65;
+  const chimneyW = houseW * 0.1;
+  const chimneyH = roofH * 0.6;
   const gap = 1;
   const totalW = houseW * 3 + gap * 2;
   const startX = x - totalW / 2;
@@ -34,12 +36,17 @@ export function TerracedHouses({ height, x, baseY }: SilhouetteProps) {
     <g>
       {[0, 1, 2].map((i) => {
         const hx = startX + i * (houseW + gap);
+        const wallTop = baseY - wallH;
+        const roofPeak = wallTop - roofH;
         return (
           <g key={i}>
-            <polygon points={`${hx},${baseY - wallH} ${hx + houseW / 2},${baseY - wallH - roofH} ${hx + houseW},${baseY - wallH}`} fill="#5a4030" />
-            <rect x={hx} y={baseY - wallH} width={houseW} height={wallH} fill="#4a3525" />
-            <rect x={hx + houseW * 0.2} y={baseY - wallH + wallH * 0.15} width={houseW * 0.25} height={houseW * 0.25} fill="rgba(255,200,80,0.25)" />
-            <rect x={hx + houseW * 0.55} y={baseY - wallH + wallH * 0.15} width={houseW * 0.25} height={houseW * 0.25} fill="rgba(255,200,80,0.18)" />
+            <rect x={hx + houseW * 0.78} y={roofPeak + roofH * 0.15 - chimneyH} width={chimneyW} height={chimneyH + roofH * 0.55} fill="#3a2a1a" />
+            <rect x={hx + houseW * 0.78 - 1} y={roofPeak + roofH * 0.15 - chimneyH} width={chimneyW + 2} height={1.5} fill="#4a3a28" />
+            <polygon points={`${hx},${wallTop} ${hx + houseW / 2},${roofPeak} ${hx + houseW},${wallTop}`} fill="#5a4030" />
+            <rect x={hx} y={wallTop} width={houseW} height={wallH} fill="#4a3525" />
+            <rect x={hx + houseW * 0.18} y={wallTop + wallH * 0.12} width={houseW * 0.22} height={houseW * 0.22} fill="rgba(255,200,80,0.25)" />
+            <rect x={hx + houseW * 0.56} y={wallTop + wallH * 0.12} width={houseW * 0.22} height={houseW * 0.22} fill="rgba(255,200,80,0.18)" />
+            <rect x={hx + houseW * 0.36} y={baseY - wallH * 0.45} width={houseW * 0.24} height={wallH * 0.45} fill="#2a1a10" rx={1} />
           </g>
         );
       })}
@@ -91,6 +98,39 @@ export function Church({ height, x, baseY }: SilhouetteProps) {
       <rect x={x - towerW * 0.15} y={towerTop + towerH * 0.2} width={towerW * 0.3} height={towerH * 0.2} fill="rgba(255,200,80,0.15)" rx={1} />
       <rect x={x - bodyW / 2} y={bodyTop} width={bodyW} height={bodyH} fill="#3d3d3d" />
       <polygon points={`${x - bodyW / 2 - 2},${bodyTop} ${x},${bodyTop - bodyH * 0.3} ${x + bodyW / 2 + 2},${bodyTop}`} fill="#4a4a4a" />
+    </g>
+  );
+}
+
+export function Dome({ height, x, baseY }: SilhouetteProps) {
+  const baseH = height * 0.38;
+  const domeH = height * 0.52;
+  const lanternH = height * 0.1;
+  const baseW = height * 0.6;
+  const domeR = baseW * 0.42;
+  const baseTop = baseY - baseH;
+  const lanternW = height * 0.04;
+  return (
+    <g>
+      {/* Drum / base */}
+      <rect x={x - baseW / 2} y={baseTop} width={baseW} height={baseH} fill="#3a3a3a" />
+      {[0.12, 0.3, 0.5, 0.7, 0.88].map((pct, i) => (
+        <rect key={`p${i}`} x={x - baseW / 2 + baseW * pct - 0.8} y={baseTop} width={1.6} height={baseH} fill="rgba(255,255,255,0.04)" />
+      ))}
+      {[0.21, 0.4, 0.6, 0.79].map((pct, i) => (
+        <rect key={`w${i}`} x={x - baseW / 2 + baseW * pct - 2} y={baseTop + baseH * 0.18} width={4} height={baseH * 0.45} fill="rgba(255,200,80,0.08)" rx={2} />
+      ))}
+      <rect x={x - baseW / 2 - 1} y={baseTop - 1} width={baseW + 2} height={2} fill="#4a4a4a" />
+      {/* Dome arc */}
+      <path d={`M${x - domeR},${baseTop} A${domeR},${domeH} 0 0,1 ${x + domeR},${baseTop}`} fill="url(#domeGrad)" />
+      {[-0.55, -0.2, 0.2, 0.55].map((offset, i) => {
+        const ribX = x + domeR * offset;
+        const ribTopY = baseTop - domeH * Math.sqrt(1 - offset * offset);
+        return <line key={`r${i}`} x1={ribX} y1={baseTop - 1} x2={ribX} y2={ribTopY + 1} stroke="rgba(255,255,255,0.05)" strokeWidth={0.8} />;
+      })}
+      {/* Lantern */}
+      <rect x={x - lanternW} y={baseTop - domeH - lanternH} width={lanternW * 2} height={lanternH} fill="#505050" rx={1} />
+      <circle cx={x} cy={baseTop - domeH - lanternH - 1.5} r={2} fill="#555" />
     </g>
   );
 }
@@ -151,6 +191,38 @@ export function HeightMarker({ label, x, topY, color }: { label: string; x: numb
 export function SvgDefs() {
   return (
     <defs>
+      <linearGradient id="skyGrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stopColor="#030810" />
+        <stop offset="15%" stopColor="#061525" />
+        <stop offset="30%" stopColor="#0a1e38" />
+        <stop offset="48%" stopColor="#0e2442" />
+        <stop offset="62%" stopColor="#152840" />
+        <stop offset="74%" stopColor="#1e2a38" />
+        <stop offset="82%" stopColor="#2a2520" />
+        <stop offset="88%" stopColor="#352a18" />
+        <stop offset="93%" stopColor="#1e1a12" />
+        <stop offset="100%" stopColor="#141210" />
+      </linearGradient>
+      <linearGradient id="groundGrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stopColor="#161410" />
+        <stop offset="40%" stopColor="#121008" />
+        <stop offset="100%" stopColor="#0e0c08" />
+      </linearGradient>
+      <linearGradient id="hazeGrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stopColor="rgba(50,40,20,0)" />
+        <stop offset="45%" stopColor="rgba(50,40,20,0.06)" />
+        <stop offset="65%" stopColor="rgba(50,40,20,0.08)" />
+        <stop offset="100%" stopColor="rgba(50,40,20,0)" />
+      </linearGradient>
+      <radialGradient id="horizonGlow" cx="0.5" cy="0.82" r="0.4" fx="0.5" fy="0.82">
+        <stop offset="0%" stopColor="rgba(70,45,15,0.12)" />
+        <stop offset="100%" stopColor="rgba(70,45,15,0)" />
+      </radialGradient>
+      <radialGradient id="domeGrad" cx="0.4" cy="0.3" r="0.65">
+        <stop offset="0%" stopColor="#606060" />
+        <stop offset="60%" stopColor="#4a4a4a" />
+        <stop offset="100%" stopColor="#383838" />
+      </radialGradient>
       <linearGradient id="lighthouseGrad" x1="0" x2="1" y1="0" y2="0">
         <stop offset="0%" stopColor="#b0a080" />
         <stop offset="50%" stopColor="#d4c8a8" />
@@ -164,14 +236,6 @@ export function SvgDefs() {
       <linearGradient id="buildingGrad" x1="0" x2="0" y1="0" y2="1">
         <stop offset="0%" stopColor="#3a3a3a" />
         <stop offset="100%" stopColor="#2a2a2a" />
-      </linearGradient>
-      <linearGradient id="skyGrad" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stopColor="#060d1a" />
-        <stop offset="40%" stopColor="#0f1d3a" />
-        <stop offset="65%" stopColor="#1a2744" />
-        <stop offset="84%" stopColor="#2a1f0a" />
-        <stop offset="85%" stopColor="#1a1a1a" />
-        <stop offset="100%" stopColor="#141414" />
       </linearGradient>
     </defs>
   );

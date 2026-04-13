@@ -38,14 +38,14 @@ const HOTSPOTS: StreetViewHotspot[] = [
     towerLabel: "Tunstead AGI Processing Facility",
     facility: { width: 100, depth: 100 },
     landmark: {
-      name: "Residential houses",
-      height: 8,
-      silhouette: "house",
+      name: "Devonshire Dome, Buxton",
+      height: 20,
+      silhouette: "dome",
     },
     humanScale: true,
-    showTerracedHouses: false,
+    showTerracedHouses: true,
     description:
-      "The Tunstead AGI would add a 15m processing facility adjacent to the existing Tunstead quarry, near homes in Great Rocks Dale.",
+      "The Tunstead AGI would add a 15m processing facility near Buxton, approaching the height of the Devonshire Dome.",
   },
 ];
 

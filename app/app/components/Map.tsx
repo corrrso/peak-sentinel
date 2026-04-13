@@ -452,6 +452,7 @@ export default function Map({
                 <Layer
                   id="agi-pulse"
                   type="circle"
+                  filter={["in", ["get", "name"], ["literal", ["Coastal AGI", "Hope AGI", "Tunstead AGI"]]]}
                   paint={{
                     "circle-radius": [
                       "interpolate",
@@ -464,12 +465,10 @@ export default function Map({
                     ],
                     "circle-color": "transparent",
                     "circle-stroke-color": [
-                      "case",
-                      ["==", ["get", "type"], "coastal"],
-                      "#FF0000",
-                      ["==", ["get", "type"], "capture"],
+                      "match",
+                      ["get", "name"],
+                      "Coastal AGI", "#FF0000",
                       "#FF6600",
-                      "#FFD700",
                     ],
                     "circle-stroke-width": 2,
                     "circle-stroke-opacity": 0.4,
@@ -489,11 +488,11 @@ export default function Map({
                       14,
                     ],
                     "circle-color": [
-                      "case",
-                      ["==", ["get", "type"], "coastal"],
-                      "#FF0000",
-                      ["==", ["get", "type"], "capture"],
-                      "#FF6600",
+                      "match",
+                      ["get", "name"],
+                      "Coastal AGI", "#FF0000",
+                      "Hope AGI", "#FF6600",
+                      "Tunstead AGI", "#FF6600",
                       "#FFD700",
                     ],
                     "circle-stroke-color": "#FFF",

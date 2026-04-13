@@ -40,7 +40,7 @@ export type StreetViewHotspot = {
   landmark: {
     name: string;
     height: number;
-    silhouette: "lighthouse" | "church" | "house" | "tree";
+    silhouette: "lighthouse" | "church" | "house" | "tree" | "dome";
   };
   humanScale: boolean;
   showTerracedHouses: boolean;
