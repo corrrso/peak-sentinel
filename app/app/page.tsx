@@ -7,9 +7,11 @@ import LayerPanel from "./components/LayerPanel";
 import PostcodeLookup from "./components/PostcodeLookup";
 import RiskCard from "./components/RiskCard";
 import ObjectionGenerator from "./components/ObjectionGenerator";
+import StreetViewModal from "./components/StreetViewModal";
 import type { ClickedFeature } from "./components/Map";
 import type { LayerVisibility, PostcodeData } from "./types";
 import { usePostcodeIndex } from "./hooks/usePostcodeIndex";
+import { useStreetViewHotspots } from "./hooks/useStreetViewHotspots";
 import MobileBottomSheet from "./components/MobileBottomSheet";
 import MobileLayerButton from "./components/MobileLayerButton";
 
@@ -37,6 +39,7 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const urlPostcode = searchParams.get("postcode");
   const { lookup } = usePostcodeIndex();
+  const { getHotspot } = useStreetViewHotspots();
 
   const [layers, setLayers] = useState<LayerVisibility>({
     corridor: true,
@@ -61,6 +64,7 @@ function HomeContent() {
     null,
   );
   const [sheetExpanded, setSheetExpanded] = useState(true);
+  const [selectedAgi, setSelectedAgi] = useState<string | null>(null);
 
   const toggleLayer = useCallback((key: keyof LayerVisibility) => {
     setLayers((previous) => ({ ...previous, [key]: !previous[key] }));
@@ -104,6 +108,19 @@ function HomeContent() {
     [lookup],
   );
 
+  const handleAgiClick = useCallback(
+    (agiName: string) => {
+      const hotspot = getHotspot(agiName);
+      if (hotspot) {
+        setSelectedAgi(agiName);
+        setClickedFeature(null);
+      } else {
+        setSelectedAgi(null);
+      }
+    },
+    [getHotspot],
+  );
+
   const selectedPostcode = riskResult?.postcode || urlPostcode || null;
 
   return (
@@ -125,6 +142,7 @@ function HomeContent() {
             }
             onFeatureClick={handleFeatureClick}
             onPostcodeClick={handlePostcodeClick}
+            onAgiClick={handleAgiClick}
           />
         </div>
 
@@ -372,6 +390,13 @@ function HomeContent() {
           </section>
         </div>
       </div>
+
+      {selectedAgi && getHotspot(selectedAgi) && (
+        <StreetViewModal
+          hotspot={getHotspot(selectedAgi)!}
+          onClose={() => setSelectedAgi(null)}
+        />
+      )}
     </div>
   );
 }
