@@ -8,34 +8,167 @@ export const metadata: Metadata = {
     "CO2 pipeline physics, CCS track record, Planning Inspectorate criticisms, and real incidents.",
 };
 
-const SCOPING_CRITICISMS = [
+const SCOPING_CHAPTERS = [
   {
-    id: "3.14",
-    text: "CO\u2082 dispersion modelling inadequate — terrain-following behaviour of dense CO\u2082 not assessed",
+    chapter: "3.1",
+    title: "Air Quality",
+    items: [
+      { id: "3.1.2", text: "Dust emissions during decommissioning not assessed" },
+      {
+        id: "3.1.3",
+        text: "Vehicle movement air quality impacts during operation and decommissioning not assessed",
+      },
+      {
+        id: "3.1.10",
+        text: "Emissions from AGIs not explained. Coastal AGI includes a 50m stack with no justification or assessment of what it will emit",
+      },
+    ],
   },
   {
-    id: "3.5\u20133.10",
-    text: "Impacts on designated nature conservation sites not fully assessed. 8 Ancient Woodlands in the corridor — irreplaceable habitats",
+    chapter: "3.3",
+    title: "Landscape and Visual",
+    items: [
+      {
+        id: "3.3.6",
+        text: "Long-term effects on landscape character during construction and decommissioning from capture facilities and AGIs",
+      },
+      {
+        id: "3.3.7",
+        text: "Long-term effects on landscape character from pipeline corridors during all phases",
+      },
+      {
+        id: "3.3.10",
+        text: "Long-term effects on Landscape Character Areas within the LVIA study area",
+      },
+      {
+        id: "3.3.11",
+        text: "Long-term effects on Landscape Character Areas from pipeline corridors during all phases",
+      },
+      {
+        id: "3.3.13",
+        text: "Temporary effects on the Peak District National Park\u2019s statutory purposes and special landscape qualities",
+      },
+      {
+        id: "3.3.14",
+        text: "Permanent effects on the Peak District National Park. The pipeline runs through the National Park",
+      },
+      {
+        id: "3.3.15",
+        text: "Permanent effects on the PDNP and its setting during all phases",
+      },
+      {
+        id: "3.3.18",
+        text: "Long-term effects on people\u2019s views and visual amenity from AGIs and capture facilities",
+      },
+      {
+        id: "3.3.19",
+        text: "Long-term effects on views and visual amenity from pipeline corridors during all phases",
+      },
+    ],
   },
   {
-    id: "3.11",
-    text: "Pipeline route passes through the Peak District National Park",
+    chapter: "3.4",
+    title: "Traffic and Movement",
+    items: [
+      {
+        id: "3.4.1",
+        text: "Decommissioning traffic impacts not assessed: severance, driver delay, non-motorised user delay, amenity, fear and intimidation all scoped out",
+      },
+      {
+        id: "3.4.3",
+        text: "Hazardous and large loads during operation and decommissioning not assessed",
+      },
+    ],
   },
   {
-    id: "4.7\u20134.8",
-    text: "Major accident and disaster risk assessment must consider CO\u2082 pipeline-specific hazards. Quantified Risk Assessment must cover the full route including populated areas",
+    chapter: "3.6",
+    title: "Historic Environment",
+    items: [
+      {
+        id: "3.6.13",
+        text: "Physical impacts to below-ground archaeological remains during operation. Groundwater changes from the pipeline could deteriorate remains",
+      },
+    ],
   },
   {
-    id: "4.9\u20134.10",
-    text: "Sensitive receptors (schools, hospitals, care homes) not identified. Emergency planning for CO\u2082 release near populated areas not adequately addressed",
+    chapter: "3.7",
+    title: "Water Environment and Flood Risk",
+    items: [
+      {
+        id: "3.7.1",
+        text: "Fluvial flood risk to capture facilities located in Flood Zones 2 and 3 during operation",
+      },
+      {
+        id: "3.7.9",
+        text: "Reservoir flood risk to pipeline and Coastal AGI during all phases. \u2018Managed risk\u2019 not defined or explained",
+      },
+    ],
   },
   {
-    id: "3.23\u20133.24",
-    text: "Landscape and Visual Impact Assessment must cover all AGI locations, including the 50m Coastal AGI vent stack",
+    chapter: "3.10",
+    title: "Socio-economics",
+    items: [
+      {
+        id: "3.10.3",
+        text: "Impacts on communities, facilities, visitor attractions and businesses not assessed. Design not finalised, avoidance of significant effects not assured",
+      },
+      {
+        id: "3.10.4",
+        text: "Impacts on residential properties during operation. Loss of property, access and amenity not assessed",
+      },
+    ],
   },
   {
-    id: "4.22",
-    text: "Socio-economic impacts including property values not scoped into the assessment",
+    chapter: "3.14",
+    title: "Major Accidents and Disasters",
+    items: [
+      {
+        id: "3.14.50",
+        text: "Tidal flooding risk on the Wirral peninsula during construction and decommissioning",
+      },
+      {
+        id: "3.14.51",
+        text: "Fluvial flooding where pipeline and AGIs cross Flood Zones 2 and 3",
+      },
+      {
+        id: "3.14.57",
+        text: "Wave surge risk to coastal pipeline and AGIs during construction and decommissioning",
+      },
+      {
+        id: "3.14.58",
+        text: "Extreme temperature impacts including heatwaves during all phases",
+      },
+      {
+        id: "3.14.68",
+        text: "Mine and storage cavern risks. Pipeline crosses multiple coal mining reporting areas",
+      },
+      {
+        id: "3.14.69",
+        text: "Fire risk at AGIs, BVSs and along the pipeline during all phases",
+      },
+      {
+        id: "3.14.71",
+        text: "Waterway crossing risks during operation and decommissioning",
+      },
+      {
+        id: "3.14.80",
+        text: "Unexploded ordnance in high-risk area within the scoping boundary",
+      },
+      {
+        id: "3.14.84",
+        text: "Flood defence failure risk during all phases. Contradicts the applicant\u2019s own scoping table",
+      },
+    ],
+  },
+  {
+    chapter: "13.4",
+    title: "Land Use (Natural England)",
+    items: [
+      {
+        id: "13.4",
+        text: "Agricultural Land Classification survey too narrow. Natural England requires a full ALC survey across the entire order limits, not just focussed areas",
+      },
+    ],
   },
 ];
 
@@ -115,7 +248,8 @@ export default function EvidencePage() {
     <div className="max-w-4xl mx-auto px-6 py-12">
       <h1 className="text-4xl font-bold text-[#FFD700] mb-2">The Evidence</h1>
       <p className="text-gray-400 mb-12">
-        What they don&apos;t tell you about CO&#8322; pipelines.
+        All the evidence you need to understand that Peak Cluster is not a
+        good idea.
       </p>
 
       {/* ── Section 1: Physics ────────────────────────────────── */}
@@ -242,68 +376,7 @@ export default function EvidencePage() {
         </p>
       </div>
 
-      {/* ── Section 2: Scoping Opinion ───────────────────────── */}
-      <SectionHeading>What the Planning Inspectorate Said</SectionHeading>
-
-      <div className="space-y-4 text-gray-300 leading-relaxed">
-        <p>
-          The Planning Inspectorate&apos;s Scoping Opinion identified{" "}
-          <strong className="text-[#FFD700]">
-            29 instances where it does NOT agree
-          </strong>{" "}
-          with the applicant&apos;s proposed approach. Key criticisms:
-        </p>
-
-        <div className="space-y-2">
-          {SCOPING_CRITICISMS.map((c) => (
-            <div
-              key={c.id}
-              className="flex items-baseline gap-3 bg-white/8 border border-white/10 rounded p-3"
-            >
-              <span className="text-[#FFD700] font-mono text-sm w-20 shrink-0 text-right">
-                {c.id}
-              </span>
-              <span className="text-gray-300">{c.text}</span>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-gray-500 text-sm">
-          Source:{" "}
-          <a
-            href="https://national-infrastructure-consenting.planninginspectorate.gov.uk/projects/EN0710001/documents"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 underline"
-          >
-            Planning Inspectorate Scoping Opinion (EN0710001)
-          </a>
-        </p>
-      </div>
-
-      {/* ── Section 3: Webinar Admissions ────────────────────── */}
-      <SectionHeading>
-        What Peak Cluster Stated &mdash; In Their Own Words
-      </SectionHeading>
-
-      <div className="space-y-4 text-gray-300 leading-relaxed">
-        <p>
-          During their community webinars, Peak Cluster representatives fielded
-          direct questions from residents. Many answers were vague or deferred
-          to future design stages, while others were disarmingly candid about
-          the project&apos;s current gaps.
-        </p>
-        <p>
-          We reviewed both the <strong className="text-white">Wirral</strong>{" "}
-          and <strong className="text-white">Cheshire</strong> webinars and
-          selected the most significant exchanges. Click any quote to watch them
-          say it.
-        </p>
-
-        <WebinarPlayer />
-      </div>
-
-      {/* ── Section 4: CCS Track Record ──────────────────────── */}
+      {/* ── Section 2: CCS Track Record ──────────────────────── */}
       <SectionHeading>CCS Track Record</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
@@ -654,6 +727,81 @@ export default function EvidencePage() {
         </p>
       </div>
 
+      {/* ── Section 3: Webinar Admissions ────────────────────── */}
+      <SectionHeading>
+        What Peak Cluster Stated &mdash; In Their Own Words
+      </SectionHeading>
+
+      <div className="space-y-4 text-gray-300 leading-relaxed">
+        <p>
+          During their community webinars, Peak Cluster representatives fielded
+          direct questions from residents. Many answers were vague or deferred
+          to future design stages, while others were disarmingly candid about
+          the project&apos;s current gaps.
+        </p>
+        <p>
+          We reviewed both the <strong className="text-white">Wirral</strong>{" "}
+          and <strong className="text-white">Cheshire</strong> webinars and
+          selected the most significant exchanges. Click any quote to watch them
+          say it.
+        </p>
+
+        <WebinarPlayer />
+      </div>
+
+      {/* ── Section 4: Scoping Opinion ───────────────────────── */}
+      <SectionHeading>What the Planning Inspectorate Said</SectionHeading>
+
+      <div className="space-y-4 text-gray-300 leading-relaxed">
+        <p>
+          The Planning Inspectorate&apos;s Scoping Opinion identified{" "}
+          <strong className="text-[#FFD700]">
+            32 instances where it does NOT agree
+          </strong>{" "}
+          with the applicant&apos;s proposed approach, spanning 8 assessment
+          chapters:
+        </p>
+
+        <div className="space-y-6">
+          {SCOPING_CHAPTERS.map((ch) => (
+            <div key={ch.chapter}>
+              <h3 className="text-white font-bold text-sm mb-2">
+                <span className="text-[#FFD700] font-mono">{ch.chapter}</span>{" "}
+                {ch.title}{" "}
+                <span className="text-gray-600 font-normal">
+                  ({ch.items.length})
+                </span>
+              </h3>
+              <div className="space-y-1.5">
+                {ch.items.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex items-baseline gap-3 bg-white/8 border border-white/10 rounded p-3"
+                  >
+                    <span className="text-[#FFD700] font-mono text-sm w-16 shrink-0 text-right">
+                      {c.id}
+                    </span>
+                    <span className="text-gray-300 text-sm">{c.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-gray-500 text-sm mt-4">
+          Source:{" "}
+          <a
+            href="https://nsip-documents.planninginspectorate.gov.uk/published-documents/EN0710001-000018-EN0710001%20-%20EIA%20Scoping%20Opinion.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 underline"
+          >
+            Planning Inspectorate Scoping Opinion (EN0710001)
+          </a>
+        </p>
+      </div>
+
       {/* ── Section 5: Satartia ─────────────────────────────────── */}
       <SectionHeading>The Satartia Incident (2020)</SectionHeading>
 
@@ -733,6 +881,95 @@ export default function EvidencePage() {
             className="text-blue-400 underline"
           >
             Oil &amp; Gas Watch analysis of PHMSA data (July 2024)
+          </a>
+        </p>
+      </div>
+
+      {/* ── Section 7: Holcim / Lafarge ─────────────────────── */}
+      <SectionHeading>
+        Peak Cluster Partner Convicted of Financing ISIS
+      </SectionHeading>
+
+      <div className="bg-red-950/30 border border-red-900/50 rounded-lg p-6 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Stat value="$6.5M" label="paid to jihadist groups" />
+          <Stat
+            value="6 yrs"
+            label="jail for former CEO"
+            color="text-orange-500"
+          />
+          <Stat value="$778M" label="US penalty (2022)" />
+          <Stat
+            value="8"
+            label="employees found guilty"
+            color="text-red-400"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-4 text-gray-300 leading-relaxed">
+        <p>
+          <strong className="text-white">Holcim</strong> operates the Cauldon
+          cement works and is one of four industrial partners in{" "}
+          <strong className="text-white">Peak Cluster Limited</strong>, the
+          joint venture developing this pipeline. Holcim acquired Lafarge in
+          2015.
+        </p>
+        <p>
+          On <strong className="text-white">11 April 2026</strong>, a Paris
+          court found <strong className="text-red-400">Lafarge guilty</strong>{" "}
+          of financing terrorism, including Islamic State. Between 2013 and
+          2014, Lafarge paid $6.5 million to jihadist groups to keep its cement
+          plant running in northern Syria. The court described these payments as
+          a{" "}
+          <strong className="text-white">
+            &ldquo;genuine commercial partnership with IS&rdquo;
+          </strong>
+          .
+        </p>
+        <p>
+          Eight former employees were convicted. Former CEO Bruno Lafont was
+          sentenced to six years in prison. Former deputy managing director
+          Christian Herrault received five years. Firas Tlass, a Syrian
+          ex-employee who made the payments, was sentenced in absentia to seven
+          years.
+        </p>
+        <p>
+          This was the first time a company was tried in France for financing
+          terrorism. The conviction follows a 2022 case in the United States
+          where Lafarge admitted supporting proscribed groups and agreed to pay a{" "}
+          <strong className="text-white">$777.8 million</strong> penalty.
+        </p>
+
+        <div className="bg-red-950/20 border border-red-900/30 rounded-lg p-4 mt-2">
+          <p className="text-sm">
+            A separate French investigation into Lafarge&apos;s{" "}
+            <strong className="text-white">
+              complicity in crimes against humanity
+            </strong>{" "}
+            in Syria remains ongoing.
+          </p>
+        </div>
+
+        <p>
+          Holcim told the BBC it acknowledged the court&apos;s finding, calling
+          it a &ldquo;legacy matter involving conduct that occurred more than a
+          decade ago&rdquo;. The Cauldon plant capturing CO&#8322; for Peak
+          Cluster is a different facility, but the conviction raises serious
+          questions about the corporate governance and due diligence of a key
+          consortium partner.
+        </p>
+
+        <p className="text-gray-500 text-sm">
+          Source:{" "}
+          <a
+            href="https://www.bbc.co.uk/news/articles/crl1441816po"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 underline"
+          >
+            BBC News: French cement giant guilty of financing militant groups
+            including Islamic State (April 2026)
           </a>
         </p>
       </div>
