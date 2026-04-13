@@ -31,3 +31,19 @@ export type LayerVisibility = {
   schools: boolean;
   property: boolean;
 };
+
+export type StreetViewHotspot = {
+  agiName: string;
+  towerHeight: number;
+  towerLabel: string;
+  facility: { width: number; depth: number };
+  landmark: {
+    name: string;
+    height: number;
+    silhouette: "lighthouse" | "church" | "house" | "tree";
+  };
+  humanScale: boolean;
+  showTerracedHouses: boolean;
+  description: string;
+  illustrationSrc?: string;
+};
