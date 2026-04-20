@@ -210,12 +210,6 @@ function HomeContent() {
           </div>
         )}
 
-        <div className="absolute bottom-10 md:bottom-1 right-3 z-10">
-          <p className="text-[11px] text-gray-400 bg-black/80 backdrop-blur-sm px-2 py-1 rounded">
-            Route approximate, digitised from Peak Cluster&apos;s public
-            consultation maps
-          </p>
-        </div>
 
         {/* Mobile: bottom sheet for risk/feature info */}
         <div className="md:hidden">
