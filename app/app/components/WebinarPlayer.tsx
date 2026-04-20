@@ -8,7 +8,6 @@ type Quote = {
   question_timestamp_display: string;
   speaker: string;
   answer: string;
-  theme: string;
 };
 
 type Webinar = {
@@ -19,48 +18,6 @@ type Webinar = {
   quotes: Quote[];
 };
 
-const THEME_LABELS: Record<string, { label: string; color: string }> = {
-  no_local_benefit: { label: "No local benefit", color: "text-amber-400" },
-  evasive_answer: { label: "Evasive answer", color: "text-red-400" },
-  emergency_unpreparedness: {
-    label: "No emergency plan",
-    color: "text-red-500",
-  },
-  biodiversity_unknown: {
-    label: "Biodiversity unknown",
-    color: "text-green-400",
-  },
-  compulsory_purchase: {
-    label: "Compulsory purchase",
-    color: "text-purple-400",
-  },
-  property_dismissal: {
-    label: "Property impact denied",
-    color: "text-orange-400",
-  },
-  eia_independence: { label: "EIA independence", color: "text-blue-400" },
-  no_alternative: { label: "No alternative route", color: "text-gray-400" },
-  unanswered_questions: { label: "Questions dodged", color: "text-gray-400" },
-  safety_evasion: { label: "Safety evasion", color: "text-red-500" },
-  design_not_ready: { label: "Design incomplete", color: "text-amber-400" },
-  proximity_to_homes: { label: "Close to homes", color: "text-red-400" },
-  pipeline_expansion: { label: "Hidden expansion", color: "text-purple-400" },
-  incomplete_capture: {
-    label: "Incomplete capture",
-    color: "text-orange-400",
-  },
-  eia_incomplete: { label: "EIA incomplete", color: "text-blue-400" },
-  route_predetermined: {
-    label: "Route predetermined",
-    color: "text-gray-400",
-  },
-  green_belt_spin: { label: "Green belt spin", color: "text-green-400" },
-  construction_disruption: {
-    label: "Construction disruption",
-    color: "text-amber-400",
-  },
-  perpetual_deferral: { label: "Perpetual deferral", color: "text-gray-400" },
-};
 
 const WIRRAL_QUOTES: Quote[] = [
   {
@@ -71,7 +28,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "The industry isn\u2019t here on the Wirral. In fact, you know, there isn\u2019t that much carbon intensive industry on the Wirral.",
-    theme: "no_local_benefit",
+
   },
   {
     question:
@@ -81,7 +38,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "Clearly construction of pipelines, construction of carbon capture facilities, those will be with specialist contractors.",
-    theme: "no_local_benefit",
+
   },
   {
     question:
@@ -91,7 +48,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Susan McKenzie (Spirit Energy)",
     answer:
       "I don\u2019t think I can answer all your questions in the level of detail that I suspect you\u2019d like because we are still doing the design.",
-    theme: "evasive_answer",
+
   },
   {
     question:
@@ -101,7 +58,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Susan McKenzie (Spirit Energy)",
     answer:
       "We don\u2019t have precise numbers on the amount of CO\u2082 that would be vented because we haven\u2019t completed the design.",
-    theme: "evasive_answer",
+
   },
   {
     question:
@@ -111,7 +68,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Susan McKenzie (Spirit Energy)",
     answer:
       "I don\u2019t think I can say that much more on it at the moment because we are undertaking our studies. We\u2019re doing dispersions analysis to confirm the design.",
-    theme: "evasive_answer",
+
   },
   {
     question: "How would you inform residents in case of an emergency?",
@@ -119,7 +76,7 @@ const WIRRAL_QUOTES: Quote[] = [
     question_timestamp_display: "77:11",
     speaker: "John (Progressive Energy)",
     answer: "I think we\u2019re probably a little early for that.",
-    theme: "emergency_unpreparedness",
+
   },
   {
     question:
@@ -128,7 +85,7 @@ const WIRRAL_QUOTES: Quote[] = [
     question_timestamp_display: "77:11",
     speaker: "Susan McKenzie (Spirit Energy)",
     answer: "Yeah, we are a little early for that.",
-    theme: "emergency_unpreparedness",
+
   },
   {
     question:
@@ -138,7 +95,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Chris Taylor (Peak Cluster)",
     answer:
       "The short answer to this is we don\u2019t yet know because we don\u2019t know exactly where the pipeline will go and we don\u2019t know exactly what impacts we will have.",
-    theme: "biodiversity_unknown",
+
   },
   {
     question:
@@ -148,7 +105,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Charles (Land/Property)",
     answer:
       "We will be seeking our compulsory purchase powers. And I would stress that is an absolute fallback for the project. We do not want to have to use them but it is something which we need to seek.",
-    theme: "compulsory_purchase",
+
   },
   {
     question: "Can you force entry onto private land even before construction?",
@@ -157,7 +114,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Charles (Land/Property)",
     answer:
       "We do have powers available to us\u2026 to serve notice under the Housing and Planning Act to enter onto the land to undertake those surveys.",
-    theme: "compulsory_purchase",
+
   },
   {
     question: "How would house prices be affected?",
@@ -166,7 +123,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Charles (Land/Property)",
     answer:
       "Having a pipeline located to a property does not materially impact the value of the property\u2026 and there is no study which shows that. However, where there are above ground installations, there could potentially be an impact.",
-    theme: "property_dismissal",
+
   },
   {
     question: "Why is the EIA funded by Peak Cluster \u2014 is it independent?",
@@ -175,7 +132,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Mike (EIA/ARUP-AECOM)",
     answer:
       "Obviously, you know, up front we are paid by Peak Cluster to do the work.",
-    theme: "eia_independence",
+
   },
   {
     question:
@@ -185,7 +142,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "Chris Taylor (Peak Cluster)",
     answer:
       "That HyNet system, all the capacity in that is already allocated. So that\u2019s not an option for the CO\u2082 from there. So it does need to be a new pipeline system.",
-    theme: "no_alternative",
+
   },
   {
     question:
@@ -195,7 +152,7 @@ const WIRRAL_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "I recognise there are probably questions in there that we haven\u2019t\u2026 we\u2019ve tried to group them. So I hope we\u2019ve covered, even if it wasn\u2019t precisely your question.",
-    theme: "unanswered_questions",
+
   },
 ];
 
@@ -208,7 +165,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "This does not mean that we can avoid building the pipeline under green belt land\u2026 But actually the other way to think about this is a pipeline like this actually prevents development on certain areas of green belt land.",
-    theme: "green_belt_spin",
+
   },
   {
     question:
@@ -218,7 +175,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "Jim Doyle (Consents Manager)",
     answer:
       "We will undertake baseline surveys. So we need to understand what the environment is like now. What\u2019s the ambient noise level? What sort of protected species are there?",
-    theme: "eia_incomplete",
+
   },
   {
     question: "What about compulsory purchase?",
@@ -227,7 +184,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "Charles (Land/Property)",
     answer:
       "The project will be seeking its compulsory purchase powers under the development consent order, and we have to let everyone know that.",
-    theme: "compulsory_purchase",
+
   },
   {
     question: "What size will the AGI be?",
@@ -236,7 +193,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "Clearly we\u2019ve not done the detail design because this is a relatively early stage of consultation.",
-    theme: "design_not_ready",
+
   },
   {
     question:
@@ -246,7 +203,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "The pipeline will be designed according to the same standards that are used for high pressure gas networks.",
-    theme: "safety_evasion",
+
   },
   {
     question: "How close will the pipeline be to residential properties?",
@@ -255,7 +212,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "Jim Doyle (Consents Manager)",
     answer:
       "There are areas where we may be maybe a little closer, in areas where we are a little constrained.",
-    theme: "proximity_to_homes",
+
   },
   {
     question:
@@ -265,7 +222,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "There\u2019s no kind of single answer. It\u2019s going to be each situation will be different. Clearly, if there are places where there are foot paths, we might have to temporarily close a foot path or a road.",
-    theme: "construction_disruption",
+
   },
   {
     question:
@@ -275,7 +232,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "This is a first consultation. So there will be a good period of time to review all of that information ahead of the second consultation.",
-    theme: "perpetual_deferral",
+
   },
   {
     question:
@@ -285,7 +242,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "The pipeline will have capacity to carry more CO\u2082 than just the cement and lime producers. Some of the above ground installations are named as connection above ground installations because we\u2019re intentionally designing that in a way so that further pipelines could be connected.",
-    theme: "pipeline_expansion",
+
   },
   {
     question:
@@ -295,7 +252,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "When you do that analysis it\u2019s surprising how few places are available, both because of existing development, housing and so on along the coast, the geography.",
-    theme: "route_predetermined",
+
   },
   {
     question:
@@ -305,7 +262,7 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "John (Progressive Energy)",
     answer:
       "Each are looking at technologies that will capture between kind of typically 90 to 95% of the CO\u2082 that is currently emitted. Clearly you want to get as high as possible.",
-    theme: "incomplete_capture",
+
   },
   {
     question:
@@ -315,7 +272,231 @@ const CHESHIRE_QUOTES: Quote[] = [
     speaker: "Charles (Land/Property)",
     answer:
       "Where there is a pipeline which is buried this would not normally affect any property prices. However it is where we have AGI facilities there is a potential for affecting house prices.",
-    theme: "property_dismissal",
+
+  },
+];
+
+const WIRRAL_ADDITIONAL_1_QUOTES: Quote[] = [
+  {
+    question:
+      "When will the environmental impact assessment detail and baseline survey findings be available?",
+    question_timestamp_seconds: 3240,
+    question_timestamp_display: "54:00",
+    speaker: "Chris (EIA)",
+    answer:
+      "That work is ongoing now. We\u2019ve been out doing surveys for a number of months. The first sort of publication of the findings of the surveys will be a little bit later this year in our preliminary environmental information that\u2019ll come out for our phase 2 consultation.",
+
+  },
+  {
+    question:
+      "Are you presenting the worst case scenario for the environmental impact?",
+    question_timestamp_seconds: 3437,
+    question_timestamp_display: "57:17",
+    speaker: "Chris (EIA)",
+    answer:
+      "Sometimes in that application there\u2019s a little bit of flexibility required or maybe some different options that allow us to continue detailed design after that application has been made.",
+
+  },
+  {
+    question:
+      "What will be the impact on local businesses during construction?",
+    question_timestamp_seconds: 3698,
+    question_timestamp_display: "61:38",
+    speaker: "Chris (EIA)",
+    answer:
+      "There will be a lot of work that\u2019s still to come in terms of minimising disruption during construction. There will be very detailed plans put in place, agreed with the local authority, that would control and manage construction traffic and impacts on that.",
+
+  },
+  {
+    question:
+      "What compensation will there be for local harm caused by the pipeline?",
+    question_timestamp_seconds: 3862,
+    question_timestamp_display: "64:22",
+    speaker: "Charles Davenport (Lands Team)",
+    answer:
+      "Not all of the properties in the area will be directly affected. Where no land is affected directly, there are possible adverse impacts which may affect ownerships and values, and therefore that\u2019s dealt with through the compensation code, which is a statutory mechanism to allow eligible property owners to seek compensation for those losses in value.",
+
+  },
+  {
+    question:
+      "Is information being withheld or presented in a misleading way?",
+    question_timestamp_seconds: 4050,
+    question_timestamp_display: "67:30",
+    speaker: "Rob (Peak Cluster)",
+    answer:
+      "Going out early does mean that we are in an earlier stage of our engineering development, an earlier stage of our environmental surveys and all the other various aspects. So that necessarily means we have a lower level of detail.",
+
+  },
+  {
+    question: "Is this project already a done deal?",
+    question_timestamp_seconds: 4153,
+    question_timestamp_display: "69:13",
+    speaker: "Rob (Peak Cluster)",
+    answer:
+      "We obviously as a promoter and an applicant believe that this is an important project in terms of the future of cement and lime industry in the UK and decarbonization of those industries. We will make that case, but we will have to show how we\u2019ve sought to reduce impacts, why we\u2019ve decided on the routes that we have for our pipeline.",
+
+  },
+  {
+    question:
+      "What are the long-term implications of high pressure CO\u2082 being stored under the sea? Fracking was considered safe until earthquakes were identified nearby.",
+    question_timestamp_seconds: 4422,
+    question_timestamp_display: "73:42",
+    speaker: "Susan (Morham Net Zero)",
+    answer:
+      "I am not an expert in fracking so I\u2019m going to have to just leave that one and not make reference to it.",
+
+  },
+  {
+    question:
+      "What\u2019s being done to minimise noise and light pollution from the coastal AGI, which appears close to residential areas?",
+    question_timestamp_seconds: 4578,
+    question_timestamp_display: "76:18",
+    speaker: "John Nicholson (Morham Net Zero)",
+    answer:
+      "The layout that we\u2019ve come up with, which was shown indicatively earlier, is the largest that we expect it would ever get to. Within that boundary of 300 by 180 is included any possible future expansion.",
+
+  },
+  {
+    question:
+      "What are the response times for pipeline leaks and CO\u2082 escape?",
+    question_timestamp_seconds: 4710,
+    question_timestamp_display: "78:30",
+    speaker: "Rob (Peak Cluster)",
+    answer:
+      "We will be undertaking those ongoing studies as we move through this year, building on the work we\u2019ve already done, to undertake a detailed safety case to be able to demonstrate how safe it is to operate and how we will deal with leaks effectively in the very unlikely event that they were to occur.",
+
+  },
+  {
+    question:
+      "How will you return land to the same or better condition when the route goes through areas of old woodland?",
+    question_timestamp_seconds: 4838,
+    question_timestamp_display: "80:38",
+    speaker: "Chris (EIA)",
+    answer:
+      "It is highly unlikely that we could get through 200 km of construction without removing a single tree. There will certainly be things like hedgerows that we will need to remove and reinstate.",
+
+  },
+  {
+    question:
+      "If the pipeline runs through green belt or farmland, does this mean the land cannot be built on?",
+    question_timestamp_seconds: 5043,
+    question_timestamp_display: "84:03",
+    speaker: "Rob (Peak Cluster)",
+    answer:
+      "It does mean it will be substantially restricted in terms of what can be built upon it. For example, it wouldn\u2019t be possible to put houses, farm buildings or other structures on top of the pipeline route.",
+
+  },
+  {
+    question:
+      "Is there a plan to take carbon dioxide from elsewhere in the country and plug it into this pipeline?",
+    question_timestamp_seconds: 5086,
+    question_timestamp_display: "84:46",
+    speaker: "Rob (Peak Cluster)",
+    answer:
+      "Government policy requires us to think about expansion. Pipelines can sometimes carry more gas even if they don\u2019t increase in size. So we\u2019re carefully considering what we know at the current time.",
+
+  },
+];
+
+const WIRRAL_ADDITIONAL_2_QUOTES: Quote[] = [
+  {
+    question:
+      "What safety measures are in place for emergency response plans and long-term guarantees to human safety?",
+    question_timestamp_seconds: 2668,
+    question_timestamp_display: "44:28",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "We haven\u2019t yet done the full safety case because we\u2019re clearly still designing the pipeline. We don\u2019t know its exact route.",
+  },
+  {
+    question:
+      "Is it safe to have the pipeline close to dense populations, hospitals, and critical services in one of the UK\u2019s most densely populated peninsulas?",
+    question_timestamp_seconds: 2728,
+    question_timestamp_display: "45:28",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "The answer to that is yes it is, but that is obviously subject to our safety assessment.",
+  },
+  {
+    question:
+      "How is the claim that Peak Cluster will produce low-carbon cement justified given the project will use CO\u2082 across its life cycle including decommissioning?",
+    question_timestamp_seconds: 2766,
+    question_timestamp_display: "46:06",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "We haven\u2019t yet done the calculation on that because we don\u2019t know the exact pipeline length.",
+  },
+  {
+    question:
+      "Will there be future expansion, enlargement, or additional connections beyond the first phase of development?",
+    question_timestamp_seconds: 2917,
+    question_timestamp_display: "48:37",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "A number of the AGIs along the pipeline route are designed for future connections from other carbon dioxide emitters in the region. They\u2019re not part of the baseline scheme.",
+  },
+  {
+    question:
+      "How will noise and light impact be assessed during construction?",
+    question_timestamp_seconds: 3002,
+    question_timestamp_display: "50:02",
+    speaker: "Chris (EIA)",
+    answer:
+      "For some of those we would need to have some 24-hour working. So there might be a little bit of nighttime noise for a short period and we may need some safety lighting.",
+  },
+  {
+    question:
+      "How will the project benefit people, nature, and communities, not just industry?",
+    question_timestamp_seconds: 3638,
+    question_timestamp_display: "60:38",
+    speaker: "Chris (EIA)",
+    answer:
+      "Very aware that elsewhere along the pipeline route, that\u2019s of less immediate benefit to people whilst it might be of benefit to UK PLC. Exactly what form that will take, we are still working on.",
+  },
+  {
+    question:
+      "What impact will the pipeline have on property values?",
+    question_timestamp_seconds: 3950,
+    question_timestamp_display: "65:50",
+    speaker: "Charles Davenport (Lands Team)",
+    answer:
+      "The existence of the project does not automatically give rise to compensation, but we will consider all cases put to us.",
+  },
+  {
+    question:
+      "What tangible benefits, if any, will our population receive?",
+    question_timestamp_seconds: 4068,
+    question_timestamp_display: "67:48",
+    speaker: "Chris (EIA)",
+    answer:
+      "This is something that we are working through at the moment as to exactly what form that will take. Whether that will be a dedicated community benefit fund or some other means of making a tangible difference to local communities.",
+  },
+  {
+    question:
+      "Why is this being decided nationally despite local opposition?",
+    question_timestamp_seconds: 4192,
+    question_timestamp_display: "69:52",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "We fully acknowledge that this is one of the main frustrations for every community along the pipeline route, the lack of local democracy in terms of this process. If every one of those had to secure the consent of the local community, then there\u2019s a very real possibility that very little infrastructure would get built across the UK.",
+  },
+  {
+    question:
+      "Has Spirit Energy managed a project like this before?",
+    question_timestamp_seconds: 4306,
+    question_timestamp_display: "71:46",
+    speaker: "Susan (Morham Net Zero / Spirit Energy)",
+    answer:
+      "Spirit itself has not been in existence for long enough to deliver a project of this size, but Spirit in its former guises has done exactly that in the East Irish Sea.",
+  },
+  {
+    question:
+      "Can you provide details of all the AGIs on the Wirral, including basic sizes, operational hours, noise levels, vehicle movements, lighting, and security?",
+    question_timestamp_seconds: 4652,
+    question_timestamp_display: "77:32",
+    speaker: "Dave (Peak Cluster)",
+    answer:
+      "Some of that we\u2019re not yet in a position to answer I\u2019m afraid. That\u2019s some of the engineering detail which we\u2019re working up over the next six months and will become available in our phase 2 consultation.",
   },
 ];
 
@@ -333,6 +514,20 @@ const WEBINARS: Webinar[] = [
     label: "Cheshire Webinar",
     date: "February 2026",
     quotes: CHESHIRE_QUOTES,
+  },
+  {
+    id: "wirral-additional-1",
+    videoId: "PObUN7BrEeM",
+    label: "Wirral Additional 1",
+    date: "April 2026",
+    quotes: WIRRAL_ADDITIONAL_1_QUOTES,
+  },
+  {
+    id: "wirral-additional-2",
+    videoId: "d0MtVyHxTd4",
+    label: "Wirral Additional 2",
+    date: "April 2026",
+    quotes: WIRRAL_ADDITIONAL_2_QUOTES,
   },
 ];
 
@@ -479,17 +674,8 @@ export default function WebinarPlayer() {
       </div>
 
       {/* Quotes */}
-      <p className="text-gray-400 text-xs italic">
-        Theme labels are our editorial interpretation. Watch the full recording
-        above to judge the context for yourself.
-      </p>
       <div className="space-y-4">
-        {webinar.quotes.map((q, index) => {
-          const themeInfo = THEME_LABELS[q.theme] || {
-            label: q.theme,
-            color: "text-gray-400",
-          };
-          return (
+        {webinar.quotes.map((q, index) => (
             <button
               key={`${webinar.id}-${q.question_timestamp_seconds}-${index}`}
               onClick={() =>
@@ -506,29 +692,19 @@ export default function WebinarPlayer() {
                   {q.question_timestamp_display}
                 </span>
                 <div className="flex-1 min-w-0 space-y-2">
-                  {/* The question */}
                   <p className="text-gray-300 text-sm font-medium">
                     <span className="text-gray-500">Q:</span> {q.question}
                   </p>
-                  {/* The answer */}
                   <p className="text-white italic leading-relaxed">
                     &ldquo;{q.answer}&rdquo;
                   </p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-gray-500 text-xs">
-                      &mdash; {q.speaker}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-white/8 ${themeInfo.color}`}
-                    >
-                      {themeInfo.label}
-                    </span>
-                  </div>
+                  <span className="text-gray-500 text-xs">
+                    &mdash; {q.speaker}
+                  </span>
                 </div>
               </div>
             </button>
-          );
-        })}
+          ))}
       </div>
     </div>
   );

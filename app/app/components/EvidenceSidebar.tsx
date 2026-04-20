@@ -6,6 +6,7 @@ const SECTIONS = [
   { id: "physics", label: "Physics of CO\u2082 Failure" },
   { id: "ccs-track-record", label: "CCS Track Record" },
   { id: "webinar", label: "Webinar Admissions" },
+  { id: "import-terminal", label: "CO\u2082 Import Terminal" },
   { id: "planning-inspectorate", label: "Planning Inspectorate" },
   { id: "satartia", label: "Satartia Incident" },
   { id: "sulphur", label: "Sulphur, Louisiana" },

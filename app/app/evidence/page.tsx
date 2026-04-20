@@ -756,8 +756,7 @@ export default function EvidencePage() {
           the project&apos;s current gaps.
         </p>
         <p>
-          We reviewed both the <strong className="text-white">Wirral</strong>{" "}
-          and <strong className="text-white">Cheshire</strong> webinars and
+          We reviewed the webinars held in February and April 2026 and
           selected the most significant exchanges. Click any quote to watch them
           say it.
         </p>
@@ -765,7 +764,64 @@ export default function EvidencePage() {
         <WebinarPlayer />
       </div>
 
-      {/* ── Section 4: Scoping Opinion ───────────────────────── */}
+      {/* ── Section 4: CO₂ Import Terminal ─────────────────────── */}
+      <SectionHeading id="import-terminal">
+        CO&#8322; Import Terminal at Stanlow
+      </SectionHeading>
+
+      <div className="space-y-4 text-gray-300 leading-relaxed">
+        <p>
+          In February 2026, Spirit Energy, Progressive Energy, and Essar Energy
+          Transition announced a collaboration to build a{" "}
+          <strong className="text-white">
+            CO&#8322; shipping import terminal
+          </strong>{" "}
+          at Stanlow/Tranmere within the Port of Liverpool. The terminal would
+          receive CO&#8322; by ship and transport it to Spirit Energy&apos;s
+          Morecambe Net Zero store in the East Irish Sea. This is the same
+          store that the Peak Cluster pipeline connects to.
+        </p>
+        <p>
+          Spirit Energy&apos;s own director stated they are{" "}
+          <em>
+            &ldquo;investigating the potential to provide a route to
+            decarbonisation for emitters from around the UK via the Stanlow
+            site.&rdquo;
+          </em>
+        </p>
+        <p>
+          Peak Cluster is presented to local communities as a project to
+          decarbonise four cement and lime producers in the Peak District,
+          capturing roughly 3 million tonnes of CO&#8322; per year. But the
+          Morecambe Net Zero store has{" "}
+          <strong className="text-white">one billion tonnes</strong> of capacity,
+          and Spirit Energy states it could begin storing{" "}
+          <strong className="text-white">
+            four million tonnes per year from 2030
+          </strong>{" "}
+          , already exceeding Peak Cluster&apos;s own output. The shipping
+          terminal would bring CO&#8322; from emitters across the country into
+          the same infrastructure.
+        </p>
+        <p>
+          The Wirral coast is being positioned as the onshore gateway for a
+          national CO&#8322; disposal network, well beyond the four cement and
+          lime plants that Peak Cluster presents as its purpose.
+        </p>
+        <p className="text-gray-500 text-xs">
+          Source:{" "}
+          <a
+            href="https://businesscrack.co.uk/2026/02/23/morecambe-bay-carbon-capture-store-plans-progress/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gray-300"
+          >
+            BusinessCrack, 23 February 2026
+          </a>
+        </p>
+      </div>
+
+      {/* ── Section 5: Scoping Opinion ───────────────────────── */}
       <SectionHeading id="planning-inspectorate">What the Planning Inspectorate Said</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
