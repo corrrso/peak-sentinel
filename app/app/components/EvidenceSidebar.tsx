@@ -59,9 +59,9 @@ export default function EvidenceSidebar() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  /* ── Body scroll lock ────────────────────────────────────── */
+  /* ── Body scroll lock (mobile drawer only) ───────────────── */
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && window.matchMedia("(max-width: 1023px)").matches) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
@@ -91,37 +91,11 @@ export default function EvidenceSidebar() {
 
   return (
     <>
-      {/* ── Desktop: floating sidebar ────────────────────────── */}
-      <div
-        className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-40"
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-      >
-        {/* Collapsed tab */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          aria-controls="sidebar-panel"
-          aria-label="Open table of contents"
-          className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity duration-150 ${
-            isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
-        >
-          <div className="bg-black/80 backdrop-blur border border-white/10 border-l-0 rounded-r-lg px-1.5 py-4 flex flex-col items-center gap-1">
-            <span className="text-[#FFD700] text-[10px] font-bold tracking-widest uppercase [writing-mode:vertical-lr] rotate-180">
-              Contents
-            </span>
-          </div>
-        </button>
-
-        {/* Expanded panel */}
+      {/* ── Desktop: always-visible sidebar ───────────────────── */}
+      <div className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-40">
         <div
           id="sidebar-panel"
-          className={`bg-black/85 backdrop-blur-md border border-white/10 border-l-0 rounded-r-xl p-4 pr-5 min-w-[220px] transition-all duration-200 ${
-            isOpen
-              ? "translate-x-0 opacity-100"
-              : "-translate-x-full opacity-0 pointer-events-none"
-          }`}
+          className="bg-black/85 backdrop-blur-md border border-white/10 border-l-0 rounded-r-xl p-4 pr-5 min-w-[220px]"
         >
           <div className="text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-3">
             Contents
@@ -137,7 +111,7 @@ export default function EvidenceSidebar() {
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
           aria-controls="mobile-drawer"
-          className="fixed bottom-6 left-4 z-40 bg-black/90 backdrop-blur border border-[#FFD700]/30 rounded-full px-4 py-2.5 flex items-center gap-2 shadow-lg shadow-black/50"
+          className="fixed top-20 left-4 z-40 bg-black/90 backdrop-blur border border-[#FFD700]/30 rounded-full px-3 py-2 flex items-center gap-2 shadow-lg shadow-black/50"
         >
           <svg
             width="16"

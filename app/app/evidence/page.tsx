@@ -197,8 +197,8 @@ function ProjectCard({
 }) {
   return (
     <details className="group bg-white/8 border border-white/10 rounded-lg">
-      <summary className="flex items-center justify-between gap-3 p-4 cursor-pointer list-none">
-        <div className="flex items-center gap-3 min-w-0">
+      <summary className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 p-4 cursor-pointer list-none">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-white font-bold">{name}</span>
           <span className="text-gray-500 text-sm shrink-0">
             {country}, {year}

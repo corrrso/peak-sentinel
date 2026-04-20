@@ -479,7 +479,7 @@ export default function WebinarPlayer() {
       </div>
 
       {/* Quotes */}
-      <p className="text-gray-600 text-xs italic">
+      <p className="text-gray-400 text-xs italic">
         Theme labels are our editorial interpretation. Watch the full recording
         above to judge the context for yourself.
       </p>
