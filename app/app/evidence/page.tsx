@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import WebinarPlayer from "../components/WebinarPlayer";
+import EvidenceSidebar from "../components/EvidenceSidebar";
 
 export const metadata: Metadata = {
   title: "The Evidence — Peak Sentinel",
@@ -223,9 +224,20 @@ function ProjectCard({
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+function SectionHeading({
+  id,
+  children,
+}: {
+  id?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <h2 className="text-2xl font-bold text-[#FFD700] mt-12 mb-4">{children}</h2>
+    <h2
+      id={id}
+      className="text-2xl font-bold text-[#FFD700] mt-12 mb-4 scroll-mt-20"
+    >
+      {children}
+    </h2>
   );
 }
 
@@ -249,6 +261,7 @@ function Stat({
 export default function EvidencePage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
+      <EvidenceSidebar />
       <h1 className="text-4xl font-bold text-[#FFD700] mb-2">The Evidence</h1>
       <p className="text-gray-400 mb-12">
         All the evidence you need to understand that Peak Cluster is not a good
@@ -256,7 +269,7 @@ export default function EvidencePage() {
       </p>
 
       {/* ── Section 1: Physics ────────────────────────────────── */}
-      <SectionHeading>The Physics of CO&#8322; Pipeline Failure</SectionHeading>
+      <SectionHeading id="physics">The Physics of CO&#8322; Pipeline Failure</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
@@ -380,7 +393,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 2: CCS Track Record ──────────────────────── */}
-      <SectionHeading>CCS Track Record</SectionHeading>
+      <SectionHeading id="ccs-track-record">CCS Track Record</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
@@ -731,7 +744,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 3: Webinar Admissions ────────────────────── */}
-      <SectionHeading>
+      <SectionHeading id="webinar">
         What Peak Cluster Stated &mdash; In Their Own Words
       </SectionHeading>
 
@@ -753,7 +766,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 4: Scoping Opinion ───────────────────────── */}
-      <SectionHeading>What the Planning Inspectorate Said</SectionHeading>
+      <SectionHeading id="planning-inspectorate">What the Planning Inspectorate Said</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
@@ -806,7 +819,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 5: Satartia ─────────────────────────────────── */}
-      <SectionHeading>The Satartia Incident (2020)</SectionHeading>
+      <SectionHeading id="satartia">The Satartia Incident (2020)</SectionHeading>
 
       <div className="bg-red-950/30 border border-red-900/50 rounded-lg p-6 mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -850,7 +863,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 6: Sulphur, Louisiana ─────────────────────── */}
-      <SectionHeading>Sulphur, Louisiana (2024)</SectionHeading>
+      <SectionHeading id="sulphur">Sulphur, Louisiana (2024)</SectionHeading>
 
       <div className="space-y-4 text-gray-300 leading-relaxed">
         <p>
@@ -886,7 +899,7 @@ export default function EvidencePage() {
       </div>
 
       {/* ── Section 7: Holcim / Lafarge ─────────────────────── */}
-      <SectionHeading>
+      <SectionHeading id="holcim">
         Peak Cluster Partner Convicted of Financing ISIS
       </SectionHeading>
 

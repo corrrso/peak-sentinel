@@ -15,7 +15,7 @@ const HOTSPOTS: StreetViewHotspot[] = [
     humanScale: true,
     showTerracedHouses: true,
     description:
-      "The Coastal AGI facility would span 300m × 180m with a 50m vent stack — dwarfing the Leasowe Lighthouse and surrounding homes.",
+      "The Coastal AGI facility would span 300m × 180m with a 50m vent stack, dwarfing the Leasowe Lighthouse and surrounding homes.",
   },
   {
     agiName: "Hope AGI",
