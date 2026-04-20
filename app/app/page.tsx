@@ -17,24 +17,6 @@ import MobileLayerButton from "./components/MobileLayerButton";
 
 const Map = dynamic(() => import("./components/Map"), { ssr: false });
 
-function DateCard({
-  date,
-  title,
-  description,
-}: {
-  date: string;
-  title: string;
-  description: React.ReactNode;
-}) {
-  return (
-    <div className="bg-white/8 border border-white/10 rounded-lg p-4">
-      <div className="text-[#FFD700] font-mono text-sm mb-1">{date}</div>
-      <div className="text-white font-bold">{title}</div>
-      <div className="text-gray-300 text-sm mt-1">{description}</div>
-    </div>
-  );
-}
-
 function HomeContent() {
   const searchParams = useSearchParams();
   const urlPostcode = searchParams.get("postcode");
@@ -299,52 +281,6 @@ function HomeContent() {
             </div>
           </section>
 
-          {/* Key Dates */}
-          <section>
-            <h2 className="text-2xl font-bold text-[#FFD700] mb-6">
-              Key Dates
-            </h2>
-            <div className="space-y-4">
-              <DateCard
-                date="31 Mar &ndash; 8 May 2026"
-                title="Wirral Additional Engagement"
-                description="The developer is running an additional engagement period for the Wirral section of the route."
-              />
-              <DateCard
-                date="20 April 2026"
-                title="In-Person Event"
-                description="Floral Pavilion, New Brighton, CH45 2JS. Attend and ask questions directly."
-              />
-              <DateCard
-                date="1 April &amp; 14 April 2026"
-                title="Online Webinars"
-                description={
-                  <>
-                    7:00&ndash;8:30pm via Zoom.{" "}
-                    <a
-                      href="https://peakcluster-consultation.co.uk/index.php?contentid=7"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 underline hover:text-blue-300"
-                    >
-                      Register here
-                    </a>
-                    .
-                  </>
-                }
-              />
-              <DateCard
-                date="Late 2026"
-                title="Phase 2 Consultation"
-                description="The developer will publish more detail including Environmental Impact Assessment."
-              />
-              <DateCard
-                date="September 2027 (expected)"
-                title="DCO Application"
-                description="Development Consent Order submitted to the Planning Inspectorate. This is when formal objections carry most weight."
-              />
-            </div>
-          </section>
 
           {/* Get Involved */}
           <section>
