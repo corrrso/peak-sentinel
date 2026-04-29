@@ -18,6 +18,7 @@ import geopandas as gpd
 import pandas as pd
 import requests
 from shapely.geometry import Point
+from shapely.prepared import prep
 
 from scripts.utils import (
     load_geojson, save_geojson, to_bng, find_column,
@@ -31,6 +32,7 @@ SOCIAL_DIR.mkdir(parents=True, exist_ok=True)
 POSTCODE_LAT_STEP = 0.0045
 POSTCODE_LON_STEP = 0.0075
 POSTCODE_SEARCH_RADIUS_M = 1000
+POSTCODE_SEARCH_LIMIT = 30
 
 
 def download_schools():
@@ -146,13 +148,18 @@ def main():
         bounds = corridor.total_bounds  # xmin, ymin, xmax, ymax
         print(f"  Corridor bounds: {bounds[0]:.3f},{bounds[1]:.3f} to {bounds[2]:.3f},{bounds[3]:.3f}")
 
+        # Buffer corridor in WGS84 (~0.03° ≈ 3km at UK latitudes)
+        # to skip grid points far from the corridor
+        corridor_wgs_buf = prep(corridor.union_all().buffer(0.03))
+
         # Count total queries for progress reporting
         total_queries = 0
         lat = bounds[1]
         while lat <= bounds[3]:
             lon = bounds[0]
             while lon <= bounds[2]:
-                total_queries += 1
+                if corridor_wgs_buf.contains(Point(lon, lat)):
+                    total_queries += 1
                 lon += POSTCODE_LON_STEP
             lat += POSTCODE_LAT_STEP
 
@@ -164,13 +171,16 @@ def main():
         while lat <= bounds[3]:
             lon = bounds[0]
             while lon <= bounds[2]:
+                if not corridor_wgs_buf.contains(Point(lon, lat)):
+                    lon += POSTCODE_LON_STEP
+                    continue
                 try:
                     resp = requests.get(
                         "https://api.postcodes.io/postcodes",
                         params={
                             "lon": round(lon, 5),
                             "lat": round(lat, 5),
-                            "limit": 10,
+                            "limit": POSTCODE_SEARCH_LIMIT,
                             "radius": POSTCODE_SEARCH_RADIUS_M,
                         },
                         timeout=10,
