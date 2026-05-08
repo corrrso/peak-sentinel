@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import LayerPanel from "./components/LayerPanel";
 import PostcodeLookup from "./components/PostcodeLookup";
 import RiskCard from "./components/RiskCard";
-import ObjectionGenerator from "./components/ObjectionGenerator";
+import ObjectionLetter from "./components/ObjectionLetter";
 import StreetViewModal from "./components/StreetViewModal";
 import type { ClickedFeature } from "./components/Map";
 import type { LayerVisibility, PostcodeData } from "./types";
@@ -240,16 +240,16 @@ function HomeContent() {
             {selectedPostcode ? (
               <>
                 <p className="text-gray-300 mb-8">
-                  Generate a personalised objection letter based on the risks to
-                  your postcode. Edit freely before sending.
+                  Use the letter below to formally object to the Peak Cluster
+                  pipeline. Copy it and send it to the relevant authorities.
                 </p>
-                <ObjectionGenerator initialPostcode={selectedPostcode} />
+                <ObjectionLetter />
               </>
             ) : (
               <div className="bg-white/8 border border-white/10 rounded-lg p-8 text-center">
                 <p className="text-gray-300 text-lg">
-                  Search your postcode on the map above to generate a
-                  personalised objection letter.
+                  Search your postcode on the map above to see how the pipeline
+                  affects you and take action.
                 </p>
               </div>
             )}
