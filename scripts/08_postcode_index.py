@@ -45,9 +45,9 @@ def classify_risk(distance_m, in_sink):
     """Classify risk level based on distance and topographic sink status."""
     if distance_m < 500 and in_sink:
         return "critical"
-    if distance_m < 500 or in_sink:
+    if distance_m < 1000 or in_sink:
         return "high"
-    if distance_m < 1000:
+    if distance_m < 2000:
         return "medium"
     return "low"
 

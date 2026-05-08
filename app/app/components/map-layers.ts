@@ -26,6 +26,10 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
     label: "1km Buffer Zone",
     color: "#FFD700",
   },
+  "buffer-2km": {
+    label: "2km Buffer Zone",
+    color: "#FFD700",
+  },
   "env-fill": {
     label: "Protected Site",
     color: "#22C55E",

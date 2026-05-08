@@ -128,6 +128,22 @@ export default function Map({
                 data={data.corridor_buffered}
               >
                 <Layer
+                  id="buffer-2km"
+                  type="fill"
+                  paint={{ "fill-color": "#FFD700", "fill-opacity": 0.06 }}
+                  filter={["==", ["get", "buffer"], "2km"]}
+                />
+                <Layer
+                  id="buffer-2km-line"
+                  type="line"
+                  paint={{
+                    "line-color": "#FFD700",
+                    "line-opacity": 0.4,
+                    "line-dasharray": [6, 4],
+                  }}
+                  filter={["==", ["get", "buffer"], "2km"]}
+                />
+                <Layer
                   id="buffer-1km"
                   type="fill"
                   paint={{ "fill-color": "#FFD700", "fill-opacity": 0.05 }}
@@ -419,7 +435,7 @@ export default function Map({
                   filter={[
                     "<=",
                     ["get", "distance_m"],
-                    ["step", ["zoom"], 200, 11, 500, 12, 1000, 13, 2000],
+                    ["step", ["zoom"], 1000, 11, 3000, 12, 8000, 13, 20000],
                   ]}
                 />
                 <Layer

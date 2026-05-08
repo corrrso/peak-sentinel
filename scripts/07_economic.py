@@ -16,6 +16,7 @@ Output: data/processed/property_impact.geojson
 """
 
 import sys
+import math
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -82,16 +83,37 @@ DEFAULT_AVG = 260000
 
 def compute_depreciation(distance_m, in_viewshed, in_sink):
     """
-    Returns (low_pct, central_pct, high_pct) — all negative or zero.
+    Returns (low_pct, central_pct, high_pct) — all negative.
+    Percentages are rounded up (away from zero) and floored at -1%.
+
+    Modifiers (additive, applied before rounding):
+      - Viewshed (AGI visible): +2% low, +3% central, +4% high
+        Visual blight from industrial infrastructure is well-documented
+        in wind turbine and power station literature.
+      - Topographic sink (CO2 pooling risk): +1% low, +3% central, +4% high
+        Represents heightened safety concern in terrain where CO2 could
+        accumulate at ground level after a release.
     """
-    if distance_m >= 3000:
-        return 0.0, 0.0, 0.0
+    low_raw = 2 * max(0, 1 - distance_m / 2000) if distance_m < 2000 else 0
+    central_raw = 8 * max(0, 1 - distance_m / 2000) if distance_m < 2000 else 0
+    high_raw = 9 * max(0, 1 - distance_m / 3000) if distance_m < 3000 else 0
 
-    low = -2 * max(0, 1 - distance_m / 2000) if distance_m < 2000 else 0
-    central = -8 * max(0, 1 - distance_m / 2000) if distance_m < 2000 else 0
-    high = -9 * max(0, 1 - distance_m / 3000)
+    if in_viewshed:
+        low_raw += 2
+        central_raw += 3
+        high_raw += 4
 
-    return round(low, 1), round(central, 1), round(high, 1)
+    if in_sink:
+        low_raw += 1
+        central_raw += 3
+        high_raw += 4
+
+    # Round up (away from zero), minimum 1%
+    low = -max(1, math.ceil(low_raw))
+    central = -max(1, math.ceil(central_raw))
+    high = -max(1, math.ceil(high_raw))
+
+    return low, central, high
 
 
 def fetch_outcode_average(outcode, min_year=2023):

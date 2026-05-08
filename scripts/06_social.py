@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import geopandas as gpd
 import pandas as pd
 import requests
-from shapely.geometry import Point
+from shapely.geometry import Point, box
+from shapely.ops import unary_union
 from shapely.prepared import prep
 
 from scripts.utils import (
@@ -28,11 +29,24 @@ from scripts.utils import (
 SOCIAL_DIR = RAW_DIR / "social"
 SOCIAL_DIR.mkdir(parents=True, exist_ok=True)
 
-# Grid spacing for postcodes.io queries (~500m at UK latitudes)
-POSTCODE_LAT_STEP = 0.0045
-POSTCODE_LON_STEP = 0.0075
-POSTCODE_SEARCH_RADIUS_M = 1000
-POSTCODE_SEARCH_LIMIT = 30
+# Grid spacing for corridor postcodes.io queries (~500m at UK latitudes)
+CORRIDOR_LAT_STEP = 0.0045
+CORRIDOR_LON_STEP = 0.0075
+CORRIDOR_SEARCH_RADIUS_M = 2000   # max allowed by postcodes.io
+CORRIDOR_SEARCH_LIMIT = 100       # max allowed by postcodes.io
+
+# Wirral: tight grid (~150m) with small radius so we NEVER hit the 100 cap.
+# Dense urban areas like Birkenhead/Wallasey have ~80 postcodes per km².
+# A 300m radius circle covers ~0.28 km² → ~22 postcodes, well under 100.
+WIRRAL_LAT_STEP = 0.00135
+WIRRAL_LON_STEP = 0.00225
+WIRRAL_SEARCH_RADIUS_M = 350
+WIRRAL_SEARCH_LIMIT = 100
+
+# Wirral peninsula bounding box (WGS84).
+# The whole peninsula is affected by the Coastal AGI terminal and pipeline
+# landfall, so we fetch all postcodes here regardless of corridor distance.
+WIRRAL_BBOX = box(-3.25, 53.27, -2.89, 53.45)  # (minx, miny, maxx, maxy)
 
 
 def download_schools():
@@ -143,36 +157,34 @@ def main():
         print("  Loading cached postcode data")
         pc_df = pd.read_csv(postcode_cache)
     else:
-        print("  Generating postcode centroids from corridor area...")
-
-        bounds = corridor.total_bounds  # xmin, ymin, xmax, ymax
-        print(f"  Corridor bounds: {bounds[0]:.3f},{bounds[1]:.3f} to {bounds[2]:.3f},{bounds[3]:.3f}")
-
-        # Buffer corridor in WGS84 (~0.03° ≈ 3km at UK latitudes)
-        # to skip grid points far from the corridor
-        corridor_wgs_buf = prep(corridor.union_all().buffer(0.03))
-
-        # Count total queries for progress reporting
-        total_queries = 0
-        lat = bounds[1]
-        while lat <= bounds[3]:
-            lon = bounds[0]
-            while lon <= bounds[2]:
-                if corridor_wgs_buf.contains(Point(lon, lat)):
-                    total_queries += 1
-                lon += POSTCODE_LON_STEP
-            lat += POSTCODE_LAT_STEP
-
-        print(f"  Will query ~{total_queries} grid points via postcodes.io...")
-
         pc_records = []
-        lat = bounds[1]
+
+        # ── Pass 1: Wirral dense sweep ────────────────────────────────────
+        # Tight grid with small radius so we never hit the 100-result cap
+        # in dense urban areas (Birkenhead, Wallasey, etc.)
+        print("  Pass 1: Wirral dense sweep (150m grid, 350m radius)...")
+        wirral_prep = prep(WIRRAL_BBOX)
+        wb = WIRRAL_BBOX.bounds
+        print(f"  Wirral bounds: {wb[0]:.3f},{wb[1]:.3f} to {wb[2]:.3f},{wb[3]:.3f}")
+
+        wirral_queries = 0
+        lat = wb[1]
+        while lat <= wb[3]:
+            lon = wb[0]
+            while lon <= wb[2]:
+                if wirral_prep.contains(Point(lon, lat)):
+                    wirral_queries += 1
+                lon += WIRRAL_LON_STEP
+            lat += WIRRAL_LAT_STEP
+        print(f"  Wirral grid points: {wirral_queries}")
+
+        lat = wb[1]
         done = 0
-        while lat <= bounds[3]:
-            lon = bounds[0]
-            while lon <= bounds[2]:
-                if not corridor_wgs_buf.contains(Point(lon, lat)):
-                    lon += POSTCODE_LON_STEP
+        while lat <= wb[3]:
+            lon = wb[0]
+            while lon <= wb[2]:
+                if not wirral_prep.contains(Point(lon, lat)):
+                    lon += WIRRAL_LON_STEP
                     continue
                 try:
                     resp = requests.get(
@@ -180,8 +192,70 @@ def main():
                         params={
                             "lon": round(lon, 5),
                             "lat": round(lat, 5),
-                            "limit": POSTCODE_SEARCH_LIMIT,
-                            "radius": POSTCODE_SEARCH_RADIUS_M,
+                            "limit": WIRRAL_SEARCH_LIMIT,
+                            "radius": WIRRAL_SEARCH_RADIUS_M,
+                        },
+                        timeout=10,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data.get("result"):
+                            for r in data["result"]:
+                                pc_records.append({
+                                    "postcode": r["postcode"],
+                                    "lat": r["latitude"],
+                                    "lon": r["longitude"],
+                                    "easting": r.get("eastings", 0),
+                                    "northing": r.get("northings", 0),
+                                })
+                except Exception:
+                    pass
+                done += 1
+                if done % 500 == 0:
+                    print(f"    Wirral: {done}/{wirral_queries} queries, {len(pc_records)} postcodes...")
+                lon += WIRRAL_LON_STEP
+            lat += WIRRAL_LAT_STEP
+
+        wirral_unique = len(set(r["postcode"] for r in pc_records))
+        print(f"  Wirral pass done: {wirral_unique} unique postcodes from {done} queries")
+
+        # ── Pass 2: Corridor sweep (outside Wirral) ───────────────────────
+        print("\n  Pass 2: Corridor sweep (500m grid, 2km radius)...")
+        corridor_wgs_buf = corridor.union_all().buffer(0.03)
+        # Exclude Wirral area (already covered densely above)
+        corridor_only = corridor_wgs_buf.difference(WIRRAL_BBOX)
+        corridor_only_prep = prep(corridor_only)
+
+        cb = corridor_only.bounds
+        print(f"  Corridor bounds: {cb[0]:.3f},{cb[1]:.3f} to {cb[2]:.3f},{cb[3]:.3f}")
+
+        corridor_queries = 0
+        lat = cb[1]
+        while lat <= cb[3]:
+            lon = cb[0]
+            while lon <= cb[2]:
+                if corridor_only_prep.contains(Point(lon, lat)):
+                    corridor_queries += 1
+                lon += CORRIDOR_LON_STEP
+            lat += CORRIDOR_LAT_STEP
+        print(f"  Corridor grid points: {corridor_queries}")
+
+        lat = cb[1]
+        done = 0
+        while lat <= cb[3]:
+            lon = cb[0]
+            while lon <= cb[2]:
+                if not corridor_only_prep.contains(Point(lon, lat)):
+                    lon += CORRIDOR_LON_STEP
+                    continue
+                try:
+                    resp = requests.get(
+                        "https://api.postcodes.io/postcodes",
+                        params={
+                            "lon": round(lon, 5),
+                            "lat": round(lat, 5),
+                            "limit": CORRIDOR_SEARCH_LIMIT,
+                            "radius": CORRIDOR_SEARCH_RADIUS_M,
                         },
                         timeout=10,
                     )
@@ -200,12 +274,12 @@ def main():
                     pass
                 done += 1
                 if done % 100 == 0:
-                    print(f"    {done}/{total_queries} queries, {len(pc_records)} postcodes found...")
-                lon += POSTCODE_LON_STEP
-            lat += POSTCODE_LAT_STEP
+                    print(f"    Corridor: {done}/{corridor_queries} queries, {len(pc_records)} postcodes...")
+                lon += CORRIDOR_LON_STEP
+            lat += CORRIDOR_LAT_STEP
 
         pc_df = pd.DataFrame(pc_records).drop_duplicates(subset=["postcode"])
-        print(f"  Total unique postcodes found: {len(pc_df)}")
+        print(f"\n  Total unique postcodes found: {len(pc_df)}")
 
         if len(pc_df) > 0:
             pc_df.to_csv(postcode_cache, index=False)
@@ -221,13 +295,24 @@ def main():
                 valid_pc["northing"].astype(float),
             )
             pc_gdf = gpd.GeoDataFrame(valid_pc, geometry=geometry, crs=CRS_BNG)
-            nearby_pc = pc_gdf[pc_gdf.within(buffer_2km)].copy()
 
             # Vectorized distance computation
-            nearby_pc["distance_m"] = nearby_pc.geometry.distance(corridor_union).round(0)
+            pc_gdf["distance_m"] = pc_gdf.geometry.distance(corridor_union).round(0)
 
-            out_pc = nearby_pc[["postcode", "lat", "lon", "distance_m", "geometry"]].copy()
-            print(f"  Postcodes within 2km of corridor: {len(out_pc)}")
+            # Keep postcodes within 2km of corridor OR anywhere on the Wirral
+            wirral_bng = gpd.GeoDataFrame(
+                geometry=[WIRRAL_BBOX], crs=CRS_WGS84,
+            ).to_crs(CRS_BNG).union_all()
+            in_corridor = pc_gdf["distance_m"] <= 2000
+            in_wirral = pc_gdf.within(wirral_bng)
+            out_pc = pc_gdf[in_corridor | in_wirral][
+                ["postcode", "lat", "lon", "distance_m", "geometry"]
+            ].copy()
+
+            n_wirral_only = int((in_wirral & ~in_corridor).sum())
+            print(f"  Postcodes within 2km of corridor: {int(in_corridor.sum())}")
+            print(f"  Additional Wirral postcodes: {n_wirral_only}")
+            print(f"  Total postcodes: {len(out_pc)}")
             save_geojson(out_pc, PROCESSED_DIR / "postcodes.geojson")
         else:
             print("  No valid postcode coordinates")
