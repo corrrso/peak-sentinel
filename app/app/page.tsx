@@ -106,7 +106,7 @@ function HomeContent() {
   return (
     <div className="flex flex-col flex-1">
       {/* ── Map section: 60vh ──────────────────────────────────── */}
-      <div className="relative h-[70vh] min-h-[500px]">
+      <div className="relative h-[65vh] min-h-[500px]">
         <div className="absolute inset-0">
           <Map
             layers={layers}
@@ -254,12 +254,12 @@ function HomeContent() {
                 physics, the track record, and the developer&apos;s own
                 admissions tell a troubling story.
               </p>
-              <a
+              {/* <a
                 href="/evidence"
                 className="inline-block bg-[#FFD700] text-black font-bold px-6 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors"
               >
                 See the Evidence &rarr;
-              </a>
+              </a> */}
             </div>
           </section>
 

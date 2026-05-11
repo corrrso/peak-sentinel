@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,34 +41,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-black text-white">
-        <header className="flex justify-between md:grid md:grid-cols-3 items-center px-4 py-3 border-b border-[#FFD700]/20 z-50 relative">
-          <Link
-            href="/"
-            className="text-[#FFD700] font-bold text-lg sm:text-xl tracking-wider uppercase"
-          >
-            Peak Sentinel
-          </Link>
-          <nav className="flex justify-center gap-3 sm:gap-6 text-sm sm:text-base">
-            <Link
-              href="/"
-              className="text-[#FFD700] hover:text-white transition-colors"
-            >
-              Map
-            </Link>
-            <Link
-              href="/evidence"
-              className="text-[#FFD700] hover:text-white transition-colors"
-            >
-              Evidence
-            </Link>
-            <Link
-              href="/action"
-              className="text-[#FFD700] hover:text-white transition-colors"
-            >
-              Action
-            </Link>
-          </nav>
-        </header>
         <main className="flex-1 flex flex-col">{children}</main>
         <footer className="border-t border-white/10 px-4 py-8 text-gray-500 text-xs">
           <div className="max-w-4xl mx-auto space-y-4">
@@ -191,12 +162,14 @@ export default function RootLayout({
               <p>
                 Depreciation estimates are illustrative, based on comparable
                 infrastructure studies (see{" "}
+                {/* TODO: restore when evidence page is live
                 <a
                   href="/evidence"
                   className="text-gray-400 hover:text-white underline"
                 >
                   methodology
-                </a>
+                </a> */}
+                <span className="text-gray-400">methodology</span>
                 ). CO&#8322; risk zones are terrain-based visualisations, not
                 atmospheric simulations.
               </p>
