@@ -714,7 +714,7 @@ export default function EvidencePage() {
           </h3>
           <div>
             <strong className="text-white">Lake Nyos</strong> (Cameroon, 1986)
-            &mdash; A limnic eruption released an estimated 1.6 million tonnes
+            &mdash; A limnic eruption released up to an estimated 1.6 million tonnes
             of CO&#8322; from a volcanic lake.{" "}
             <strong className="text-red-400">1,746 people killed</strong> in a
             single night as the dense gas flowed downhill through villages. A
@@ -828,7 +828,7 @@ export default function EvidencePage() {
         <p>
           The Planning Inspectorate&apos;s Scoping Opinion identified{" "}
           <strong className="text-[#FFD700]">
-            32 instances where it does NOT agree
+            29 instances where it does NOT agree
           </strong>{" "}
           with the applicant&apos;s proposed approach, spanning 8 assessment
           chapters:
@@ -977,11 +977,11 @@ export default function EvidencePage() {
           <strong className="text-white">Holcim</strong> operates the Cauldon
           cement works and is one of four industrial partners in{" "}
           <strong className="text-white">Peak Cluster Limited</strong>, the
-          joint venture developing this pipeline. Holcim acquired Lafarge in
+          joint venture developing this pipeline. Holcim merged with Lafarge in
           2015.
         </p>
         <p>
-          On <strong className="text-white">11 April 2026</strong>, a Paris
+          On <strong className="text-white">13 April 2026</strong>, a Paris
           court found <strong className="text-red-400">Lafarge guilty</strong>{" "}
           of financing terrorism, including Islamic State. Between 2013 and
           2014, Lafarge paid $6.5 million to jihadist groups to keep its cement
@@ -1017,7 +1017,7 @@ export default function EvidencePage() {
         </div>
 
         <p>
-          Holcim told the BBC it acknowledged the court&apos;s finding, calling
+          Lafarge told the BBC it acknowledged the court&apos;s finding, calling
           it a &ldquo;legacy matter involving conduct that occurred more than a
           decade ago&rdquo;. The Cauldon plant capturing CO&#8322; for Peak
           Cluster is a different facility, but the conviction raises serious
