@@ -102,7 +102,6 @@ function HomeContent() {
     [getHotspot],
   );
 
-  const selectedPostcode = riskResult?.postcode || urlPostcode || null;
 
   return (
     <div className="flex flex-col flex-1">
@@ -237,22 +236,11 @@ function HomeContent() {
             <h2 className="text-3xl font-bold text-[#FFD700] mb-2">
               Take Action
             </h2>
-            {selectedPostcode ? (
-              <>
-                <p className="text-gray-300 mb-8">
-                  Use the letter below to formally object to the Peak Cluster
-                  pipeline. Copy it and send it to the relevant authorities.
-                </p>
-                <ObjectionLetter />
-              </>
-            ) : (
-              <div className="bg-white/8 border border-white/10 rounded-lg p-8 text-center">
-                <p className="text-gray-300 text-lg">
-                  Search your postcode on the map above to see how the pipeline
-                  affects you and take action.
-                </p>
-              </div>
-            )}
+            <p className="text-gray-300 mb-8">
+              Use the letter below to formally object to the Peak Cluster
+              pipeline. Copy it and send it to the relevant authorities.
+            </p>
+            <ObjectionLetter />
           </section>
 
           {/* Evidence CTA */}

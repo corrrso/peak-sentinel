@@ -40,6 +40,30 @@ export default function ObjectionLetter() {
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
         </button>
+        <a
+          href="https://members.parliament.uk/member/5162/contact"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-white/10 border border-white/20 text-gray-200 font-medium px-4 py-2 rounded hover:bg-white/20 transition-colors text-sm"
+        >
+          Contact Matthew Patrick MP
+        </a>
+        <a
+          href="https://members.parliament.uk/member/4083/contact"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-white/10 border border-white/20 text-gray-200 font-medium px-4 py-2 rounded hover:bg-white/20 transition-colors text-sm"
+        >
+          Contact Alison McGovern MP
+        </a>
+        <a
+          href="https://members.parliament.uk/member/491/contact"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-white/10 border border-white/20 text-gray-200 font-medium px-4 py-2 rounded hover:bg-white/20 transition-colors text-sm"
+        >
+          Contact Angela Eagle MP
+        </a>
       </div>
     </div>
   );
