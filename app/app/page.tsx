@@ -128,7 +128,7 @@ function HomeContent() {
 
         {/* Postcode search — full-width on mobile, positioned on desktop */}
         <div className="absolute top-2 left-2 right-14 md:top-3 md:left-64 md:right-auto md:w-96 z-20">
-          <div className="bg-black/85 backdrop-blur-sm border border-[#FFD700]/30 rounded-lg p-3 md:p-5 shadow-lg shadow-black/50">
+          <div className="bg-black/85 backdrop-blur-sm border border-accent/30 rounded-lg p-3 md:p-5 shadow-lg shadow-black/50">
             <PostcodeLookup
               onResult={handlePostcodeResult}
               onFlyTo={handleFlyTo}
@@ -233,7 +233,7 @@ function HomeContent() {
         <div className="max-w-4xl mx-auto px-6 py-12 space-y-16">
           {/* Objection Generator */}
           <section>
-            <h2 className="text-3xl font-bold text-[#FFD700] mb-2">
+            <h2 className="text-3xl font-bold text-accent mb-2">
               Take Action
             </h2>
             <p className="text-gray-300 mb-8">
@@ -245,7 +245,7 @@ function HomeContent() {
 
           {/* Evidence CTA */}
           <section>
-            <h2 className="text-2xl font-bold text-[#FFD700] mb-6">
+            <h2 className="text-2xl font-bold text-accent mb-6">
               Why Should You Care?
             </h2>
             <div className="bg-white/8 border border-white/10 rounded-lg p-6 space-y-4 text-gray-300">
@@ -256,7 +256,7 @@ function HomeContent() {
               </p>
               {/* <a
                 href="/evidence"
-                className="inline-block bg-[#FFD700] text-black font-bold px-6 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors"
+                className="inline-block bg-accent text-black font-bold px-6 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors"
               >
                 See the Evidence &rarr;
               </a> */}
@@ -266,7 +266,7 @@ function HomeContent() {
 
           {/* Get Involved */}
           <section>
-            <h2 className="text-2xl font-bold text-[#FFD700] mb-6">
+            <h2 className="text-2xl font-bold text-accent mb-6">
               Get Involved
             </h2>
             <div className="bg-white/8 border border-white/10 rounded-lg p-6 space-y-4 text-gray-300">

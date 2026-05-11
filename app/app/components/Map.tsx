@@ -130,14 +130,14 @@ export default function Map({
                 <Layer
                   id="buffer-2km"
                   type="fill"
-                  paint={{ "fill-color": "#FFD700", "fill-opacity": 0.06 }}
+                  paint={{ "fill-color": "#FDC700", "fill-opacity": 0.06 }}
                   filter={["==", ["get", "buffer"], "2km"]}
                 />
                 <Layer
                   id="buffer-2km-line"
                   type="line"
                   paint={{
-                    "line-color": "#FFD700",
+                    "line-color": "#FDC700",
                     "line-opacity": 0.4,
                     "line-dasharray": [6, 4],
                   }}
@@ -146,14 +146,14 @@ export default function Map({
                 <Layer
                   id="buffer-1km"
                   type="fill"
-                  paint={{ "fill-color": "#FFD700", "fill-opacity": 0.05 }}
+                  paint={{ "fill-color": "#FDC700", "fill-opacity": 0.05 }}
                   filter={["==", ["get", "buffer"], "1km"]}
                 />
                 <Layer
                   id="buffer-1km-line"
                   type="line"
                   paint={{
-                    "line-color": "#FFD700",
+                    "line-color": "#FDC700",
                     "line-opacity": 0.3,
                     "line-dasharray": [4, 4],
                   }}
@@ -201,7 +201,7 @@ export default function Map({
                   id="sections-line"
                   type="line"
                   paint={{
-                    "line-color": "#FFD700",
+                    "line-color": "#FDC700",
                     "line-opacity": 0.6,
                     "line-width": 1,
                   }}
@@ -217,7 +217,7 @@ export default function Map({
                     "text-allow-overlap": false,
                   }}
                   paint={{
-                    "text-color": "#FFD700",
+                    "text-color": "#FDC700",
                     "text-halo-color": "#000",
                     "text-halo-width": 1,
                   }}
@@ -509,7 +509,7 @@ export default function Map({
                       "Coastal AGI", "#FF0000",
                       "Hope AGI", "#FF6600",
                       "Tunstead AGI", "#FF6600",
-                      "#FFD700",
+                      "#FDC700",
                     ],
                     "circle-stroke-color": "#FFF",
                     "circle-stroke-width": 3,

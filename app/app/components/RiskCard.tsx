@@ -27,10 +27,10 @@ export default function RiskCard({ postcode, data, onClose }: RiskCardProps) {
   const highPct = data.est_depreciation_pct_high ?? data.est_depreciation_pct;
 
   return (
-    <div className="bg-black/90 backdrop-blur-sm border border-[#FFD700]/30 rounded-lg p-5 text-sm space-y-4 max-h-[70vh] overflow-y-auto shadow-xl shadow-black/50">
+    <div className="bg-black/90 backdrop-blur-sm border border-accent/30 rounded-lg p-5 text-sm space-y-4 max-h-[70vh] overflow-y-auto shadow-xl shadow-black/50">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-[#FFD700] font-bold text-lg">{postcode}</h3>
+          <h3 className="text-accent font-bold text-lg">{postcode}</h3>
           <span
             className={`inline-block mt-1 px-2.5 py-1 rounded text-white text-xs font-bold uppercase ${
               RISK_COLORS[data.risk_level] || "bg-gray-500"
@@ -105,7 +105,7 @@ export default function RiskCard({ postcode, data, onClose }: RiskCardProps) {
 
           <button
             onClick={() => setShowMethodology(!showMethodology)}
-            className="text-[#FFD700]/70 hover:text-[#FFD700] text-xs mt-2 underline"
+            className="text-accent/70 hover:text-accent text-xs mt-2 underline"
           >
             {showMethodology ? "Hide methodology" : "How we estimated this"}
           </button>

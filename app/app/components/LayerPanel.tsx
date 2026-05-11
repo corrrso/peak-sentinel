@@ -19,7 +19,7 @@ interface LayerPanelProps {
 export default function LayerPanel({ layers, onToggle }: LayerPanelProps) {
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-1">
+      <h3 className="text-accent text-xs font-bold uppercase tracking-wider mb-1">
         Layers
       </h3>
       {LAYER_CONFIG.map(({ key, label, color }) => (

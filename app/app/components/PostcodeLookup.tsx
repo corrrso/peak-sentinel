@@ -37,7 +37,7 @@ export default function PostcodeLookup({ onResult, onFlyTo, initialPostcode }: P
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="hidden md:block text-[#FFD700] text-lg font-bold">
+      <h3 className="hidden md:block text-accent text-lg font-bold">
         Is your home at risk?
       </h3>
       <p className="hidden md:block text-gray-400 text-sm">
@@ -50,12 +50,12 @@ export default function PostcodeLookup({ onResult, onFlyTo, initialPostcode }: P
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => event.key === "Enter" && doSearch(query)}
           placeholder="e.g. CH47 3BX, SK17 6TH"
-          className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 text-base text-white placeholder-gray-500 focus:outline-none focus:border-[#FFD700]"
+          className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 text-base text-white placeholder-gray-500 focus:outline-none focus:border-accent"
         />
         <button
           onClick={() => doSearch(query)}
           disabled={!ready}
-          className="bg-[#FFD700] text-black px-5 py-2.5 rounded-lg text-base font-bold hover:bg-yellow-400 transition-colors disabled:opacity-50"
+          className="bg-accent text-black px-5 py-2.5 rounded-lg text-base font-bold hover:bg-yellow-400 transition-colors disabled:opacity-50"
         >
           Check
         </button>

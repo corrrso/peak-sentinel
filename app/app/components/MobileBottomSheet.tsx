@@ -92,7 +92,7 @@ function RiskAccordions({
           </div>
           <button
             onClick={() => setShowMethodology(!showMethodology)}
-            className="text-[#FFD700]/70 hover:text-[#FFD700] text-[10px] underline"
+            className="text-accent/70 hover:text-accent text-[10px] underline"
           >
             {showMethodology ? "Hide methodology" : "How we estimated this"}
           </button>
@@ -232,7 +232,7 @@ export default function MobileBottomSheet({
   const onClose = riskResult ? onCloseRisk : onCloseFeature;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/92 backdrop-blur-sm border-t border-[#FFD700]/30 rounded-t-2xl">
+    <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/92 backdrop-blur-sm border-t border-accent/30 rounded-t-2xl">
       {/* Drag handle */}
       <button
         className="w-full flex justify-center pt-2 pb-1"
@@ -249,7 +249,7 @@ export default function MobileBottomSheet({
       >
         {riskResult && (
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[#FFD700] font-bold text-base truncate">
+            <span className="text-accent font-bold text-base truncate">
               {riskResult.postcode}
             </span>
             <span

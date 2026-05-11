@@ -22,7 +22,7 @@ const SVG_WIDTH = 800;
 const SVG_HEIGHT = 480;
 const GROUND_Y = 400;
 const MAX_STRUCTURE_HEIGHT = 360;
-const LABEL_COLOR_LANDMARK = "#FFD700";
+const LABEL_COLOR_LANDMARK = "#FDC700";
 const LABEL_COLOR_AGI = "#FF4500";
 
 const STARS: [number, number, number, number][] = [

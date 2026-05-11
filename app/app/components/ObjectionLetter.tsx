@@ -36,7 +36,7 @@ export default function ObjectionLetter() {
       <div className="flex flex-wrap gap-3">
         <button
           onClick={handleCopy}
-          className="bg-[#FFD700] text-black font-bold px-4 py-2 rounded hover:bg-yellow-400 transition-colors text-sm"
+          className="bg-accent text-black font-bold px-4 py-2 rounded hover:bg-yellow-400 transition-colors text-sm"
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
         </button>

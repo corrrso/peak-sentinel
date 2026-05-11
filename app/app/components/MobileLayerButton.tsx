@@ -39,7 +39,7 @@ export default function MobileLayerButton({
       )}
       <button
         onClick={() => setOpen(!open)}
-        className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 text-[#FFD700] text-xs font-bold uppercase tracking-wider"
+        className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 text-accent text-xs font-bold uppercase tracking-wider"
       >
         Layers
       </button>

@@ -16,7 +16,7 @@ export default function MapTooltip({ tooltip }: MapTooltipProps) {
       className="absolute pointer-events-none z-50"
       style={{ left: tooltip.x + 16, top: tooltip.y + 16 }}
     >
-      <div className="bg-black/95 backdrop-blur-md border border-[#FFD700]/30 rounded-xl px-5 py-4 text-sm max-w-96 shadow-xl shadow-black/60">
+      <div className="bg-black/95 backdrop-blur-md border border-accent/30 rounded-xl px-5 py-4 text-sm max-w-96 shadow-xl shadow-black/60">
         {tooltip.items.map((item, index) => (
           <div
             key={index}

@@ -1,3 +1,5 @@
+export const ACCENT = "#FDC700";
+
 export type ClickedFeature = {
   layerLabel: string;
   color: string;
@@ -24,11 +26,11 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
   },
   "buffer-1km": {
     label: "1km Buffer Zone",
-    color: "#FFD700",
+    color: "#FDC700",
   },
   "buffer-2km": {
     label: "2km Buffer Zone",
-    color: "#FFD700",
+    color: "#FDC700",
   },
   "env-fill": {
     label: "Protected Site",

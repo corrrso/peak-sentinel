@@ -173,17 +173,6 @@ export default function RootLayout({
                 ). CO&#8322; risk zones are terrain-based visualisations, not
                 atmospheric simulations.
               </p>
-              <p>
-                Inspired by{" "}
-                <a
-                  href="https://actionagainstccs.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white underline"
-                >
-                  Action Against CCS
-                </a>
-              </p>
             </div>
           </div>
         </footer>

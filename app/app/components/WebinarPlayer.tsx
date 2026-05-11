@@ -642,7 +642,7 @@ export default function WebinarPlayer() {
             onClick={() => handleTabSwitch(index)}
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
               index === activeWebinar
-                ? "bg-[#FFD700] text-black"
+                ? "bg-accent text-black"
                 : "bg-white/10 text-gray-400 hover:text-white hover:bg-white/20"
             }`}
           >
@@ -683,12 +683,12 @@ export default function WebinarPlayer() {
               }
               className={`w-full text-left border-l-2 pl-4 py-3 transition-all cursor-pointer rounded-r-lg ${
                 activeQuote === index
-                  ? "border-[#FFD700] bg-[#FFD700]/10"
-                  : "border-white/20 hover:border-[#FFD700]/60 hover:bg-white/8"
+                  ? "border-accent bg-accent/10"
+                  : "border-white/20 hover:border-accent/60 hover:bg-white/8"
               }`}
             >
               <div className="flex items-start gap-3">
-                <span className="text-[#FFD700] font-mono text-xs whitespace-nowrap mt-1 shrink-0">
+                <span className="text-accent font-mono text-xs whitespace-nowrap mt-1 shrink-0">
                   {q.question_timestamp_display}
                 </span>
                 <div className="flex-1 min-w-0 space-y-2">

@@ -78,7 +78,7 @@ export default function EvidenceSidebar() {
               onClick={() => scrollTo(id)}
               className={`w-full text-left text-sm px-3 py-1.5 rounded transition-colors ${
                 activeId === id
-                  ? "text-white border-l-2 border-[#FFD700] bg-white/5"
+                  ? "text-white border-l-2 border-accent bg-white/5"
                   : "text-gray-500 hover:text-gray-300 border-l-2 border-transparent"
               }`}
             >
@@ -98,7 +98,7 @@ export default function EvidenceSidebar() {
           id="sidebar-panel"
           className="bg-black/85 backdrop-blur-md border border-white/10 border-l-0 rounded-r-xl p-4 pr-5 min-w-[220px]"
         >
-          <div className="text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="text-accent text-xs font-bold uppercase tracking-wider mb-3">
             Contents
           </div>
           {sectionList}
@@ -112,14 +112,14 @@ export default function EvidenceSidebar() {
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
           aria-controls="mobile-drawer"
-          className="fixed top-20 left-4 z-40 bg-black/90 backdrop-blur border border-[#FFD700]/30 rounded-full px-3 py-2 flex items-center gap-2 shadow-lg shadow-black/50"
+          className="fixed top-20 left-4 z-40 bg-black/90 backdrop-blur border border-accent/30 rounded-full px-3 py-2 flex items-center gap-2 shadow-lg shadow-black/50"
         >
           <svg
             width="16"
             height="16"
             viewBox="0 0 16 16"
             fill="none"
-            className="text-[#FFD700]"
+            className="text-accent"
           >
             <path
               d="M2 4h12M2 8h8M2 12h10"
@@ -128,7 +128,7 @@ export default function EvidenceSidebar() {
               strokeLinecap="round"
             />
           </svg>
-          <span className="text-[#FFD700] text-xs font-bold">Contents</span>
+          <span className="text-accent text-xs font-bold">Contents</span>
         </button>
 
         {/* Backdrop */}
@@ -150,7 +150,7 @@ export default function EvidenceSidebar() {
           }`}
         >
           <div className="flex items-center justify-between mb-6">
-            <span className="text-[#FFD700] text-sm font-bold uppercase tracking-wider">
+            <span className="text-accent text-sm font-bold uppercase tracking-wider">
               Contents
             </span>
             <button
