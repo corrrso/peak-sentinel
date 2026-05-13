@@ -55,7 +55,7 @@ export default function RiskCard({ postcode, data, onClose }: RiskCardProps) {
         </div>
 
         <div>
-          <span className="text-white font-semibold">Nearest AGI:</span>{" "}
+          <span className="text-white font-semibold">Nearest Potential AGI Location:</span>{" "}
           {data.nearest_agi} ({data.nearest_agi_distance_m}m)
         </div>
 
@@ -68,7 +68,7 @@ export default function RiskCard({ postcode, data, onClose }: RiskCardProps) {
 
         {data.in_viewshed && (
           <div className="text-purple-400">
-            In viewshed of proposed Coastal AGI (50m vent stack)
+            In viewshed of proposed Potential Coastal AGI Location (50m vent stack)
           </div>
         )}
 

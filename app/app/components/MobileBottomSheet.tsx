@@ -45,14 +45,14 @@ function RiskAccordions({
       )}
       {data.in_viewshed && (
         <div className="text-purple-400 text-xs pb-2">
-          In viewshed of proposed Coastal AGI (50m vent stack)
+          In viewshed of proposed Potential Coastal AGI Location (50m vent stack)
         </div>
       )}
 
-      {/* Nearest AGI */}
-      <details className="border-t border-white/10">
+      {/* Nearest Potential AGI Location */}
+      <details className="border-t border-white/10" open>
         <summary className="py-2.5 text-gray-300 cursor-pointer">
-          Nearest AGI
+          Nearest Potential AGI Location
         </summary>
         <div className="pb-3 text-gray-300 text-xs">
           {data.nearest_agi} ({data.nearest_agi_distance_m}m)
@@ -60,7 +60,7 @@ function RiskAccordions({
       </details>
 
       {/* Property Impact */}
-      <details className="border-t border-white/10">
+      <details className="border-t border-white/10" open>
         <summary className="py-2.5 text-gray-300 cursor-pointer">
           Estimated Property Impact
         </summary>
@@ -156,7 +156,7 @@ function RiskAccordions({
 
       {/* Protected Sites */}
       {data.nearby_env.length > 0 && (
-        <details className="border-t border-white/10">
+        <details className="border-t border-white/10" open>
           <summary className="py-2.5 text-gray-300 cursor-pointer">
             Protected Sites
           </summary>
@@ -172,7 +172,7 @@ function RiskAccordions({
 
       {/* Nearby Schools */}
       {data.nearby_schools.length > 0 && (
-        <details className="border-t border-white/10">
+        <details className="border-t border-white/10" open>
           <summary className="py-2.5 text-gray-300 cursor-pointer">
             Nearby Schools
           </summary>

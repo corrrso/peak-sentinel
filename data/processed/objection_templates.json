@@ -14,9 +14,9 @@
     "text": "My property is located in a topographic depression (estimated depth ~{sink_depth_m}m below surrounding terrain). CO₂ is 1.5 times heavier than air and, in the event of a pipeline breach, would flow downhill and accumulate in low-lying areas such as this. Concentrations above 10% are immediately fatal. The developer's own EIA Scoping Report fails to model terrain-following CO₂ dispersion, a deficiency highlighted by the Planning Inspectorate in its Scoping Opinion (paragraph 3.14)."
   },
   "viewshed": {
-    "title": "Visual Impact — Coastal AGI",
+    "title": "Visual Impact — Potential Coastal AGI Location",
     "condition": "in_viewshed",
-    "text": "The proposed Coastal AGI, including a 50-metre vent stack, would be clearly visible from my property. The developer's own Zone of Theoretical Visibility analysis confirms that this industrial installation would be visible across the majority of the Wirral peninsula. This represents a significant and permanent adverse visual impact on a predominantly residential and recreational area. The Scoping Opinion (paragraphs 3.23-3.24) raises concerns about the adequacy of the landscape and visual impact assessment."
+    "text": "The proposed Potential Coastal AGI Location, including a 50-metre vent stack, would be clearly visible from my property. The developer's own Zone of Theoretical Visibility analysis confirms that this industrial installation would be visible across the majority of the Wirral peninsula. This represents a significant and permanent adverse visual impact on a predominantly residential and recreational area. The Scoping Opinion (paragraphs 3.23-3.24) raises concerns about the adequacy of the landscape and visual impact assessment."
   },
   "property_impact": {
     "title": "Property Value Impact",

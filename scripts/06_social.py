@@ -44,7 +44,7 @@ WIRRAL_SEARCH_RADIUS_M = 350
 WIRRAL_SEARCH_LIMIT = 100
 
 # Wirral peninsula bounding box (WGS84).
-# The whole peninsula is affected by the Coastal AGI terminal and pipeline
+# The whole peninsula is affected by the Potential Coastal AGI Location terminal and pipeline
 # landfall, so we fetch all postcodes here regardless of corridor distance.
 WIRRAL_BBOX = box(-3.25, 53.27, -2.89, 53.45)  # (minx, miny, maxx, maxy)
 

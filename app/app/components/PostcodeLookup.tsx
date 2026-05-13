@@ -37,10 +37,10 @@ export default function PostcodeLookup({ onResult, onFlyTo, initialPostcode }: P
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="hidden md:block text-accent text-lg font-bold">
+      <h3 className="text-accent text-lg font-bold">
         Is your home at risk?
       </h3>
-      <p className="hidden md:block text-gray-400 text-sm">
+      <p className="text-gray-400 text-sm">
         Enter your postcode to see how the Peak Cluster pipeline affects you
       </p>
       <div className="flex gap-2 md:mt-1">

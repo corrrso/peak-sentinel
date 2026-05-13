@@ -27,7 +27,7 @@ from scripts.utils import (
 # Types: coastal, capture, feeder, connection
 AGI_SITES = [
     {
-        "name": "Coastal AGI",
+        "name": "Potential Coastal AGI Location",
         "type": "coastal",
         "lng": -3.133, "lat": 53.405,
         "height_m": 50,
@@ -36,7 +36,7 @@ AGI_SITES = [
         "staffed": True,
     },
     {
-        "name": "Connection AGI 3",
+        "name": "Potential Connection AGI 3 Location",
         "type": "connection",
         "lng": -2.9909, "lat": 53.2828,
         "height_m": 15,
@@ -44,7 +44,7 @@ AGI_SITES = [
         "description": "Future capture plant connection (west Ellesmere Port area)",
     },
     {
-        "name": "Connection AGI 2",
+        "name": "Potential Connection AGI 2 Location",
         "type": "connection",
         "lng": -2.8871, "lat": 53.2469,
         "height_m": 15,
@@ -52,7 +52,7 @@ AGI_SITES = [
         "description": "Future capture plant connection (south Ellesmere Port area)",
     },
     {
-        "name": "Connection AGI 1",
+        "name": "Potential Connection AGI 1 Location",
         "type": "connection",
         "lng": -2.3835, "lat": 53.2077,
         "height_m": 15,
@@ -60,7 +60,7 @@ AGI_SITES = [
         "description": "Future capture plant connection (Holmes Chapel area)",
     },
     {
-        "name": "Central Feeder AGI",
+        "name": "Potential Central Feeder AGI Location",
         "type": "feeder",
         "lng": -2.1720, "lat": 53.2406,
         "height_m": 15,
@@ -68,7 +68,7 @@ AGI_SITES = [
         "description": "Consolidates North Feeder + Cauldon pipelines (SW Macclesfield)",
     },
     {
-        "name": "North Feeder AGI",
+        "name": "Potential North Feeder AGI Location",
         "type": "feeder",
         "lng": -1.9027, "lat": 53.3066,
         "height_m": 15,
@@ -76,7 +76,7 @@ AGI_SITES = [
         "description": "Consolidates Hope + Tunstead pipelines (S Chapel-en-le-Frith)",
     },
     {
-        "name": "Hope AGI",
+        "name": "Potential Hope AGI Location",
         "type": "capture",
         "lng": -1.7549, "lat": 53.3373,
         "height_m": 15,
@@ -84,7 +84,7 @@ AGI_SITES = [
         "description": "Breedon Hope cement works capture facility",
     },
     {
-        "name": "Tunstead AGI",
+        "name": "Potential Tunstead AGI Location",
         "type": "capture",
         "lng": -1.8550, "lat": 53.2689,
         "height_m": 15,
@@ -92,7 +92,7 @@ AGI_SITES = [
         "description": "Tarmac Tunstead + Buxton Lime capture facilities",
     },
     {
-        "name": "Cauldon AGI",
+        "name": "Potential Cauldon AGI Location",
         "type": "capture",
         "lng": -1.8711, "lat": 53.0425,
         "height_m": 15,

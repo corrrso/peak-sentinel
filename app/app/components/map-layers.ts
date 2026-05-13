@@ -44,7 +44,7 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
   "viewshed-fill": {
     label: "Visual Impact Zone",
     color: "#A855F7",
-    detail: () => "Area with line-of-sight to the 50m Coastal AGI vent stack",
+    detail: () => "Area with line-of-sight to the 50m Potential Coastal AGI Location vent stack",
   },
   "sinks-fill": {
     label: "CO\u2082 Pooling Risk",
@@ -79,7 +79,7 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
     },
   },
   "agi-circles": {
-    label: "AGI Facility",
+    label: "Potential AGI Location",
     color: "#FF4500",
     detail: (p: Record<string, unknown>) => {
       const parts: string[] = [];

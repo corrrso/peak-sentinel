@@ -20,8 +20,8 @@ const BASEMAP =
 
 const INITIAL_VIEW = {
   longitude: -2.45,
-  latitude: 53.24,
-  zoom: 9,
+  latitude: 53.22,
+  zoom: typeof window !== "undefined" && window.innerWidth < 768 ? 7.5 : 9,
 };
 
 interface MapProps {
@@ -87,10 +87,12 @@ export default function Map({
 
   useEffect(() => {
     if (flyToTarget && mapRef.current) {
+      const isMobile = window.innerWidth < 768;
       mapRef.current.flyTo({
         center: [flyToTarget.longitude, flyToTarget.latitude],
-        zoom: 14,
+        zoom: isMobile ? 13 : 14,
         duration: 2000,
+        ...(isMobile && { padding: { top: 0, bottom: window.innerHeight * 0.35, left: 0, right: 0 } }),
       });
     }
   }, [flyToTarget]);
@@ -468,7 +470,7 @@ export default function Map({
                 <Layer
                   id="agi-pulse"
                   type="circle"
-                  filter={["in", ["get", "name"], ["literal", ["Coastal AGI", "Hope AGI", "Tunstead AGI"]]]}
+                  filter={["in", ["get", "name"], ["literal", ["Potential Coastal AGI Location", "Potential Hope AGI Location", "Potential Tunstead AGI Location"]]]}
                   paint={{
                     "circle-radius": [
                       "interpolate",
@@ -483,7 +485,7 @@ export default function Map({
                     "circle-stroke-color": [
                       "match",
                       ["get", "name"],
-                      "Coastal AGI", "#FF0000",
+                      "Potential Coastal AGI Location", "#FF0000",
                       "#FF6600",
                     ],
                     "circle-stroke-width": 2,
@@ -506,9 +508,9 @@ export default function Map({
                     "circle-color": [
                       "match",
                       ["get", "name"],
-                      "Coastal AGI", "#FF0000",
-                      "Hope AGI", "#FF6600",
-                      "Tunstead AGI", "#FF6600",
+                      "Potential Coastal AGI Location", "#FF0000",
+                      "Potential Hope AGI Location", "#FF6600",
+                      "Potential Tunstead AGI Location", "#FF6600",
                       "#FDC700",
                     ],
                     "circle-stroke-color": "#FFF",

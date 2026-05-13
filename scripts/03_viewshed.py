@@ -1,7 +1,7 @@
 """
 03_viewshed.py — Viewshed analysis for AGI visibility.
 
-Computes where the Coastal AGI's 50m vent stack would be visible from,
+Computes where the Potential Coastal AGI Location's 50m vent stack would be visible from,
 using line-of-sight analysis on the DEM. This is the most visually
 impactful AGI — visible across much of the Wirral peninsula.
 
@@ -29,7 +29,7 @@ from scripts.utils import (
 )
 
 VIEWSHED_RADIUS_M = 10000  # 10km analysis radius
-TARGET_HEIGHT_M = 50       # Coastal AGI vent stack
+TARGET_HEIGHT_M = 50       # Potential Coastal AGI Location vent stack
 OBSERVER_HEIGHT_M = 1.7    # Person standing
 DOWNSAMPLE = 10            # ~10m resolution for speed
 NODATA = -9999
@@ -101,10 +101,10 @@ def is_visible(dem, r1, c1, elev1, r2, c2, elev2):
 def main():
     print("=== 03_viewshed.py ===\n")
 
-    # ── 1. Load Coastal AGI position ───────────────────────────────────────
+    # ── 1. Load Potential Coastal AGI Location position ───────────────────────────────────────
     agi = load_geojson(PROCESSED_DIR / "agi_sites.geojson")
     coastal = agi[agi["type"] == "coastal"].iloc[0]
-    print(f"Coastal AGI: {coastal['name']}")
+    print(f"Potential Coastal AGI Location: {coastal['name']}")
     print(f"  Position: {coastal.geometry.x:.4f}, {coastal.geometry.y:.4f}")
     print(f"  Stack height: {TARGET_HEIGHT_M}m")
 
@@ -132,7 +132,7 @@ def main():
     print(f"\n{len(relevant_tifs)} LIDAR tiles within {VIEWSHED_RADIUS_M/1000:.0f}km of AGI")
 
     if not relevant_tifs:
-        print("ERROR: No DEM tiles cover the Coastal AGI area.")
+        print("ERROR: No DEM tiles cover the Potential Coastal AGI Location area.")
         return
 
     datasets = [rasterio.open(t) for t in relevant_tifs]
@@ -185,7 +185,7 @@ def main():
                 polys.append({
                     "geometry": poly,
                     "area_km2": round(poly.area / 1e6, 2),
-                    "target": "Coastal AGI (50m stack)",
+                    "target": "Potential Coastal AGI Location (50m stack)",
                     "observer_height_m": OBSERVER_HEIGHT_M,
                     "analysis_radius_km": VIEWSHED_RADIUS_M / 1000,
                 })

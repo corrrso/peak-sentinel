@@ -58,10 +58,10 @@ TEMPLATES = {
         ),
     },
     "viewshed": {
-        "title": "Visual Impact — Coastal AGI",
+        "title": "Visual Impact — Potential Coastal AGI Location",
         "condition": "in_viewshed",
         "text": (
-            "The proposed Coastal AGI, including a 50-metre vent stack, would be "
+            "The proposed Potential Coastal AGI Location, including a 50-metre vent stack, would be "
             "clearly visible from my property. The developer's own Zone of "
             "Theoretical Visibility analysis confirms that this industrial "
             "installation would be visible across the majority of the Wirral "
@@ -136,12 +136,12 @@ SCOPING_REFS = {
     "3.11": "Peak District National Park — pipeline route passes through the National Park.",
     "3.14": "CO2 dispersion modelling inadequate — terrain-following behaviour of dense CO2 not assessed.",
     "3.23": "Landscape and Visual Impact Assessment must cover all AGI locations.",
-    "3.24": "Zone of Theoretical Visibility should account for the 50m Coastal AGI vent stack.",
+    "3.24": "Zone of Theoretical Visibility should account for the 50m Potential Coastal AGI Location vent stack.",
     "4.7": "Major accident and disaster risk assessment must consider CO2 pipeline-specific hazards.",
     "4.8": "Quantified Risk Assessment must cover the full pipeline route including populated areas.",
     "4.9": "Sensitive receptors (schools, hospitals, care homes) must be identified and assessed.",
     "4.10": "Emergency planning for CO2 release near populated areas not adequately addressed.",
-    "4.15": "Visual impact of Coastal AGI on Wirral residential areas.",
+    "4.15": "Visual impact of Potential Coastal AGI Location on Wirral residential areas.",
     "4.22": "Socio-economic impacts including property values not scoped into the assessment.",
 }
 
