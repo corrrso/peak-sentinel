@@ -3,7 +3,22 @@ import type { StreetViewHotspot } from "../types";
 
 const HOTSPOTS: StreetViewHotspot[] = [
   {
-    agiName: "Potential Coastal AGI Location",
+    agiName: "Potential Coastal AGI Location (Landfall)",
+    towerHeight: 50,
+    towerLabel: "Potential Coastal AGI Vent Stack",
+    facility: { width: 300, depth: 180 },
+    landmark: {
+      name: "Leasowe Lighthouse",
+      height: 30,
+      silhouette: "lighthouse",
+    },
+    humanScale: true,
+    showTerracedHouses: true,
+    description:
+      "The Potential Coastal AGI Location facility would span 300m × 180m with a 50m vent stack, dwarfing the Leasowe Lighthouse and surrounding homes.",
+  },
+  {
+    agiName: "Potential Coastal AGI Location (Inland)",
     towerHeight: 50,
     towerLabel: "Potential Coastal AGI Vent Stack",
     facility: { width: 300, depth: 180 },

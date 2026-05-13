@@ -470,7 +470,7 @@ export default function Map({
                 <Layer
                   id="agi-pulse"
                   type="circle"
-                  filter={["in", ["get", "name"], ["literal", ["Potential Coastal AGI Location", "Potential Hope AGI Location", "Potential Tunstead AGI Location"]]]}
+                  filter={["in", ["get", "name"], ["literal", ["Potential Coastal AGI Location (Landfall)", "Potential Coastal AGI Location (Inland)", "Potential Hope AGI Location", "Potential Tunstead AGI Location"]]]}
                   paint={{
                     "circle-radius": [
                       "interpolate",
@@ -485,7 +485,8 @@ export default function Map({
                     "circle-stroke-color": [
                       "match",
                       ["get", "name"],
-                      "Potential Coastal AGI Location", "#FF0000",
+                      "Potential Coastal AGI Location (Landfall)", "#FF0000",
+                      "Potential Coastal AGI Location (Inland)", "#FF0000",
                       "#FF6600",
                     ],
                     "circle-stroke-width": 2,
@@ -508,7 +509,8 @@ export default function Map({
                     "circle-color": [
                       "match",
                       ["get", "name"],
-                      "Potential Coastal AGI Location", "#FF0000",
+                      "Potential Coastal AGI Location (Landfall)", "#FF0000",
+                      "Potential Coastal AGI Location (Inland)", "#FF0000",
                       "Potential Hope AGI Location", "#FF6600",
                       "Potential Tunstead AGI Location", "#FF6600",
                       "#FDC700",

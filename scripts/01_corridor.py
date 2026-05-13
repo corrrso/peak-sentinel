@@ -27,12 +27,21 @@ from scripts.utils import (
 # Types: coastal, capture, feeder, connection
 AGI_SITES = [
     {
-        "name": "Potential Coastal AGI Location",
+        "name": "Potential Coastal AGI Location (Landfall)",
         "type": "coastal",
-        "lng": -3.133, "lat": 53.405,
+        "lng": -3.1328, "lat": 53.4081,
         "height_m": 50,
         "footprint": "300m x 180m",
-        "description": "Compression, metering & handoff to Morecambe Net Zero offshore. 50m vent stack.",
+        "description": "Compression, metering & handoff to Morecambe Net Zero offshore. 50m vent stack. Landfall zone option.",
+        "staffed": True,
+    },
+    {
+        "name": "Potential Coastal AGI Location (Inland)",
+        "type": "coastal",
+        "lng": -3.1448, "lat": 53.3899,
+        "height_m": 50,
+        "footprint": "300m x 180m",
+        "description": "Compression, metering & handoff to Morecambe Net Zero offshore. 50m vent stack. Inland zone option.",
         "staffed": True,
     },
     {
