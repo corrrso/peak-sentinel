@@ -34,7 +34,7 @@ def extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n,
     c_ts = np.array(ds.variables["C_0150CM"][:, :, :], dtype=float)        # ppm
     ds.close()
 
-    cell_km2 = (x[1] - x[0]) * (y[1] - y[0]) / 1e6
+    cell_km2 = float(x[1] - x[0]) * float(y[1] - y[0]) / 1e6
     feats = []
     areas = {}
     for th in thresholds_pct:
