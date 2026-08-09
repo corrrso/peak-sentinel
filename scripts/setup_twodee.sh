@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Download and build TWODEE-2.3 into third_party/.
-# Requires: gfortran, libnetcdff-dev (Debian/Ubuntu: sudo apt-get install gfortran libnetcdff-dev)
+# Requires: gfortran plus the C and Fortran netCDF libraries.
+#   Debian/Ubuntu: sudo apt-get install gfortran libnetcdff-dev
+#   macOS:         brew install gcc netcdf-fortran
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p third_party
@@ -12,6 +14,11 @@ if [ ! -d twodee-2.3 ]; then
 fi
 cd twodee-2.3
 chmod +x configure autoconf/*
-NETCDF_INC="$(nf-config --includedir)" NETCDF_LIB="$(nf-config --prefix)/lib" ./configure -q
+# Homebrew keeps netcdf and netcdf-fortran in separate prefixes, so the
+# configure default of one lib directory cannot find both -lnetcdff and
+# -lnetcdf. Pass the flags each config tool reports instead.
+NC_INC="$(nf-config --fflags)" \
+NC_LIB="$(nf-config --flibs) $(nc-config --libs)" \
+  ./configure -q
 make -s
 echo "TWODEE binary: $(pwd)/src/twodee"

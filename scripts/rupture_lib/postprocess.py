@@ -26,7 +26,8 @@ def _mask_polygons(mask, x, y):
 
 
 def extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n,
-            output_interval_s, thresholds_pct=(4.0, 7.0, 10.0)):
+            output_interval_s, thresholds_pct=(4.0, 7.0, 10.0),
+            receptor_radius_m=50.0):
     ds = Dataset(nc_path)
     x = np.array(ds.variables["x"][:], dtype=float)
     y = np.array(ds.variables["y"][:], dtype=float)
@@ -56,10 +57,25 @@ def extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n,
     else:
         max_extent = 0.0
 
-    # arrival of 4% (40,000 ppm) at the receptor cell
+    # Arrival of 4% (40,000 ppm) at the receptor. A hospital or village
+    # is not a point, and the cloud edge is steep enough that a single
+    # cell can read background while cells tens of metres away are well
+    # above 4%. Sample the worst cell within receptor_radius_m instead.
+    # radius 0 falls back to the single nearest cell.
     ix = int(np.argmin(np.abs(x - receptor_e)))
     iy = int(np.argmin(np.abs(y - receptor_n)))
-    exceed = np.nonzero(c_ts[:, iy, ix] >= 40000.0)[0]
+    if receptor_radius_m > 0:
+        xx, yy = np.meshgrid(x, y)
+        near = np.hypot(xx - receptor_e, yy - receptor_n) <= receptor_radius_m
+        if not near.any():
+            near[iy, ix] = True
+    else:
+        near = np.zeros(cm_final.shape, dtype=bool)
+        near[iy, ix] = True
+
+    # first output step where any cell in the receptor area reaches 4%
+    over = (c_ts >= 40000.0) & near[None, :, :]
+    exceed = np.nonzero(over.any(axis=(1, 2)))[0]
     arrival = int(exceed[0]) * output_interval_s if exceed.size else None
 
     geojson = {"type": "FeatureCollection", "features": feats}
@@ -67,5 +83,7 @@ def extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n,
         "footprint_area_km2": areas,
         "max_extent_m": max_extent,
         "receptor_arrival_s": arrival,
+        "receptor_max_pct": round(float(cm_final[near].max()), 3),
+        "receptor_radius_m": float(receptor_radius_m),
     }
     return geojson, report

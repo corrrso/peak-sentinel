@@ -55,10 +55,20 @@ WEATHER = {
 }
 
 
-def load_pipeline_parameters() -> dict:
+def load_pipeline_parameters(pressure_barg: float | None = None) -> dict:
+    """Engineering parameters for the source term.
+
+    Operating pressure is an assumption rather than a published figure,
+    so pressure_barg overrides the base case for sensitivity runs. The
+    value used is returned so every report records it.
+    """
     raw = json.loads((ROOT / "data" / "manual" / "pipeline_parameters.json").read_text())
+    p_barg = (
+        raw["operating_pressure_barg"]["value"] if pressure_barg is None else float(pressure_barg)
+    )
     return {
-        "p_pa": raw["operating_pressure_barg"]["value"] * 1e5 + 101325.0,
+        "pressure_barg": p_barg,
+        "p_pa": p_barg * 1e5 + 101325.0,
         "t_k": raw["temperature_c"]["value"] + 273.15,
         "bore_m": (raw["diameter_onshore_mm"]["value"] - 2 * raw["wall_thickness_mm"]["value"]) / 1000.0,
         "segment_length_m": raw["block_valve_spacing_km"]["value"] * 1000.0,

@@ -50,11 +50,21 @@ def main():
     ap.add_argument("--mode", default="fbr", choices=["fbr", "puncture"])
     ap.add_argument("--weather", default="d5", choices=sorted(WEATHER))
     ap.add_argument("--twodee-bin", default=os.environ.get("TWODEE_BIN", str(DEFAULT_BIN)))
+    ap.add_argument(
+        "--pressure-barg", type=float, default=None,
+        help="override the operating pressure for sensitivity runs",
+    )
+    ap.add_argument(
+        "--tag", default=None,
+        help="suffix for the run and output names, to keep sensitivity runs separate",
+    )
     args = ap.parse_args()
 
     s = SCENARIOS[args.scenario]
     w = WEATHER[args.weather]
     name = f"{args.scenario}_{args.mode}_{args.weather}"
+    if args.tag:
+        name = f"{name}_{args.tag}"
     run_dir = PROCESSED_DIR / "rupture_runs" / name
     if run_dir.exists():
         shutil.rmtree(run_dir)
@@ -68,7 +78,7 @@ def main():
     write_grd(run_dir / "roughness.grd", np.full(dem.shape, 0.1),
               west - s["dx"] / 2, south - s["dx"] / 2, s["dx"])
 
-    p = load_pipeline_parameters()
+    p = load_pipeline_parameters(pressure_barg=args.pressure_barg)
     bins, meta = blowdown_series(
         p["p_pa"], p["t_k"], p["bore_m"], p["segment_length_m"],
         hole_diameter_m=None if args.mode == "fbr" else 0.05,

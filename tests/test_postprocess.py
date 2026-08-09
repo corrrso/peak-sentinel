@@ -47,6 +47,35 @@ def test_extract_polygons_and_arrival(tmp_path):
     assert -10 < lon < 0 and 49 < lat < 51
 
 
+def test_receptor_radius_catches_a_near_miss(tmp_path):
+    """A receptor one cell outside the cloud edge is still a hit.
+
+    Sampling a hospital or village as a single grid cell turns a steep
+    cloud edge into a false negative. The receptor radius reports the
+    worst concentration over the footprint of the place instead.
+    """
+    p = tmp_path / "nearmiss.xy.nc"
+    make_nc(p)
+    # Block spans x,y indices 8..12, so 1130/2130 is one cell clear of it.
+    _, single_cell = extract(
+        p, rupture_e=1100.0, rupture_n=2100.0,
+        receptor_e=1130.0, receptor_n=2130.0,
+        output_interval_s=60, receptor_radius_m=0.0,
+    )
+    assert single_cell["receptor_arrival_s"] is None
+    assert single_cell["receptor_max_pct"] == 0.0
+
+    _, with_radius = extract(
+        p, rupture_e=1100.0, rupture_n=2100.0,
+        receptor_e=1130.0, receptor_n=2130.0,
+        output_interval_s=60, receptor_radius_m=50.0,
+    )
+    assert with_radius["receptor_arrival_s"] == 60
+    # the 12% peak cell is 42 m away, inside the radius
+    assert with_radius["receptor_max_pct"] == 12.0
+    assert with_radius["receptor_radius_m"] == 50.0
+
+
 def test_no_exceedance_gives_empty(tmp_path):
     p = tmp_path / "quiet.xy.nc"
     nxy = 5
