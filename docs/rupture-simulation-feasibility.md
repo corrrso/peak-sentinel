@@ -1,6 +1,14 @@
 # Feasibility of a 2D CO2 rupture dispersion simulation
 
-**Status:** Feasibility assessment and data-gathering plan. No code yet.
+**Status:** Feasibility confirmed, P0 items resolved, ready for implementation planning. No simulation code yet.
+
+**Scope decisions (Aug 2026):**
+
+- Gaseous phase only. Dense phase excluded from scope by campaign decision. One flag stays on record: SR 3.2.128 allows the separate Coastal AGI to MLWS pipelines (twin 42-inch) to switch to dense phase in later operational years.
+- Simulation areas: **Greasby** and **Arrowe Park Hospital**, both on the Wirral and both roughly 100 m from the scoping corridor edge. The hospital domain is small, which makes it the development test case; Greasby is the first full residential scenario. Meols and Saughall Massie remain candidates for later runs.
+- Dispersion model: **TWODEE-2.3** as published. It builds cleanly with gfortran and netCDF-Fortran (`libnetcdff-dev`, then `./configure` with `NETCDF_INC`/`NETCDF_LIB` from `nf-config`), and the bundled example (400x170 grid, 30 simulated minutes) runs in about 3 minutes of CPU and writes NetCDF output that our Python stack reads directly. Its input format takes a topography grid, a roughness grid, wind data, and a time-varying ground source, and supports the OSGB_36 datum, so our BNG LIDAR data plugs in without reprojection gymnastics. No reimplementation needed.
+
+Extracted pipeline parameters with citations live in `data/manual/pipeline_parameters.json`.
 
 **Verdict:** Feasible at screening level. A full 3D CFD study (FLACS, OpenFOAM) is out of reach for one developer without HPC resources, commercial licences, and consequence-modelling experience. A 2D shallow-layer dense-gas model over our existing LIDAR terrain, driven by a literature-anchored source term, is achievable with the skills and data already in this project. This class of model has peer-reviewed precedent for CO2 hazard mapping over real terrain (TWODEE-2, used by INGV for volcanic CO2 dispersion, descended from the UK Health and Safety Laboratory's TWODEE model validated against the Thorney Island dense-gas trials).
 
@@ -15,7 +23,7 @@ This matters in both directions:
 - A gaseous-phase source term is simpler to model. No flashing, no solid CO2 bank, no two-phase pipe flow. A transient gas blowdown of a long pipe is standard engineering that we can implement and validate.
 - A gas-phase pipe still holds a large inventory. A 36-inch pipe (914 mm OD, ~864 mm ID at 25 mm wall) at 30–40 bar holds roughly 35–60 kg of CO2 per metre. With block valves at ~16 km spacing, a mid-segment rupture releases on the order of 500–1000 tonnes from the isolated segment alone, more before valves close. Cold CO2 from Joule-Thomson expansion is well over 1.5x denser than air, so it still slumps, follows terrain, and pools in the sinks we have already mapped.
 
-Modelling the gaseous phase as the base case is the honest approach and also removes the hardest physics. Dense-phase behaviour becomes a documented sensitivity case (relevant because the project's design parameters are not yet fixed and the DCO envelope may permit higher pressures; the scoping documents need checking on exactly this point).
+Modelling the gaseous phase as the base case is the honest approach and also removes the hardest physics. The Scoping Report has now been checked (EN0710001-000013, January 2026): paragraph 3.2.67 confirms gas phase for the 195 km onshore pipeline, and no operating pressure is published anywhere in it. The only public pressure statement remains the informal "half to a quarter of Denbury" comparison, so pressure is carried as an assumption range (20 to 45 barg, base case 35) in `pipeline_parameters.json`. The absence of a published operating pressure at scoping stage is itself worth raising in consultation responses.
 
 ## The physics chain
 
@@ -25,12 +33,9 @@ Every credible study, including the three papers above, splits the problem into 
 
 **Stage 2, crater and near field.** The buried pipe rupture forms a crater that destroys the jet's horizontal momentum and turns the release into a cold, slow, vertically-vented plume that collapses back to the ground (the COOLTRANS experiments and simulations show crater exit velocities of tens of m/s at ~189 K for dense phase). We do not simulate this stage. We take crater-exit behaviour from the literature and represent the release as a low-momentum ground-level area source with the Stage 1 mass flow, a conservative and defensible simplification for far-field dispersion.
 
-**Stage 3, far-field dispersion.** This is the 2D model. Shallow-layer (depth-averaged) equations for a dense gas layer flowing over the DEM under gravity, wind stress, and air entrainment. Two implementation options, decided in Phase 2:
+**Stage 3, far-field dispersion.** This is the 2D model. Shallow-layer (depth-averaged) equations for a dense gas layer flowing over the DEM under gravity, wind stress, and air entrainment. **Decided: TWODEE-2.3 as published** (Fortran 90, GPL, maintained by INGV). The build trial succeeded (see scope decisions above), which removes the main argument for a Python reimplementation. Our pipeline's job reduces to writing TWODEE input files (topography and roughness grids, wind data, time-varying source from Stage 1) and post-processing its NetCDF output into GeoJSON contours.
 
-1. **TWODEE-2.3** as published (Fortran 90, GPL, maintained by INGV). Proven, citable, validated. Cost: integrating a Fortran build into our pipeline and converting our data into its input formats.
-2. **A Python reimplementation** of the same equations (the Folch, Costa & Hankin 2009 paper in Computers & Geosciences documents them fully). Fits our NumPy/rasterio pipeline naturally. Cost: we own the burden of proving it reproduces TWODEE-2 results, so a benchmark against the original on at least one published case is mandatory.
-
-Cross-check for either option: the Britter-McQuaid dense-gas workbook correlations, which give order-of-magnitude hazard distances on flat terrain from the source strength alone. If our model disagrees wildly with Britter-McQuaid on flat ground, something is wrong.
+Cross-check: the Britter-McQuaid dense-gas workbook correlations, which give order-of-magnitude hazard distances on flat terrain from the source strength alone. If our model disagrees wildly with Britter-McQuaid on flat ground, something is wrong.
 
 **Outputs per scenario:** time-evolving CO2 concentration at breathing height, arrival time of key concentration thresholds, maximum-extent contours, and accumulated toxic dose. Thresholds: 4% (NIOSH IDLH), 7% (impairment within minutes), 10%+ (loss of consciousness, potentially fatal), plus HSE's dangerous toxic load values for CO2 (SLOT 1.5e40 ppm^8.min, SLOD 1.5e41 ppm^8.min) for dose contours.
 
@@ -44,17 +49,11 @@ Cross-check for either option: the Britter-McQuaid dense-gas workbook correlatio
 
 ## What we need to gather
 
-### P0, blocking
+### P0, blocking (all resolved)
 
-1. **Pipeline engineering parameters** from the Scoping Report (section 3.2) and any consultation Q&A. The user has the PDFs in `docs/originalPdfs/`. Extract and record in a `data/manual/pipeline_parameters.json` with a source citation per value:
-   - operating pressure range and MAOP, and explicit confirmation of gaseous phase across the whole route (or where compression stages change conditions)
-   - diameter and wall thickness per section (feeder lines from Cauldon/Hope/Tunstead are likely narrower than the trunk line)
-   - block valve spacing and assumed closure time (if not stated, use the GHGT-12 assumption of 900 s detection plus 30 s closure and say so)
-   - burial depth (public factsheet says 1.2 m minimum, 0.5 m in shallow rock)
-   - CO2 composition and impurities from cement/lime capture (affects density and toxicity margins)
-   - design throughput in Mt/yr per section
-2. **DEM coverage for the Peak District.** EA National LIDAR Programme 1m DTM tiles for the SK grid squares along the eastern corridor (Defra Survey Data Downloader, same source as existing tiles). Fallback where LIDAR is missing: OS Terrain 50, open data. The shallow-layer model runs at 10–25 m resolution, so Terrain 50 is acceptable away from the Wirral focus area.
-3. **Model decision inputs.** Download TWODEE-2.3 source and manual (DIGITAL.CSIC, doi:10.20350/digitalCSIC/13877; manual at datasim.ov.ingv.it). Attempt a build and a bundled test case. The outcome decides option 1 versus option 2 above.
+1. **Pipeline engineering parameters. Done.** Extracted from Scoping Report Volume 1 (EN0710001-000013) and consultation material into `data/manual/pipeline_parameters.json` with a citation per value. Key findings: gas phase confirmed (SR 3.2.67); 195 km onshore; up to 36-inch diameter and 25 mm wall (consultation material, not the SR); burial 1.2 m minimum; **no operating pressure, valve spacing, or CO2 specification published anywhere**, so those are recorded as explicit assumptions (35 barg base case in a 20-45 range, 16 km spacing, 900 s + 30 s closure) and must appear in every sensitivity table.
+2. **DEM coverage. Deferred, not blocking.** Both chosen simulation areas (Greasby, Arrowe Park Hospital) sit inside existing SJ LIDAR coverage. Peak District SK tiles (EA National LIDAR Programme via the Defra Survey Data Downloader, OS Terrain 50 fallback) are only needed when eastern scenarios are added.
+3. **Model build trial. Done.** TWODEE-2.3 (DIGITAL.CSIC, doi:10.20350/digitalCSIC/13877) compiles with gfortran and netCDF-Fortran and runs its bundled example correctly. See scope decisions at the top.
 
 ### P1, needed before production runs
 
@@ -70,12 +69,14 @@ Cross-check for either option: the Britter-McQuaid dense-gas workbook correlatio
 
 ## Scenario matrix
 
-Keep the production matrix small and justified. Roughly 20–30 runs:
+Keep the production matrix small and justified.
 
-- **Rupture locations (5–8):** mid-segment points chosen where the corridor passes close to settlements or mapped sinks. On the Wirral specifically: the segment near the Coastal AGI options at Leasowe, and the populated corridor sections southward. Plus one Peak District location (e.g. near the North Feeder AGI) once DEM coverage exists.
+- **Test case: Arrowe Park Hospital.** Corridor passes ~130 m from the hospital (nearest corridor point 53.3653, -3.1057). A compact domain of roughly 4 x 4 km at 10 m resolution keeps run times in minutes during development, and a hospital is the clearest possible example of a population that cannot self-evacuate. Every pipeline change gets validated here first.
+- **First full scenario: Greasby.** Corridor passes ~110 m from the settlement edge (nearest corridor point 53.3719, -3.1303). Residential area with schools already in our data. Domain roughly 8 x 8 km to capture drainage toward surrounding low ground.
+- **Later locations:** Meols (300 m from the corridor, next to the Coastal AGI zones and the surveyed Hoylake compressor sites), Saughall Massie, the Leasowe landfall segment, and one Peak District location once SK DEM coverage exists.
 - **Failure modes (2):** full-bore rupture (double-ended) and a 50 mm-equivalent puncture. Same split the Gexcon tutorial uses.
 - **Weather (2–3):** F2 stable low wind, D5 neutral, and the prevailing south-westerly at typical speed.
-- **Sensitivity (documented separately):** dense-phase operation at 100 bar using the GHGT-12 source term, valve closure time doubled, and DEM resolution halved, each to show which assumptions move the answer.
+- **Sensitivity (documented separately):** operating pressure at 20 and 45 barg, valve spacing and closure time varied, and DEM resolution halved, each to show which assumptions move the answer. Dense phase is out of scope by campaign decision.
 
 ## Credibility plan
 
@@ -92,13 +93,13 @@ This will be scrutinised by the applicant's consultants, so:
 Following the existing pipeline conventions:
 
 - `scripts/10_rupture_source.py` reads `pipeline_parameters.json`, computes transient blowdown per failure mode, writes source-term time series to `data/processed/rupture_sources.json`.
-- `scripts/11_rupture_dispersion.py` runs the shallow-layer model per scenario over the merged DEM, writes per-scenario concentration contour GeoJSON and arrival-time rasters to `data/processed/rupture_scenarios/`.
+- `scripts/11_rupture_dispersion.py` writes TWODEE input files per scenario (DEM and roughness grids, wind, source), invokes the TWODEE binary, and converts its NetCDF output into concentration contour GeoJSON and arrival-time rasters in `data/processed/rupture_scenarios/`.
 - Frontend gains a scenario picker and an animated cloud layer; the postcode risk card gains "worst-case scenario reaching this postcode" with arrival time.
 
-A full TDD implementation plan (per `docs/superpowers/plans/` conventions) should be written once the P0 items above are resolved, because the model choice and the pipeline parameters change the task breakdown.
+P0 items are resolved, so a full TDD implementation plan (per `docs/superpowers/plans/` conventions) is the next step. The remaining pre-implementation gathering is P1: meteorology, the toxicological reference page, and validation materials.
 
-## Open questions for Action Against CCS
+## Resolved questions
 
-1. Which scoping report sections or annexes state operating pressure, phase, and valve spacing? Supplying those PDFs (or page references) unblocks P0 item 1 immediately.
-2. Does the consultation material reserve the right to dense-phase operation in future, or is gaseous phase a binding design commitment? This decides whether dense phase is a sensitivity case or a co-equal scenario.
-3. Is there a preferred set of rupture locations from the campaign's perspective (specific villages, schools, the Leasowe embankment) to prioritise in the scenario matrix?
+1. **Pipeline parameters:** extracted from the published Scoping Report; see `data/manual/pipeline_parameters.json`. Operating pressure is not published and is carried as an assumption range.
+2. **Dense phase:** excluded from scope by campaign decision. The SR 3.2.128 flag (Coastal AGI to MLWS lines could go dense phase in later years) stays on record for future consultation responses.
+3. **Locations:** Arrowe Park Hospital (test case) and Greasby (first full scenario), per campaign direction.

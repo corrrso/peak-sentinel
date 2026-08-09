@@ -1,0 +1,77 @@
+{
+  "_about": "Engineering parameters for rupture simulation source terms. Values marked 'stated' come from a cited document. Values marked 'assumption' are modelling assumptions that must be varied in sensitivity runs. Scoping Report (SR) means Peak Cluster EIA Scoping Report Volume 1, January 2026, PINS document EN0710001-000013.",
+  "phase": {
+    "value": "gaseous",
+    "status": "stated",
+    "source": "SR paragraph 3.2.67: pipeline transports CO2 to the Coastal AGI 'in a gas phase'",
+    "note": "SR 3.2.128 says the separate Coastal AGI to MLWS pipelines could operate in dense phase in later years of the operational life. Excluded from current modelling scope by campaign decision (Aug 2026), but flagged: those lines pass Meols."
+  },
+  "route_length_onshore_km": {
+    "value": 195,
+    "status": "stated",
+    "source": "SR paragraph 3.2.67"
+  },
+  "diameter_onshore_mm": {
+    "value": 914,
+    "range_mm": [610, 914],
+    "status": "stated",
+    "source": "Peak Cluster consultation factsheet 2 (March 2026): 'up to 36 inch in diameter (91.4 cm)'; FAQ gives 24-36 inches. Not stated in the SR itself. Trunk line west of the Central Feeder AGI assumed at the top of the range; feeder lines from the capture sites are likely narrower.",
+    "modelling_note": "Use 914 mm OD for Wirral scenarios (worst case and most plausible for the trunk line)."
+  },
+  "wall_thickness_mm": {
+    "value": 25,
+    "status": "stated",
+    "source": "Peak Cluster public response to MP correspondence (reported by Gawsworth Life): steel, wall thickness up to 25 mm",
+    "modelling_note": "Gives inner diameter of approximately 864 mm at 914 mm OD."
+  },
+  "operating_pressure_barg": {
+    "value": 35,
+    "range": [20, 45],
+    "status": "assumption",
+    "source": "Not published in the SR or consultation material. Peak Cluster states the pipeline will operate 'in gas phase at between half and a quarter of the pressure' of the Denbury dense-phase pipelines (public response reported by Gawsworth Life). Denbury's Satartia-era line operated near 90 bar, implying roughly 22-45 barg.",
+    "modelling_note": "Base case 35 barg. Sensitivity runs at 20 and 45 barg. The absence of a published operating pressure is itself a finding worth raising in consultation responses."
+  },
+  "temperature_c": {
+    "value": 10,
+    "status": "assumption",
+    "source": "UK shallow ground temperature, typical for buried pipeline contents in equilibrium with soil."
+  },
+  "burial_depth_m": {
+    "value": 1.2,
+    "status": "stated",
+    "source": "Peak Cluster consultation factsheet 2: minimum 1.2 m to pipe crown, reducible to 0.5 m in shallow rock"
+  },
+  "block_valve_spacing_km": {
+    "value": 16,
+    "status": "assumption",
+    "source": "Not stated in the SR (3.2.103-3.2.108 describe BVS function and footprint but not spacing). 16 km is this project's existing estimate used to place BVS markers, consistent with UK onshore practice for major accident hazard pipelines.",
+    "modelling_note": "Isolated segment inventory scales linearly with spacing. Vary in sensitivity runs."
+  },
+  "valve_closure_s": {
+    "value": 930,
+    "status": "assumption",
+    "source": "900 s detection plus 30 s closure, the assumption used in the COOLTRANS base case (Wareing et al., GHGT-12). SR 3.2.103 says valves are remotely operated on detection but gives no times."
+  },
+  "throughput_mtpa": {
+    "value": 3,
+    "status": "stated",
+    "source": "SR paragraph 1.1.5: over 3 million tonnes per annum from the early 2030s"
+  },
+  "composition": {
+    "value": "CO2 with capture-process impurities, composition not published",
+    "status": "unknown",
+    "source": "SR does not specify a CO2 specification. Capture at cement and lime plants (post-combustion amine, pressure swing absorption, oxyfuel per SR 3.2 descriptions) implies N2, O2, H2O and trace amine products.",
+    "modelling_note": "Model pure CO2. Impurities at typical pipeline spec (>95-99% CO2) change gas density by a few percent, well inside other uncertainties."
+  },
+  "design_standard": {
+    "value": "BS PD 8010",
+    "status": "stated",
+    "source": "Peak Cluster public response reported by Gawsworth Life; consistent with Pipeline Safety Regulations 1996 cited in SR 3.2.90"
+  },
+  "coastal_agi_to_mlws": {
+    "value": "up to two pipelines of 42 inch (1067 mm) diameter, 2.4-3.8 km onshore length",
+    "status": "stated",
+    "source": "SR paragraph 3.2.127",
+    "note": "Out of current modelling scope. Possible dense phase in later years (SR 3.2.128). Compression at the Coastal AGI; proposed compressor station locations at Hoylake are being surveyed (SR ecology survey descriptions)."
+  }
+}
