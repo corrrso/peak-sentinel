@@ -1,10 +1,12 @@
 import pytest
 
 from scripts.rupture_lib.blowdown import (
+    GasPhaseError,
     blowdown_series,
     choked_mass_flux,
     co2_density,
     release_temperature_k,
+    saturation_pressure_barg,
     segment_inventory_kg,
 )
 
@@ -30,6 +32,32 @@ def test_release_temperature_cold_but_above_sublimation():
     t_exit = release_temperature_k(P, T)
     assert t_exit == pytest.approx(273.15 - 49.4, abs=2.0)
     assert t_exit >= 194.65
+
+
+def test_release_temperature_clamps_at_sublimation():
+    """Deep expansion must clamp, not raise.
+
+    Above about 37 barg at 10 C the isenthalpic exit state falls below
+    the triple point, where CoolProp has no single-phase solution. The
+    documented sublimation clamp has to cover that case.
+    """
+    assert release_temperature_k(40e5 + 101325.0, T) == pytest.approx(194.65)
+
+
+def test_saturation_pressure_at_line_temperature():
+    # CO2 saturates near 44 barg at 10 C, which bounds gas-phase operation
+    assert saturation_pressure_barg(T) == pytest.approx(44.0, abs=0.5)
+
+
+def test_liquid_phase_pressure_is_rejected():
+    """45 barg at 10 C is liquid CO2, outside this model's scope.
+
+    Silently returning a liquid density would inflate the inventory by
+    roughly 9x and produce a scenario the gas-phase source term cannot
+    represent.
+    """
+    with pytest.raises(GasPhaseError):
+        blowdown_series(45e5 + 101325.0, T, BORE, SEG)
 
 
 def test_fbr_mass_conservation():

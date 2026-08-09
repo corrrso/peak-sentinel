@@ -29,7 +29,8 @@
     "range": [20, 45],
     "status": "assumption",
     "source": "Not published in the SR or consultation material. Peak Cluster states the pipeline will operate 'in gas phase at between half and a quarter of the pressure' of the Denbury dense-phase pipelines (public response reported by Gawsworth Life). Denbury's Satartia-era line operated near 90 bar, implying roughly 22-45 barg.",
-    "modelling_note": "Base case 35 barg. Sensitivity runs at 20 and 45 barg. The absence of a published operating pressure is itself a finding worth raising in consultation responses."
+    "modelling_note": "Base case 35 barg. Sensitivity runs at 20 and 43 barg. 45 barg is not usable: CO2 saturates at 44.01 barg at 10 C, so 45 barg at line temperature is liquid rather than gas (density 863 kg/m3 against 92 kg/m3 at 35 barg). The upper sensitivity bound is therefore 43 barg, just inside the gas-phase envelope. The absence of a published operating pressure is itself a finding worth raising in consultation responses.",
+    "phase_envelope_note": "The stated gas phase (SR 3.2.67) and the implied 22-45 barg range are only mutually consistent below about 44 barg at 10 C ground temperature. If the line really runs near the top of that range it must either run warmer than assumed or be dense phase, either of which changes the hazard footprint. Worth raising in consultation."
   },
   "temperature_c": {
     "value": 10,

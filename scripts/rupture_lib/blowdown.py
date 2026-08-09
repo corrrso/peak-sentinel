@@ -20,6 +20,21 @@ CO2_SUBLIMATION_K = 194.65
 ATM_PA = 101325.0
 
 
+class GasPhaseError(ValueError):
+    """Raised when line conditions are not gas phase.
+
+    The Peak Cluster onshore pipeline is stated to run in gas phase
+    (Scoping Report 3.2.67), and this model assumes that throughout.
+    CO2 saturates near 44 barg at 10 C, so the upper end of the
+    published pressure range is liquid rather than gas.
+    """
+
+
+def saturation_pressure_barg(t_k: float) -> float:
+    """Vapour pressure at t_k, in barg. Gas phase requires staying below it."""
+    return (PropsSI("P", "T", t_k, "Q", 1, "CO2") - ATM_PA) / 1e5
+
+
 def co2_density(p_pa: float, t_k: float) -> float:
     return PropsSI("D", "P", p_pa, "T", t_k, "CO2")
 
@@ -44,9 +59,18 @@ def choked_mass_flux(p_pa: float, t_k: float) -> float:
 
 
 def release_temperature_k(p_pa: float, t_k: float) -> float:
-    """Isenthalpic expansion to 1 atm, clamped at the sublimation point."""
+    """Isenthalpic expansion to 1 atm, clamped at the sublimation point.
+
+    Above roughly 37 barg at line temperature the exit enthalpy falls
+    below anything CoolProp can solve at 1 atm, because the real fluid
+    would be depositing solid CO2. That is the clamp case, so treat the
+    solver failure as reaching the sublimation point.
+    """
     h = PropsSI("HMASS", "P", p_pa, "T", t_k, "CO2")
-    t_exit = PropsSI("T", "P", ATM_PA, "HMASS", h, "CO2")
+    try:
+        t_exit = PropsSI("T", "P", ATM_PA, "HMASS", h, "CO2")
+    except ValueError:
+        return CO2_SUBLIMATION_K
     return max(t_exit, CO2_SUBLIMATION_K)
 
 
@@ -81,6 +105,14 @@ def blowdown_series(
     capacity-limited: constant peak rate until closure, exponential
     decay of the isolated inventory afterwards.
     """
+    p_sat = PropsSI("P", "T", t_k, "Q", 1, "CO2")
+    if p_pa >= p_sat:
+        raise GasPhaseError(
+            f"{(p_pa - ATM_PA) / 1e5:.1f} barg at {t_k - 273.15:.1f} C is at or above "
+            f"the CO2 saturation pressure of {(p_sat - ATM_PA) / 1e5:.1f} barg, so the "
+            "contents would be liquid. This gas-phase model does not apply."
+        )
+
     bore_area = (pi / 4.0) * bore_m * bore_m
     inventory = segment_inventory_kg(p_pa, t_k, bore_m, segment_length_m)
     flux = choked_mass_flux(p_pa, t_k)
