@@ -1,6 +1,6 @@
 # CO2 Rupture Dispersion Simulation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Simulate the ground-level CO2 concentration footprint of a Peak Cluster pipeline rupture near Arrowe Park Hospital (test case) and Greasby, producing GeoJSON hazard contours and arrival-time data for the map frontend.
 
@@ -54,7 +54,7 @@ The maintainer is not a dispersion expert, so correctness rests on checks that d
 **Interfaces:**
 - Produces: `choked_mass_flux(p_pa, t_k) -> float`, `co2_density(p_pa, t_k) -> float`, `release_temperature_k(p_pa, t_k) -> float`, `segment_inventory_kg(p_pa, t_k, bore_m, length_m) -> float`, `blowdown_series(p_pa, t_k, bore_m, segment_length_m, hole_diameter_m=None, cd=0.62, feed_rate_kgs=95.0, valve_closure_s=930.0, bin_s=30.0, t_end_s=3600.0) -> tuple[list[SourceBin], dict]` where `SourceBin` is a dataclass with `t_start`, `t_end`, `rate_kgs`. The metadata dict has keys `q_peak_kgs`, `tau_s`, `inventory_kg`, `total_released_kg`, `release_temp_k`, `mode` (`"fbr"` or `"puncture"`).
 
-- [ ] **Step 1: Add dependencies**
+- [x] **Step 1: Add dependencies**
 
 Append to `scripts/requirements.txt`:
 
@@ -67,7 +67,7 @@ pytest>=8.0
 Run: `pip install -r scripts/requirements.txt`
 Expected: installs without error.
 
-- [ ] **Step 2: Create test scaffolding**
+- [x] **Step 2: Create test scaffolding**
 
 `tests/conftest.py`:
 
@@ -78,7 +78,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 ```
 
-- [ ] **Step 3: Write the failing tests**
+- [x] **Step 3: Write the failing tests**
 
 `tests/test_blowdown.py`:
 
@@ -144,12 +144,12 @@ def test_puncture_slow_and_steady():
     assert max(early) == pytest.approx(min(early), rel=1e-6)
 ```
 
-- [ ] **Step 4: Run tests to verify they fail**
+- [x] **Step 4: Run tests to verify they fail**
 
 Run: `python -m pytest tests/test_blowdown.py -v`
 Expected: FAIL with `ModuleNotFoundError: No module named 'scripts.rupture_lib'`
 
-- [ ] **Step 5: Implement the module**
+- [x] **Step 5: Implement the module**
 
 `scripts/rupture_lib/__init__.py`: empty file.
 
@@ -287,12 +287,12 @@ def blowdown_series(
     return bins, meta
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 Run: `python -m pytest tests/test_blowdown.py -v`
 Expected: 7 passed. If `test_fbr_mass_conservation` fails by a whisker, the cause is the 0.5 kg/s cutoff dropping tail bins; the expected value in the test integrates to infinity of feed but only to `t_end` of decay, and dropped bins are below 0.1% of total for these parameters, so investigate before touching tolerances.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add scripts/rupture_lib tests scripts/requirements.txt
@@ -317,7 +317,7 @@ File formats (verified against the TWODEE-2.3 manual and bundled example1):
 - `wind.dat` (CUP): header `iyr imo idy ihr imi CUP`, then per time slice `t1 t2 wx wy T_z0 T_zref p_hpa`. Stability is inferred from the ground/reference temperature difference at `Z_REFERENCE_(M)`; equal temperatures give neutral, warmer at reference height gives stable.
 - `source.dat`: one line per (patch, time bin): `x y rate dx dy KG_SEC t1 t2`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/test_twodee_io.py`:
 
@@ -395,12 +395,12 @@ def test_inp_contains_required_records(tmp_path):
         assert needle in text, needle
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `python -m pytest tests/test_twodee_io.py -v`
 Expected: FAIL with `ModuleNotFoundError` for `twodee_io`.
 
-- [ ] **Step 3: Implement the module**
+- [x] **Step 3: Implement the module**
 
 `scripts/rupture_lib/twodee_io.py`:
 
@@ -543,12 +543,12 @@ def write_inp(path, cfg: dict) -> None:
     Path(path).write_text(INP_TEMPLATE.format(**cfg))
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python -m pytest tests/test_twodee_io.py -v`
 Expected: 4 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/rupture_lib/twodee_io.py tests/test_twodee_io.py
@@ -567,7 +567,7 @@ git commit -m "Add TWODEE input file writers"
 - Consumes: `write_grd` from Task 2, `find_tif_files`, `LIDAR_DIR` from `scripts/utils.py`.
 - Produces: `dem_to_grd(bounds_bng, res_m, out_path, tif_dir=None) -> np.ndarray` where `bounds_bng` is `(west, south, east, north)`. Returns the bottom-row-first array it wrote. Nodata (sea, gaps) becomes 0.0. GRD node coordinates sit at pixel centres, so `x0 = west + res/2`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `tests/test_dem.py` (builds a synthetic LIDAR tile so no real data is needed):
 
@@ -603,12 +603,12 @@ def test_dem_to_grd(tmp_path):
     assert x0 == 1005.0 and y0 == 1905.0 and dx == 10.0
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `python -m pytest tests/test_dem.py -v`
 Expected: FAIL with `ModuleNotFoundError` for `dem`.
 
-- [ ] **Step 3: Implement the module**
+- [x] **Step 3: Implement the module**
 
 `scripts/rupture_lib/dem.py`:
 
@@ -660,12 +660,12 @@ def dem_to_grd(bounds_bng, res_m, out_path, tif_dir=None):
     return dem
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `python -m pytest tests/test_dem.py -v`
 Expected: 1 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/rupture_lib/dem.py tests/test_dem.py
@@ -690,7 +690,7 @@ Rupture points are the corridor centreline points nearest each receptor, convert
 - Arrowe Park: corridor point 53.3653 N, 3.1057 W = E 326520, N 385951 (hospital at E 326595, N 386061, 130 m away)
 - Greasby: corridor point 53.3719 N, 3.1303 W = E 324895, N 386711 (village edge at E 325002, N 386743, 110 m away)
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `tests/test_scenarios.py`:
 
@@ -738,12 +738,12 @@ def test_source_cli_writes_json(tmp_path):
     assert data["fbr"]["bins"][0]["rate_kgs"] > data["fbr"]["bins"][-1]["rate_kgs"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `python -m pytest tests/test_scenarios.py -v`
 Expected: FAIL with `ModuleNotFoundError` for `scenarios`.
 
-- [ ] **Step 3: Implement scenarios module**
+- [x] **Step 3: Implement scenarios module**
 
 `scripts/rupture_lib/scenarios.py`:
 
@@ -817,7 +817,7 @@ def load_pipeline_parameters() -> dict:
     }
 ```
 
-- [ ] **Step 4: Implement the CLI**
+- [x] **Step 4: Implement the CLI**
 
 `scripts/10_rupture_source.py`:
 
@@ -870,12 +870,12 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `python -m pytest tests/test_scenarios.py -v`
 Expected: 4 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/rupture_lib/scenarios.py scripts/10_rupture_source.py tests/test_scenarios.py
@@ -894,7 +894,7 @@ git commit -m "Add scenario definitions and rupture source CLI"
 - Consumes: TWODEE NetCDF output. Variable names (verified against a real run): `x(x)`, `y(y)` in metres BNG; `CM_0150CM(time, y, x)` running-maximum concentration at 1.5 m in vol%; `C_0150CM(time, y, x)` instantaneous concentration in ppm; `DOSE(time, y, x)`.
 - Produces: `extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n, thresholds_pct=(4.0, 7.0, 10.0)) -> (geojson_dict, report_dict)`. GeoJSON features are polygons in WGS84 with properties `threshold_pct` and `kind="max_footprint"`. Report has `footprint_area_km2` per threshold, `max_extent_m` (farthest 4% cell from the rupture point), and `receptor_arrival_s` (first time 4% is reached at the receptor cell, `null` if never).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 `tests/test_postprocess.py` builds a tiny synthetic NetCDF mimicking TWODEE's layout:
 
@@ -967,12 +967,12 @@ def test_no_exceedance_gives_empty(tmp_path):
     assert report["receptor_arrival_s"] is None
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `python -m pytest tests/test_postprocess.py -v`
 Expected: FAIL with `ModuleNotFoundError` for `postprocess`.
 
-- [ ] **Step 3: Implement the module**
+- [x] **Step 3: Implement the module**
 
 `scripts/rupture_lib/postprocess.py`:
 
@@ -1054,12 +1054,12 @@ def extract(nc_path, rupture_e, rupture_n, receptor_e, receptor_n,
 
 Note: `affine` is a rasterio dependency, already installed.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `python -m pytest tests/test_postprocess.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add scripts/rupture_lib/postprocess.py tests/test_postprocess.py
@@ -1080,7 +1080,7 @@ git commit -m "Add NetCDF to GeoJSON post-processing"
 - Consumes: everything from Tasks 1 to 5.
 - Produces: CLI `python scripts/11_rupture_dispersion.py --scenario arrowe_park_test --mode fbr --weather d5` which assembles `data/processed/rupture_runs/<scenario>_<mode>_<weather>/`, runs the binary at `$TWODEE_BIN` (default `third_party/twodee-2.3/src/twodee`), and writes `data/processed/rupture_scenarios/<scenario>_<mode>_<weather>.geojson` plus `..._report.json`. Also `run_twodee(run_dir, twodee_bin) -> str` (returns stdout, raises on failure or missing "NORMAL TERMINATION").
 
-- [ ] **Step 1: Add gitignore entries**
+- [x] **Step 1: Add gitignore entries**
 
 Append to `.gitignore`:
 
@@ -1090,7 +1090,7 @@ third_party/
 data/processed/rupture_runs/
 ```
 
-- [ ] **Step 2: Write the build script**
+- [x] **Step 2: Write the build script**
 
 `scripts/setup_twodee.sh`:
 
@@ -1117,7 +1117,7 @@ echo "TWODEE binary: $(pwd)/src/twodee"
 Run: `bash scripts/setup_twodee.sh`
 Expected: last line prints the binary path. Then `export TWODEE_BIN=$PWD/third_party/twodee-2.3/src/twodee`.
 
-- [ ] **Step 3: Write the failing integration tests**
+- [x] **Step 3: Write the failing integration tests**
 
 `tests/test_twodee_integration.py`. These run the real binary on synthetic terrain and assert physical invariants. They are the core non-expert validation and must stay green forever.
 
@@ -1196,12 +1196,12 @@ def test_sloped_terrain_cloud_flows_downhill(tmp_path):
     assert cy < CY - 50.0, "cloud centroid should move downhill (-y)"
 ```
 
-- [ ] **Step 4: Run the integration tests**
+- [x] **Step 4: Run the integration tests**
 
 Run: `export TWODEE_BIN=$PWD/third_party/twodee-2.3/src/twodee && python -m pytest tests/test_twodee_integration.py -v`
 Expected: 2 passed, several minutes total. If `NORMAL TERMINATION` is missing, read the TWODEE stdout in the assertion message; the usual causes are a source point outside the grid or a mismatch between the wind.dat date header and the TIME block.
 
-- [ ] **Step 5: Write the run driver CLI**
+- [x] **Step 5: Write the run driver CLI**
 
 `scripts/11_rupture_dispersion.py`:
 
@@ -1317,7 +1317,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/setup_twodee.sh scripts/11_rupture_dispersion.py tests/test_twodee_integration.py .gitignore
@@ -1330,12 +1330,12 @@ git commit -m "Add TWODEE build script, run driver, and physics acceptance tests
 
 Requires LIDAR tiles and the built binary. Run on the maintainer's machine or an environment with `data/raw/dem/lidar_composite_1m/` populated.
 
-- [ ] **Step 1: Generate source terms**
+- [x] **Step 1: Generate source terms**
 
 Run: `python scripts/10_rupture_source.py`
 Expected: prints fbr peak near 10,000 kg/s and roughly 950 t released; puncture near 17 kg/s. Writes `data/processed/rupture_sources.json`.
 
-- [ ] **Step 2: Run the four test-case combinations**
+- [x] **Step 2: Run the four test-case combinations**
 
 ```bash
 python scripts/11_rupture_dispersion.py --scenario arrowe_park_test --mode fbr --weather d5
@@ -1346,7 +1346,7 @@ python scripts/11_rupture_dispersion.py --scenario arrowe_park_test --mode punct
 
 Expected: each prints footprint areas and receptor arrival, and writes GeoJSON plus report to `data/processed/rupture_scenarios/`.
 
-- [ ] **Step 3: Eyeball checklist (record answers in the commit message)**
+- [x] **Step 3: Eyeball checklist (record answers in the commit message)**
 
 Load each GeoJSON over the corridor layer (drag onto geojson.io or the app map) and confirm:
 
@@ -1356,7 +1356,7 @@ Load each GeoJSON over the corridor layer (drag onto geojson.io or the app map) 
 4. The puncture footprint is far smaller than any FBR footprint.
 5. The 10% contour sits inside the 7% contour, which sits inside the 4% contour.
 
-- [ ] **Step 4: Commit the artifacts**
+- [x] **Step 4: Commit the artifacts**
 
 ```bash
 git add data/processed/rupture_scenarios/
@@ -1367,7 +1367,7 @@ git commit -m "Add Arrowe Park test scenario results"
 
 ### Task 8: Greasby scenario
 
-- [ ] **Step 1: Run the matrix**
+- [x] **Step 1: Run the matrix**
 
 ```bash
 python scripts/11_rupture_dispersion.py --scenario greasby --mode fbr --weather d5
@@ -1378,13 +1378,27 @@ python scripts/11_rupture_dispersion.py --scenario greasby --mode puncture --wea
 
 Expected: four GeoJSON and report pairs. The 8 x 8 km domain at 20 m runs longer than the test case; expect tens of minutes per run.
 
-- [ ] **Step 2: Repeat the Task 7 eyeball checklist for Greasby.**
+- [x] **Step 2: Repeat the Task 7 eyeball checklist for Greasby.**
 
-- [ ] **Step 3: Sensitivity runs**
+- [x] **Step 3: Sensitivity runs**
 
-Edit `data/manual/pipeline_parameters.json` operating pressure to 20, rerun `greasby fbr f2`, note the 4% footprint area from the report, restore the file, repeat at 45. Record both areas in the commit message. The published material must state results as this range, not the base case alone.
+Use `--pressure-barg` with `--tag` rather than editing the cited parameters file, so the base case and the sensitivity runs coexist and every report records the pressure it used:
 
-- [ ] **Step 4: Commit**
+```bash
+python scripts/11_rupture_dispersion.py --scenario greasby --mode fbr --weather f2 --pressure-barg 20 --tag p20
+python scripts/11_rupture_dispersion.py --scenario greasby --mode fbr --weather f2 --pressure-barg 43 --tag p43
+```
+
+The plan originally specified 45 barg for the upper bound. That is not a
+valid gas-phase state: CO2 saturates at 44.01 barg at the assumed 10 C
+ground temperature, so 45 barg would be liquid at 863 kg/m3 against 92
+kg/m3 at the base case. `blowdown_series` raises `GasPhaseError` for it.
+The upper bound is 43 barg, just inside the gas-phase envelope.
+
+Result: 0.59 km2 at 20 barg, 2.10 km2 at 35 barg, 2.66 km2 at 43 barg.
+The published material must state results as this range, not the base case alone.
+
+- [x] **Step 4: Commit**
 
 ```bash
 git add data/processed/rupture_scenarios/
