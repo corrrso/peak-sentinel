@@ -1,11 +1,13 @@
 {
  "footprint_area_km2": {
-  "4.0": 2.076,
-  "7.0": 0.8848,
-  "10.0": 0.4536
+  "4.0": 4.2244,
+  "7.0": 2.3368,
+  "10.0": 1.3316
  },
- "max_extent_m": 5189.065426452051,
+ "max_extent_m": 5390.398872068745,
  "receptor_arrival_s": 0,
+ "receptor_max_pct": 87.505,
+ "receptor_radius_m": 50.0,
  "source_meta": {
   "mode": "fbr",
   "q_peak_kgs": 10013.501293523337,
@@ -16,6 +18,7 @@
  },
  "weather": "sw4",
  "assumptions": {
+  "pressure_barg": 35,
   "p_pa": 3601325.0,
   "t_k": 283.15,
   "bore_m": 0.864,

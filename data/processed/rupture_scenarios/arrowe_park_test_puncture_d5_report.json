@@ -1,11 +1,13 @@
 {
  "footprint_area_km2": {
   "4.0": 0.0004,
-  "7.0": 0.0001,
-  "10.0": 0.0001
+  "7.0": 0.0003,
+  "10.0": 0.0002
  },
- "max_extent_m": 31.622776601683793,
+ "max_extent_m": 14.142135623730951,
  "receptor_arrival_s": null,
+ "receptor_max_pct": 0.044,
+ "receptor_radius_m": 50.0,
  "source_meta": {
   "mode": "puncture",
   "q_peak_kgs": 16.76750661343688,
@@ -16,6 +18,7 @@
  },
  "weather": "d5",
  "assumptions": {
+  "pressure_barg": 35,
   "p_pa": 3601325.0,
   "t_k": 283.15,
   "bore_m": 0.864,
