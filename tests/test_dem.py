@@ -21,9 +21,12 @@ def test_dem_to_grd(tmp_path):
     make_tile(tmp_path / "a.tif", west=1000, north=2000, size=100, res=1, value=5.0)
     out = tmp_path / "topo.grd"
     arr = dem_to_grd((1000, 1900, 1100, 2000), res_m=10, out_path=out, tif_dir=tmp_path)
-    assert arr.shape == (10, 10)
+    # domain padded by one cell on each side so the DEM overhangs it
+    assert arr.shape == (12, 12)
     assert arr.max() == 5.0
-    assert arr.min() == 0.0  # nodata hole filled with 0
+    assert arr.min() == 0.0  # nodata hole and padding filled with 0
     back, x0, y0, dx = read_grd(out)
     np.testing.assert_allclose(back, arr)
-    assert x0 == 1005.0 and y0 == 1905.0 and dx == 10.0
+    assert x0 == 995.0 and y0 == 1895.0 and dx == 10.0
+    # DEM node extent covers the full domain
+    assert x0 <= 1000.0 and x0 + (arr.shape[1] - 1) * dx >= 1100.0

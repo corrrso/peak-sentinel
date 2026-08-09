@@ -26,3 +26,8 @@ data/raw/
 # Python
 pdf_venv/
 __pycache__/
+.pytest_cache/
+
+# TWODEE build and run directories (large binaries and NetCDF)
+third_party/
+data/processed/rupture_runs/

@@ -16,7 +16,15 @@ NODATA = -9999.0
 
 
 def dem_to_grd(bounds_bng, res_m, out_path, tif_dir=None):
+    """Write a GRD covering bounds_bng padded by one cell on each side.
+
+    TWODEE aborts if any computational node falls outside the DEM node
+    extent, so the DEM must overhang the domain. Nodes sit at pixel
+    centres; padding by one cell puts the first node half a cell
+    outside the domain corner.
+    """
     west, south, east, north = bounds_bng
+    west, south, east, north = west - res_m, south - res_m, east + res_m, north + res_m
     domain = box(west, south, east, north)
 
     tifs = find_tif_files(tif_dir if tif_dir is not None else LIDAR_DIR)
