@@ -96,7 +96,7 @@ Following the existing pipeline conventions:
 - `scripts/11_rupture_dispersion.py` writes TWODEE input files per scenario (DEM and roughness grids, wind, source), invokes the TWODEE binary, and converts its NetCDF output into concentration contour GeoJSON and arrival-time rasters in `data/processed/rupture_scenarios/`.
 - Frontend gains a scenario picker and an animated cloud layer; the postcode risk card gains "worst-case scenario reaching this postcode" with arrival time.
 
-P0 items are resolved, so a full TDD implementation plan (per `docs/superpowers/plans/` conventions) is the next step. The remaining pre-implementation gathering is P1: meteorology, the toxicological reference page, and validation materials.
+The full TDD implementation plan is at `docs/plans/2026-08-09-rupture-simulation.md`. The remaining pre-implementation gathering is P1: meteorology, the toxicological reference page, and validation materials.
 
 ## Resolved questions
 
