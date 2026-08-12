@@ -42,11 +42,36 @@ def test_source_mass_preserved(tmp_path):
     write_source(p, x_bng=326520.0, y_bng=385951.0, bins=bins, patch_m=20.0)
     total = 0.0
     for line in p.read_text().splitlines():
-        x, y, rate, dx, dy, units, t1, t2 = line.split()
-        assert units == "KG_SEC"
+        x, y, flux, dx, dy, units, t1, t2 = line.split()
+        assert units == "KG_M2_SEC"
         assert (float(dx), float(dy)) == (20.0, 20.0)
-        total += float(rate) * (float(t2) - float(t1))
+        # flux is per unit area, so multiply back up by the patch
+        rate = float(flux) * float(dx) * float(dy)
+        total += rate * (float(t2) - float(t1))
     assert total == pytest.approx(100.0 * 30 + 50.0 * 30)
+
+
+def test_area_source_conserves_mass_at_any_patch_size(tmp_path):
+    """An area source must use KG_M2_SEC, not KG_SEC.
+
+    setsrc.f90 treats KG_SEC as a point source: it computes an upward
+    velocity of rate/(rho*dxs*dys) but applies it to the single grid cell
+    containing the source point, so the mass entering the domain scales
+    as (grid_cell/patch)^2. Enlarging the patch silently discards gas.
+    KG_M2_SEC takes the extended-source branch, which spreads the flux
+    over the patch and conserves mass.
+    """
+    bins = [SourceBin(0, 30, 8000.0)]
+    for patch in (20.0, 200.0):
+        p = tmp_path / f"source_{patch:.0f}.dat"
+        write_source(p, x_bng=324895.0, y_bng=386711.0, bins=bins, patch_m=patch)
+        line = p.read_text().splitlines()[0].split()
+        x, y, flux, dxs, dys, units, t1, t2 = line
+        assert units == "KG_M2_SEC", units
+        assert (float(dxs), float(dys)) == (patch, patch)
+        # flux is per unit area, so total must recover the intended rate
+        total = float(flux) * float(dxs) * float(dys)
+        assert total == pytest.approx(8000.0, rel=1e-6)
 
 
 def test_inp_contains_required_records(tmp_path):

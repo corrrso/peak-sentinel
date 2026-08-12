@@ -41,11 +41,21 @@ def write_wind_uniform(path, u_ms, v_ms, t_ground_c, t_ref_c, duration_s,
 
 
 def write_source(path, x_bng, y_bng, bins, patch_m=20.0) -> None:
+    """Write the crater as an area source of side patch_m.
+
+    Units must be KG_M2_SEC. With KG_SEC, setsrc.f90 takes the point
+    source branch: it derives an upward velocity of rate/(rho*dxs*dys)
+    but applies it to the one grid cell holding the source point, so the
+    mass reaching the domain falls as (cell/patch)^2 and a larger crater
+    silently loses gas. KG_M2_SEC takes the extended source branch,
+    which distributes the flux across the patch conserving mass.
+    """
     with open(path, "w") as f:
         for b in bins:
+            flux = b.rate_kgs / (patch_m * patch_m)  # kg/m2/s
             f.write(
-                f"{x_bng:.1f} {y_bng:.1f} {b.rate_kgs:.4f} "
-                f"{patch_m:.1f} {patch_m:.1f} KG_SEC {b.t_start:g} {b.t_end:g}\n"
+                f"{x_bng:.1f} {y_bng:.1f} {flux:.8f} "
+                f"{patch_m:.1f} {patch_m:.1f} KG_M2_SEC {b.t_start:g} {b.t_end:g}\n"
             )
 
 

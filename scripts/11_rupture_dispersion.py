@@ -69,6 +69,13 @@ def main():
         help="source term time bin. Coarse bins pulse the release, which also "
              "shows up as banding in the accumulated footprint.",
     )
+    ap.add_argument(
+        "--patch-m", type=float, default=20.0,
+        help="width of the square crater the gas escapes through. TWODEE turns "
+             "the mass rate into an upward velocity of rate/(rho*patch^2), so a "
+             "small patch injects gas fast enough to leave the shallow-layer "
+             "regime. Real crater size is unknown, so sweep it.",
+    )
     args = ap.parse_args()
 
     s = dict(SCENARIOS[args.scenario])
@@ -99,7 +106,8 @@ def main():
         bin_s=args.bin_s,
         t_end_s=float(s["sim_s"]),
     )
-    write_source(run_dir / "source.dat", s["rupture_e"], s["rupture_n"], bins)
+    write_source(run_dir / "source.dat", s["rupture_e"], s["rupture_n"], bins,
+                 patch_m=args.patch_m)
     write_wind_uniform(run_dir / "wind.dat", w["u_ms"], w["v_ms"],
                        w["t_ground_c"], w["t_ref_c"], s["sim_s"])
     write_inp(run_dir / "twodee.inp", {
@@ -127,6 +135,7 @@ def main():
         "output_interval_s": s["out_s"],
         "source_bin_s": args.bin_s,
         "grid_dx_m": s["dx"],
+        "source_patch_m": args.patch_m,
     }
 
     out_dir = PROCESSED_DIR / "rupture_scenarios"
