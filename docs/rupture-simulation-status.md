@@ -34,6 +34,10 @@ from different builds must not be mixed.
 Pressure sensitivity, Greasby FBR F2: **0.59 km² at 20 barg, 2.10 km² at
 35 barg, 2.66 km² at 43 barg.** Publish the range, not the base case.
 
+> **Do not publish these areas.** See "Source term is outside the model's
+> regime" below. The plume direction and the fact that inhabited ground is
+> reached are robust; the km² values are not converged.
+
 Checklist verified numerically (see the commit message on `a93afdd`):
 rupture point inside the 4% polygon in all ten runs; F2 larger than D5
 at both sites; cloud mean elevation below that of terrain within the same
@@ -54,6 +58,55 @@ radius; punctures 0.1–0.3% of the matching FBR; thresholds nested.
    at 24 vol%. This is what produced the "cloud went east of the
    hospital" result for Arrowe Park D5. Arrivals now use a 50 m radius
    and reports carry `receptor_max_pct`.
+
+## Source term is outside the model's regime (blocking issue)
+
+Found 2026-08-12 by testing whether the banding visible in the SW4
+footprint was a sampling artifact. It is not.
+
+`setsrc.f90` treats a `KG_SEC` entry as a point source and converts our
+mass rate into an upward gas velocity:
+
+    ups = rate / (rho_gas * dxs * dys)
+
+With the 20 m patch in `write_source` and the peak rate of about 8,500
+kg/s, that injects gas upward at **8.9 m/s**, against a wind of 2 to 5
+m/s. TWODEE is a shallow-layer model: it assumes vertical velocity is
+small compared with horizontal spreading. We are violating that
+assumption at the source.
+
+The symptom is that the 4% footprint does not converge under source
+discretisation, because finer bins resolve a higher initial spike:
+
+| Source bin | first-bin rate | injected up velocity | 4% km² |
+|---|---|---|---|
+| 30 s | 8,549 kg/s | 8.87 m/s | 4.22 |
+| 10 s | 9,548 kg/s | 9.91 m/s | 3.14 |
+| 5 s | 9,823 kg/s | 10.19 m/s | 3.69 |
+
+Mass released is identical (949.69 t) in all three, so this is not
+leakage. The area moves 26% down then 18% up, which is a solver
+responding to an out-of-regime forcing rather than converging.
+
+Two things this rules out:
+
+- **Output interval is irrelevant.** `CM_0150CM` accumulates at every
+  internal solver step, so 60 s and 20 s output give bit-identical
+  results. An earlier explanation blaming output sampling was wrong.
+- **Refining bins does not fix it.** It makes the spike worse.
+
+The likely fix is a physically sized crater. The Gexcon guidance for
+buried CO2 pipelines says the release type is always "release from
+crater", with the jet entraining air and exiting vertically. A patch
+100 to 200 m across brings the injected velocity to 0.1 to 0.4 m/s,
+comfortably inside the shallow-layer regime. Crater dimensions are an
+expert judgement and must not be invented to make the numbers behave:
+the patch size directly sets the initial cloud footprint.
+
+This is the same "crater as low-momentum area source" simplification the
+plan flagged for expert review. It is now demonstrated to be load-bearing
+rather than a theoretical caveat, and it is the first question to put to a
+dispersion expert.
 
 ## Not done (resume here)
 
