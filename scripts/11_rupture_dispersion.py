@@ -58,9 +58,22 @@ def main():
         "--tag", default=None,
         help="suffix for the run and output names, to keep sensitivity runs separate",
     )
+    ap.add_argument(
+        "--out-s", type=int, default=None,
+        help="override the output interval. The running-maximum footprint is "
+             "sampled at this interval, so a coarse value leaves gaps between "
+             "successive cloud positions and undercounts the area.",
+    )
+    ap.add_argument(
+        "--bin-s", type=float, default=30.0,
+        help="source term time bin. Coarse bins pulse the release, which also "
+             "shows up as banding in the accumulated footprint.",
+    )
     args = ap.parse_args()
 
-    s = SCENARIOS[args.scenario]
+    s = dict(SCENARIOS[args.scenario])
+    if args.out_s:
+        s["out_s"] = args.out_s
     w = WEATHER[args.weather]
     name = f"{args.scenario}_{args.mode}_{args.weather}"
     if args.tag:
@@ -83,6 +96,7 @@ def main():
         p["p_pa"], p["t_k"], p["bore_m"], p["segment_length_m"],
         hole_diameter_m=None if args.mode == "fbr" else 0.05,
         feed_rate_kgs=p["feed_rate_kgs"], valve_closure_s=p["valve_closure_s"],
+        bin_s=args.bin_s,
         t_end_s=float(s["sim_s"]),
     )
     write_source(run_dir / "source.dat", s["rupture_e"], s["rupture_n"], bins)
@@ -107,6 +121,13 @@ def main():
     report["source_meta"] = meta
     report["weather"] = args.weather
     report["assumptions"] = p
+    # The footprint is a running maximum sampled at out_s, so both of these
+    # bound how much sub-step structure the area can resolve.
+    report["resolution"] = {
+        "output_interval_s": s["out_s"],
+        "source_bin_s": args.bin_s,
+        "grid_dx_m": s["dx"],
+    }
 
     out_dir = PROCESSED_DIR / "rupture_scenarios"
     out_dir.mkdir(exist_ok=True)
