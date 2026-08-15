@@ -96,6 +96,7 @@ def blowdown_series(
     valve_closure_s: float = 930.0,
     bin_s: float = 30.0,
     t_end_s: float = 3600.0,
+    tau_scale: float = 1.0,
 ):
     """Transient release rate binned for the TWODEE source file.
 
@@ -104,6 +105,14 @@ def blowdown_series(
     at the design flow rate until valve closure. A puncture is
     capacity-limited: constant peak rate until closure, exponential
     decay of the isolated inventory afterwards.
+
+    tau_scale stretches the decay time constant. Friction along a 16 km
+    segment is not modelled, and orifice-limited decay empties the line
+    far faster than observed releases: Satartia vented for about four
+    hours (PHMSA failure investigation, 2022). Raising tau_scale trades
+    initial rate for duration at constant mass. Note that t_end_s must
+    be long enough to capture the stretched tail, or the late mass is
+    truncated rather than released.
     """
     p_sat = PropsSI("P", "T", t_k, "Q", 1, "CO2")
     if p_pa >= p_sat:
@@ -124,7 +133,7 @@ def blowdown_series(
         mode = "puncture"
         q_peak = cd * (pi / 4.0) * hole_diameter_m * hole_diameter_m * flux
 
-    tau = inventory / q_peak
+    tau = (inventory / q_peak) * tau_scale
 
     def mass_between(t1: float, t2: float) -> float:
         if mode == "fbr":
@@ -154,6 +163,7 @@ def blowdown_series(
         "mode": mode,
         "q_peak_kgs": q_peak,
         "tau_s": tau,
+        "tau_scale": tau_scale,
         "inventory_kg": inventory,
         "total_released_kg": total,
         "release_temp_k": release_temperature_k(p_pa, t_k),

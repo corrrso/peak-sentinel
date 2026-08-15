@@ -70,6 +70,17 @@ def main():
              "shows up as banding in the accumulated footprint.",
     )
     ap.add_argument(
+        "--tau-scale", type=float, default=1.0,
+        help="stretch the blowdown decay time constant. Orifice-limited decay "
+             "empties a 16 km segment in minutes; Satartia vented for about 4 "
+             "hours, so values of 20 to 50 bracket observed behaviour.",
+    )
+    ap.add_argument(
+        "--sim-s", type=int, default=None,
+        help="override the simulation duration. A stretched tau needs a longer "
+             "window or the release tail is truncated.",
+    )
+    ap.add_argument(
         "--patch-m", type=float, default=20.0,
         help="width of the square crater the gas escapes through. TWODEE turns "
              "the mass rate into an upward velocity of rate/(rho*patch^2), so a "
@@ -81,6 +92,8 @@ def main():
     s = dict(SCENARIOS[args.scenario])
     if args.out_s:
         s["out_s"] = args.out_s
+    if args.sim_s:
+        s["sim_s"] = args.sim_s
     w = WEATHER[args.weather]
     name = f"{args.scenario}_{args.mode}_{args.weather}"
     if args.tag:
@@ -105,7 +118,15 @@ def main():
         feed_rate_kgs=p["feed_rate_kgs"], valve_closure_s=p["valve_closure_s"],
         bin_s=args.bin_s,
         t_end_s=float(s["sim_s"]),
+        tau_scale=args.tau_scale,
     )
+    # A stretched tau can outlast the simulation window, in which case the
+    # released mass is truncated. Say so rather than reporting quietly.
+    released_frac = meta["total_released_kg"] / (meta["inventory_kg"] + p["feed_rate_kgs"] * p["valve_closure_s"])
+    if released_frac < 0.95:
+        print(f"NOTE: only {released_frac * 100:.0f}% of the available mass is released "
+              f"within {s['sim_s']} s (tau {meta['tau_s']:.0f} s). "
+              f"Raise --sim-s to capture the full release.")
     write_source(run_dir / "source.dat", s["rupture_e"], s["rupture_n"], bins,
                  patch_m=args.patch_m)
     write_wind_uniform(run_dir / "wind.dat", w["u_ms"], w["v_ms"],
@@ -136,6 +157,8 @@ def main():
         "source_bin_s": args.bin_s,
         "grid_dx_m": s["dx"],
         "source_patch_m": args.patch_m,
+        "sim_s": s["sim_s"],
+        "mass_released_fraction": round(released_frac, 4),
     }
 
     out_dir = PROCESSED_DIR / "rupture_scenarios"

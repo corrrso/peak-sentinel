@@ -78,6 +78,28 @@ def test_fbr_peak_and_decay():
     assert all(a >= b for a, b in zip(rates, rates[1:]))  # never increases
 
 
+def test_tau_scale_slows_release_without_losing_mass():
+    """Stretching tau must trade peak rate for duration, not mass.
+
+    Satartia vented for about 4 hours against our base case emptying a
+    segment in under 7 minutes, so the release timescale needs a
+    sensitivity knob. Over a long enough window the same inventory has
+    to come out either way.
+    """
+    long_window = 200_000.0
+    base_bins, base = blowdown_series(P, T, BORE, SEG, t_end_s=long_window)
+    slow_bins, slow = blowdown_series(P, T, BORE, SEG, t_end_s=long_window, tau_scale=10.0)
+
+    assert slow["tau_s"] == pytest.approx(base["tau_s"] * 10.0, rel=1e-6)
+    # same mass, spread over a longer time and so at a lower initial rate
+    assert slow["total_released_kg"] == pytest.approx(base["total_released_kg"], rel=1e-3)
+    assert slow_bins[0].rate_kgs < base_bins[0].rate_kgs / 5
+    assert slow_bins[-1].t_end > base_bins[-1].t_end
+    # the choked orifice peak is a property of the hole, not of tau
+    assert slow["q_peak_kgs"] == pytest.approx(base["q_peak_kgs"], rel=1e-9)
+    assert slow["tau_scale"] == 10.0
+
+
 def test_puncture_slow_and_steady():
     bins, meta = blowdown_series(P, T, BORE, SEG, hole_diameter_m=0.05)
     assert meta["mode"] == "puncture"
