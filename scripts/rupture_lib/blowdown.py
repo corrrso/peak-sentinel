@@ -9,7 +9,7 @@ Friction-limited late-time flow is not modelled; the sensitivity study
 varies tau instead.
 """
 from dataclasses import dataclass
-from math import exp, pi, sqrt
+from math import exp, log, log10, pi, sqrt
 
 from CoolProp.CoolProp import PropsSI
 
@@ -83,6 +83,192 @@ class SourceBin:
     t_start: float
     t_end: float
     rate_kgs: float
+
+
+# Commercial steel, the roughness normally assumed for transmission pipe.
+STEEL_ROUGHNESS_M = 4.5e-5
+
+
+def _colebrook_f(reynolds: float, rel_roughness: float) -> float:
+    """Darcy friction factor from the Colebrook-White correlation.
+
+    Solved by fixed-point iteration, which converges in a handful of
+    passes for pipe-flow Reynolds numbers.
+    """
+    if reynolds < 2300.0:
+        return 64.0 / max(reynolds, 1e-6)
+    f = 0.02
+    for _ in range(60):
+        rhs = -2.0 * log10(rel_roughness / 3.7 + 2.51 / (reynolds * sqrt(f)))
+        f_new = 1.0 / (rhs * rhs)
+        if abs(f_new - f) < 1e-12:
+            return f_new
+        f = f_new
+    return f
+
+
+def friction_limited_flux(
+    p_pa: float,
+    t_k: float,
+    bore_m: float,
+    length_m: float,
+    roughness_m: float = STEEL_ROUGHNESS_M,
+    p_exit_pa: float = ATM_PA,
+) -> float:
+    """Mass flux (kg/m2/s) a length of pipe can actually deliver.
+
+    Isothermal compressible pipe flow with a sonic exit, the standard
+    screening treatment (Crane TP-410; Perry 6-22). For the pipe
+    resistance term,
+
+        G^2 = rho1 * (p1^2 - p2^2) / (p1 * (f L/D + 2 ln(p1/p2)))
+
+    The result is capped at the free-orifice choked flux, because no
+    length of pipe can deliver more than an unrestricted hole. That cap
+    is what makes a very short pipe recover the orifice answer.
+
+    Friction depends on flow rate through the Reynolds number, so the
+    two are iterated to consistency.
+    """
+    free = choked_mass_flux(p_pa, t_k)
+    if length_m <= 0.0:
+        return free
+
+    rho = co2_density(p_pa, t_k)
+    mu = PropsSI("V", "P", p_pa, "T", t_k, "CO2")
+    p2 = min(max(p_exit_pa, 1.0), p_pa * 0.999)
+
+    g = free  # start from the orifice value and relax downward
+    for _ in range(100):
+        reynolds = max(g * bore_m / mu, 1.0)
+        f = _colebrook_f(reynolds, roughness_m / bore_m)
+        denom = f * length_m / bore_m + 2.0 * log(p_pa / p2)
+        g_new = sqrt(rho * (p_pa * p_pa - p2 * p2) / (p_pa * denom))
+        g_new = min(g_new, free)
+        if abs(g_new - g) < 1e-9 * max(g, 1.0):
+            return g_new
+        g = 0.5 * g + 0.5 * g_new  # damped, the coupling is stiff
+    return g
+
+
+def blowdown_series_friction(
+    p_pa: float,
+    t_k: float,
+    bore_m: float,
+    segment_length_m: float,
+    cd: float = 0.62,
+    feed_rate_kgs: float = 95.0,
+    valve_closure_s: float = 930.0,
+    bin_s: float = 30.0,
+    t_end_s: float = 36000.0,
+    roughness_m: float = STEEL_ROUGHNESS_M,
+    hole_diameter_m: float | None = None,
+):
+    """Friction-limited blowdown, integrated forward in time.
+
+    The orifice model in blowdown_series assumes an unlimited reservoir
+    behind the hole and so releases the whole segment in minutes. A real
+    segment feeds the break through kilometres of bore, and friction
+    over that distance throttles the flow to roughly a tenth of the
+    orifice rate.
+
+    Quasi-steady treatment: at each step the current mean line pressure
+    sets the deliverable flux, mass leaves, and the pressure follows from
+    the remaining inventory at constant temperature. Gas travels from the
+    segment midpoint to the break, so the flow path is half the segment
+    for a full-bore rupture.
+
+    This omits the sonic decompression wave that travels back along the
+    line in the first seconds, and it holds temperature fixed rather
+    than tracking Joule-Thomson cooling of the remaining inventory. Both
+    matter most very early, when the orifice model is also least
+    reliable.
+
+    Returns the same (bins, meta) shape as blowdown_series, with meta
+    additionally carrying t_95_s, the time to release 95% of the
+    available mass.
+    """
+    p_sat = PropsSI("P", "T", t_k, "Q", 1, "CO2")
+    if p_pa >= p_sat:
+        raise GasPhaseError(
+            f"{(p_pa - ATM_PA) / 1e5:.1f} barg at {t_k - 273.15:.1f} C is at or above "
+            f"the CO2 saturation pressure of {(p_sat - ATM_PA) / 1e5:.1f} barg, so the "
+            "contents would be liquid. This gas-phase model does not apply."
+        )
+
+    bore_area = (pi / 4.0) * bore_m * bore_m
+    inventory = segment_inventory_kg(p_pa, t_k, bore_m, segment_length_m)
+    volume = bore_area * segment_length_m
+    path_m = segment_length_m / 2.0
+
+    if hole_diameter_m is None:
+        mode = "fbr"
+        exit_area = cd * 2.0 * bore_area
+    else:
+        mode = "puncture"
+        exit_area = cd * (pi / 4.0) * hole_diameter_m * hole_diameter_m
+
+    mass = inventory
+    released = 0.0
+    q_peak = 0.0
+    bins: list[SourceBin] = []
+    dt = min(bin_s, 5.0)  # integrate finer than the reporting bin
+
+    t = 0.0
+    while t < t_end_s:
+        t_bin_end = min(t + bin_s, t_end_s)
+        bin_mass = 0.0
+        tt = t
+        while tt < t_bin_end:
+            step = min(dt, t_bin_end - tt)
+            rho_now = mass / volume
+            if rho_now <= 1e-6:
+                break
+            try:
+                p_now = PropsSI("P", "D", rho_now, "T", t_k, "CO2")
+            except ValueError:
+                break
+            if p_now <= ATM_PA * 1.01:
+                break
+            flux = friction_limited_flux(
+                p_now, t_k, bore_m, path_m, roughness_m=roughness_m
+            )
+            rate = flux * exit_area
+            feed = feed_rate_kgs if tt < valve_closure_s else 0.0
+            out = min(rate * step, mass + feed * step)
+            mass += feed * step - out
+            bin_mass += out
+            q_peak = max(q_peak, rate)
+            tt += step
+        if bin_mass <= 0.0:
+            break
+        rate_avg = bin_mass / (t_bin_end - t)
+        if rate_avg >= 0.5:
+            bins.append(SourceBin(t, t_bin_end, rate_avg))
+            released += bin_mass
+        t = t_bin_end
+
+    available = inventory + feed_rate_kgs * valve_closure_s
+    cum = 0.0
+    t_95 = float("nan")
+    for b in bins:
+        cum += b.rate_kgs * (b.t_end - b.t_start)
+        if cum >= 0.95 * available:
+            t_95 = b.t_end
+            break
+
+    meta = {
+        "mode": mode,
+        "model": "friction_limited",
+        "q_peak_kgs": q_peak,
+        "inventory_kg": inventory,
+        "total_released_kg": released,
+        "release_temp_k": release_temperature_k(p_pa, t_k),
+        "t_95_s": t_95,
+        "flow_path_m": path_m,
+        "roughness_m": roughness_m,
+    }
+    return bins, meta
 
 
 def blowdown_series(

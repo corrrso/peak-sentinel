@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import numpy as np
 
-from scripts.rupture_lib.blowdown import blowdown_series
+from scripts.rupture_lib.blowdown import blowdown_series, blowdown_series_friction
 from scripts.rupture_lib.dem import dem_to_grd
 from scripts.rupture_lib.postprocess import extract
 from scripts.rupture_lib.scenarios import SCENARIOS, WEATHER, load_pipeline_parameters
@@ -70,6 +70,12 @@ def main():
              "shows up as banding in the accumulated footprint.",
     )
     ap.add_argument(
+        "--source-model", default="orifice", choices=["orifice", "friction"],
+        help="orifice assumes an unlimited reservoir behind the hole and empties "
+             "the segment in minutes. friction accounts for pipe resistance over "
+             "the flow path, which is the physically defensible choice.",
+    )
+    ap.add_argument(
         "--tau-scale", type=float, default=1.0,
         help="stretch the blowdown decay time constant. Orifice-limited decay "
              "empties a 16 km segment in minutes; Satartia vented for about 4 "
@@ -112,14 +118,21 @@ def main():
               west - s["dx"] / 2, south - s["dx"] / 2, s["dx"])
 
     p = load_pipeline_parameters(pressure_barg=args.pressure_barg)
-    bins, meta = blowdown_series(
-        p["p_pa"], p["t_k"], p["bore_m"], p["segment_length_m"],
+    common = dict(
         hole_diameter_m=None if args.mode == "fbr" else 0.05,
         feed_rate_kgs=p["feed_rate_kgs"], valve_closure_s=p["valve_closure_s"],
         bin_s=args.bin_s,
         t_end_s=float(s["sim_s"]),
-        tau_scale=args.tau_scale,
     )
+    if args.source_model == "friction":
+        bins, meta = blowdown_series_friction(
+            p["p_pa"], p["t_k"], p["bore_m"], p["segment_length_m"], **common,
+        )
+    else:
+        bins, meta = blowdown_series(
+            p["p_pa"], p["t_k"], p["bore_m"], p["segment_length_m"],
+            tau_scale=args.tau_scale, **common,
+        )
     # A stretched tau can outlast the simulation window, in which case the
     # released mass is truncated. Say so rather than reporting quietly.
     released_frac = meta["total_released_kg"] / (meta["inventory_kg"] + p["feed_rate_kgs"] * p["valve_closure_s"])
