@@ -207,6 +207,10 @@ def blowdown_series_friction(
     else:
         mode = "puncture"
         exit_area = cd * (pi / 4.0) * hole_diameter_m * hole_diameter_m
+    # The release is limited by whichever of the two restrictions binds:
+    # the hole, or the pipe feeding it. These are compared as total mass
+    # flow, since flux per unit area differs between bore and hole.
+    pipe_flow_area = bore_area
 
     mass = inventory
     released = 0.0
@@ -230,10 +234,14 @@ def blowdown_series_friction(
                 break
             if p_now <= ATM_PA * 1.01:
                 break
-            flux = friction_limited_flux(
+            pipe_flux = friction_limited_flux(
                 p_now, t_k, bore_m, path_m, roughness_m=roughness_m
             )
-            rate = flux * exit_area
+            # hole capacity at current pressure vs what the pipe can supply
+            rate = min(
+                choked_mass_flux(p_now, t_k) * exit_area,
+                pipe_flux * pipe_flow_area,
+            )
             feed = feed_rate_kgs if tt < valve_closure_s else 0.0
             out = min(rate * step, mass + feed * step)
             mass += feed * step - out

@@ -10,9 +10,10 @@ import math
 import pytest
 
 from scripts.rupture_lib.blowdown import (
+    blowdown_series,
+    blowdown_series_friction,
     choked_mass_flux,
     friction_limited_flux,
-    blowdown_series_friction,
 )
 
 P = 35e5 + 101325.0
@@ -60,6 +61,43 @@ def test_rougher_pipe_delivers_less():
     smooth = friction_limited_flux(P, T, BORE, length_m=8000.0, roughness_m=1e-6)
     rough = friction_limited_flux(P, T, BORE, length_m=8000.0, roughness_m=1e-3)
     assert rough < smooth
+
+
+def test_puncture_is_limited_by_the_hole_not_the_pipe():
+    """A 50 mm hole is the restriction; 8 km of 864 mm bore is not.
+
+    Mass flow is what pipe and hole share, not flux per unit area. An
+    earlier version multiplied the pipe's per-area flux by the hole area,
+    which throttled a puncture to 2.3 kg/s instead of the roughly 17
+    kg/s the orifice allows. The friction model must agree with the
+    orifice model whenever the hole is the binding constraint.
+    """
+    # No feed, so the comparison is against the hole capacity at line
+    # pressure. With the design feed the segment pressurises above its
+    # initial state, because 95 kg/s enters while only about 17 kg/s can
+    # escape, and the hole capacity rises with it. That is physical and
+    # is covered by the next assertion.
+    _, orifice = blowdown_series(
+        P, T, BORE, SEG, hole_diameter_m=0.05, t_end_s=7200.0, feed_rate_kgs=0.0,
+    )
+    _, friction = blowdown_series_friction(
+        P, T, BORE, SEG, hole_diameter_m=0.05, t_end_s=7200.0, feed_rate_kgs=0.0,
+    )
+    assert friction["q_peak_kgs"] == pytest.approx(orifice["q_peak_kgs"], rel=0.05)
+
+    # With the design feed, the puncture rate rises rather than falling,
+    # but stays the same order as the hole capacity.
+    _, fed = blowdown_series_friction(
+        P, T, BORE, SEG, hole_diameter_m=0.05, t_end_s=7200.0,
+    )
+    assert orifice["q_peak_kgs"] < fed["q_peak_kgs"] < 2.0 * orifice["q_peak_kgs"]
+
+
+def test_fbr_is_limited_by_the_pipe_not_the_hole():
+    """For a full-bore rupture the pipe is the binding constraint."""
+    _, orifice = blowdown_series(P, T, BORE, SEG, t_end_s=7200.0)
+    _, friction = blowdown_series_friction(P, T, BORE, SEG, t_end_s=7200.0)
+    assert friction["q_peak_kgs"] < orifice["q_peak_kgs"] / 5
 
 
 def test_friction_series_conserves_mass():
