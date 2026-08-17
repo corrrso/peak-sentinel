@@ -7,6 +7,7 @@ const LAYER_CONFIG = [
   { key: "environmental" as const, label: "Protected Sites", color: "#22C55E" },
   { key: "visual" as const, label: "Visual Impact", color: "#A855F7" },
   { key: "safety" as const, label: "CO\u2082 Sinks", color: "#DC2626" },
+  { key: "rupture" as const, label: "Rupture CO\u2082 Cloud", color: "#F97316" },
   { key: "schools" as const, label: "Schools", color: "#FBBF24" },
   { key: "property" as const, label: "Property Values", color: "#3B82F6" },
 ];

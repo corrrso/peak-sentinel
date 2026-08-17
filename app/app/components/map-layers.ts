@@ -78,6 +78,22 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
       return dep ? `${pc}: estimated ${dep}% depreciation` : String(pc);
     },
   },
+  "rupture-4pct-fill": {
+    label: "CO₂ Cloud, 4% (dangerous to life)",
+    color: "#F97316",
+    detail: () =>
+      "Peak CO₂ above 4% by volume at head height. Immediately dangerous to life and health.",
+  },
+  "rupture-7pct-fill": {
+    label: "CO₂ Cloud, 7%",
+    color: "#EF4444",
+    detail: () => "Peak CO₂ above 7% by volume. Loss of consciousness within minutes.",
+  },
+  "rupture-10pct-fill": {
+    label: "CO₂ Cloud, 10%",
+    color: "#B91C1C",
+    detail: () => "Peak CO₂ above 10% by volume. Rapidly fatal.",
+  },
   "agi-circles": {
     label: "Potential AGI Location",
     color: "#FF4500",

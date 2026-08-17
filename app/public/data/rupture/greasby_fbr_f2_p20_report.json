@@ -1,0 +1,40 @@
+{
+ "footprint_area_km2": {
+  "4.0": 0.43,
+  "7.0": 0.2548,
+  "10.0": 0.1452
+ },
+ "max_extent_m": 1654.6903033498443,
+ "receptor_arrival_s": 120,
+ "receptor_max_pct": 22.953,
+ "receptor_radius_m": 50.0,
+ "source_meta": {
+  "mode": "fbr",
+  "model": "friction_limited",
+  "q_peak_kgs": 559.3980792776366,
+  "inventory_kg": 427464.734898911,
+  "total_released_kg": 497765.59983288456,
+  "release_temp_k": 254.3156202274944,
+  "t_95_s": 2400.0,
+  "flow_path_m": 8000.0,
+  "roughness_m": 4.5e-05
+ },
+ "weather": "f2",
+ "assumptions": {
+  "pressure_barg": 20.0,
+  "p_pa": 2101325.0,
+  "t_k": 283.15,
+  "bore_m": 0.864,
+  "segment_length_m": 16000.0,
+  "feed_rate_kgs": 95.0,
+  "valve_closure_s": 930.0
+ },
+ "resolution": {
+  "output_interval_s": 60,
+  "source_bin_s": 30.0,
+  "grid_dx_m": 20.0,
+  "source_patch_m": 20.0,
+  "sim_s": 7200,
+  "mass_released_fraction": 0.965
+ }
+}

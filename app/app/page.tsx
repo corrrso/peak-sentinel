@@ -11,6 +11,8 @@ import type { ClickedFeature } from "./components/Map";
 import type { LayerVisibility, PostcodeData } from "./types";
 import { usePostcodeIndex } from "./hooks/usePostcodeIndex";
 import { useStreetViewHotspots } from "./hooks/useStreetViewHotspots";
+import { useRuptureScenarios } from "./hooks/useRuptureScenarios";
+import RupturePicker from "./components/RupturePicker";
 import MobileBottomSheet from "./components/MobileBottomSheet";
 import MobileLayerButton from "./components/MobileLayerButton";
 
@@ -29,7 +31,15 @@ function HomeContent() {
     safety: true,
     schools: true,
     property: true,
+    // Off by default: the cloud is a large filled area and would obscure
+    // the other layers on first load.
+    rupture: false,
   });
+
+  const { scenarios: ruptureScenarios, defaultId: defaultRuptureId } =
+    useRuptureScenarios();
+  const [ruptureId, setRuptureId] = useState<string | null>(null);
+  const activeRuptureId = ruptureId ?? defaultRuptureId;
 
   const [flyToTarget, setFlyToTarget] = useState<{
     longitude: number;
@@ -108,6 +118,7 @@ function HomeContent() {
         <div className="absolute inset-0">
           <Map
             layers={layers}
+            ruptureScenarioId={layers.rupture ? activeRuptureId : null}
             flyToTarget={flyToTarget}
             highlightLocation={
               riskResult
@@ -140,6 +151,15 @@ function HomeContent() {
           <div className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg p-3">
             <LayerPanel layers={layers} onToggle={toggleLayer} />
           </div>
+          {layers.rupture && ruptureScenarios.length > 0 && (
+            <div className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg p-3 max-h-[60vh] overflow-y-auto">
+              <RupturePicker
+                scenarios={ruptureScenarios}
+                selectedId={activeRuptureId}
+                onSelect={setRuptureId}
+              />
+            </div>
+          )}
         </div>
 
         {riskResult && (

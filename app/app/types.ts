@@ -30,6 +30,31 @@ export type LayerVisibility = {
   safety: boolean;
   schools: boolean;
   property: boolean;
+  rupture: boolean;
+};
+
+export type RuptureScenario = {
+  id: string;
+  scenario: string;
+  scenario_label: string;
+  mode: string;
+  mode_label: string;
+  weather: string;
+  weather_label: string;
+  variant: string | null;
+  variant_label: string | null;
+  area_4pct_km2: number;
+  area_7pct_km2: number;
+  area_10pct_km2: number;
+  max_extent_m: number;
+  receptor_arrival_s: number | null;
+  receptor_max_pct: number | null;
+  pressure_barg: number | null;
+  source_model: string;
+  peak_rate_kgs: number;
+  released_t: number;
+  mass_released_fraction: number | null;
+  postcodes_in_cloud: number;
 };
 
 export type StreetViewHotspot = {

@@ -26,6 +26,7 @@ const INITIAL_VIEW = {
 
 interface MapProps {
   layers: LayerVisibility;
+  ruptureScenarioId?: string | null;
   onFlyTo?: (coords: { longitude: number; latitude: number }) => void;
   flyToTarget?: { longitude: number; latitude: number } | null;
   highlightLocation?: {
@@ -43,6 +44,7 @@ interface MapProps {
 
 export default function Map({
   layers,
+  ruptureScenarioId,
   flyToTarget,
   highlightLocation,
   onFeatureClick,
@@ -51,6 +53,9 @@ export default function Map({
 }: MapProps) {
   const mapRef = useRef<MapRef>(null);
   const [data, setData] = useState<Record<string, GeoJSON>>({});
+  // Rupture contours load per scenario rather than up front: there are ten
+  // of them and only one is shown at a time.
+  const [ruptureData, setRuptureData] = useState<GeoJSON | null>(null);
 
   const hasData = Object.keys(data).length > 0;
   const { tooltip, clickLocation } = useMapInteractions(
@@ -84,6 +89,29 @@ export default function Map({
     );
     setData(loaded);
   }, []);
+
+  useEffect(() => {
+    if (!ruptureScenarioId) {
+      setRuptureData(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/data/rupture/${ruptureScenarioId}.geojson`,
+        );
+        if (!response.ok) throw new Error(String(response.status));
+        const json = await response.json();
+        if (!cancelled) setRuptureData(json);
+      } catch {
+        if (!cancelled) setRuptureData(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [ruptureScenarioId]);
 
   useEffect(() => {
     if (flyToTarget && mapRef.current) {
@@ -350,6 +378,42 @@ export default function Map({
                     "line-opacity": 0.5,
                     "line-width": 1,
                   }}
+                />
+              </Source>
+            )}
+
+            {/* Layer 4b: Rupture CO2 cloud. Drawn above terrain layers but
+                below point markers so schools and AGIs stay clickable.
+                Thresholds are nested, so paint widest first. */}
+            {layers.rupture && ruptureData && (
+              <Source id="rupture" type="geojson" data={ruptureData}>
+                <Layer
+                  id="rupture-4pct-fill"
+                  type="fill"
+                  filter={["==", ["get", "threshold_pct"], 4]}
+                  paint={{ "fill-color": "#F97316", "fill-opacity": 0.25 }}
+                />
+                <Layer
+                  id="rupture-4pct-line"
+                  type="line"
+                  filter={["==", ["get", "threshold_pct"], 4]}
+                  paint={{
+                    "line-color": "#F97316",
+                    "line-width": 1.5,
+                    "line-opacity": 0.9,
+                  }}
+                />
+                <Layer
+                  id="rupture-7pct-fill"
+                  type="fill"
+                  filter={["==", ["get", "threshold_pct"], 7]}
+                  paint={{ "fill-color": "#EF4444", "fill-opacity": 0.3 }}
+                />
+                <Layer
+                  id="rupture-10pct-fill"
+                  type="fill"
+                  filter={["==", ["get", "threshold_pct"], 10]}
+                  paint={{ "fill-color": "#B91C1C", "fill-opacity": 0.45 }}
                 />
               </Source>
             )}
