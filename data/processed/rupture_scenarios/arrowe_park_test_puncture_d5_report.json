@@ -1,20 +1,23 @@
 {
  "footprint_area_km2": {
-  "4.0": 0.0004,
-  "7.0": 0.0003,
-  "10.0": 0.0002
+  "4.0": 0.0011,
+  "7.0": 0.0,
+  "10.0": 0.0
  },
- "max_extent_m": 14.142135623730951,
+ "max_extent_m": 60.8276253029822,
  "receptor_arrival_s": null,
- "receptor_max_pct": 0.044,
+ "receptor_max_pct": 0.08,
  "receptor_radius_m": 50.0,
  "source_meta": {
   "mode": "puncture",
-  "q_peak_kgs": 16.76750661343688,
-  "tau_s": 51370.74359734414,
+  "model": "friction_limited",
+  "q_peak_kgs": 18.19925862556657,
   "inventory_kg": 861359.283005638,
-  "total_released_kg": 30058.679513089613,
-  "release_temp_k": 223.71947829062879
+  "total_released_kg": 63580.36297347963,
+  "release_temp_k": 223.71947829062879,
+  "t_95_s": NaN,
+  "flow_path_m": 8000.0,
+  "roughness_m": 4.5e-05
  },
  "weather": "d5",
  "assumptions": {
@@ -25,5 +28,13 @@
   "segment_length_m": 16000.0,
   "feed_rate_kgs": 95.0,
   "valve_closure_s": 930.0
+ },
+ "resolution": {
+  "output_interval_s": 60,
+  "source_bin_s": 30.0,
+  "grid_dx_m": 10.0,
+  "source_patch_m": 20.0,
+  "sim_s": 3600,
+  "mass_released_fraction": 0.0669
  }
 }

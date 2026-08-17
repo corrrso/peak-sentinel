@@ -1,20 +1,23 @@
 {
  "footprint_area_km2": {
   "4.0": 0.0056,
-  "7.0": 0.0008,
-  "10.0": 0.0008
+  "7.0": 0.0016,
+  "10.0": 0.0004
  },
  "max_extent_m": 121.6552506059644,
  "receptor_arrival_s": 180,
- "receptor_max_pct": 6.107,
+ "receptor_max_pct": 6.058,
  "receptor_radius_m": 50.0,
  "source_meta": {
   "mode": "puncture",
-  "q_peak_kgs": 16.76750661343688,
-  "tau_s": 51370.74359734414,
+  "model": "friction_limited",
+  "q_peak_kgs": 18.19925862556657,
   "inventory_kg": 861359.283005638,
-  "total_released_kg": 59219.47815611309,
-  "release_temp_k": 223.71947829062879
+  "total_released_kg": 123552.42527230964,
+  "release_temp_k": 223.71947829062879,
+  "t_95_s": NaN,
+  "flow_path_m": 8000.0,
+  "roughness_m": 4.5e-05
  },
  "weather": "d5",
  "assumptions": {
@@ -25,5 +28,13 @@
   "segment_length_m": 16000.0,
   "feed_rate_kgs": 95.0,
   "valve_closure_s": 930.0
+ },
+ "resolution": {
+  "output_interval_s": 60,
+  "source_bin_s": 30.0,
+  "grid_dx_m": 20.0,
+  "source_patch_m": 20.0,
+  "sim_s": 7200,
+  "mass_released_fraction": 0.1301
  }
 }

@@ -137,9 +137,13 @@ def main():
     # released mass is truncated. Say so rather than reporting quietly.
     released_frac = meta["total_released_kg"] / (meta["inventory_kg"] + p["feed_rate_kgs"] * p["valve_closure_s"])
     if released_frac < 0.95:
+        # tau_s only exists on the orifice model; the friction model reports t_95_s
+        scale = (f"tau {meta['tau_s']:.0f} s" if "tau_s" in meta
+                 else f"t_95 {meta.get('t_95_s')} s")
         print(f"NOTE: only {released_frac * 100:.0f}% of the available mass is released "
-              f"within {s['sim_s']} s (tau {meta['tau_s']:.0f} s). "
-              f"Raise --sim-s to capture the full release.")
+              f"within {s['sim_s']} s ({scale}). "
+              f"Raise --sim-s to capture the full release. A slow puncture may "
+              f"legitimately vent for far longer than the simulation window.")
     write_source(run_dir / "source.dat", s["rupture_e"], s["rupture_n"], bins,
                  patch_m=args.patch_m)
     write_wind_uniform(run_dir / "wind.dat", w["u_ms"], w["v_ms"],

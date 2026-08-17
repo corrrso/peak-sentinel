@@ -15,33 +15,35 @@
 
 ## Scenario results (4% footprint)
 
-All runs regenerated in one environment on 2026-08-09. The earlier
-numbers in this file came from a different toolchain and did not
-reproduce; TWODEE is bit-deterministic on identical inputs, so results
-from different builds must not be mixed.
+All runs use the **friction-limited** source model and were regenerated
+together on 2026-08-17. Mass released is 98% of available for every
+full-bore case. Puncture cases release far less within the simulation
+window because a 50 mm hole genuinely vents for many hours; the reports
+carry `mass_released_fraction` so this is visible rather than implied.
 
-| Scenario | Weather / mode | 4% km² | Receptor 4% arrival | Peak at receptor |
+| Scenario | Weather / mode | 4% km² | Postcodes in cloud | Reach m |
 |---|---|---|---|---|
-| Arrowe Park | FBR D5 | 0.33 | 0 s | 49.8% |
-| Arrowe Park | FBR F2 | 0.45 | 0 s | 57.4% |
-| Arrowe Park | FBR SW4 | 0.59 | 0 s | 69.6% |
-| Arrowe Park | puncture D5 | 0.0004 | none | 0.0% |
-| Greasby | FBR D5 | 1.84 | 0 s | 99.4% |
-| Greasby | FBR F2 | 2.10 | 0 s | 99.9% |
-| Greasby | FBR SW4 | 4.22 | 0 s | 87.5% |
-| Greasby | puncture D5 | 0.0056 | 180 s | 6.1% |
+| Arrowe Park | FBR D5 | 0.46 | 0 | 1953 |
+| Arrowe Park | FBR F2 | 1.13 | 9 | 2099 |
+| Arrowe Park | FBR SW4 | 0.83 | 49 | 2628 |
+| Arrowe Park | puncture D5 | 0.001 | 0 | 61 |
+| Greasby | FBR D5 | 0.34 | 23 | 2861 |
+| Greasby | FBR F2 | 0.76 | 66 | 3915 |
+| Greasby | FBR SW4 | 0.88 | 104 | 3951 |
+| Greasby | puncture D5 | 0.006 | 1 | 122 |
 
-Pressure sensitivity, Greasby FBR F2: **0.59 km² at 20 barg, 2.10 km² at
-35 barg, 2.66 km² at 43 barg.** Publish the range, not the base case.
+Pressure sensitivity, Greasby FBR F2: 0.43 km² at 20 barg, 0.76 km² at
+35 barg, 1.21 km² at 43 barg. Monotonic, unlike the earlier orifice-model
+version. Publish the range, not the base case.
 
-> **Do not publish these areas.** See "Source term is outside the model's
-> regime" below. The plume direction and the fact that inhabited ground is
-> reached are robust; the km² values are not converged.
+Invariants verified numerically on this matrix: thresholds nested in all
+ten runs; F2 larger than D5 at both sites; punctures 0.2 to 1.7% of the
+matching FBR.
 
-Checklist verified numerically (see the commit message on `a93afdd`):
-rupture point inside the 4% polygon in all ten runs; F2 larger than D5
-at both sites; cloud mean elevation below that of terrain within the same
-radius; punctures 0.1–0.3% of the matching FBR; thresholds nested.
+Earlier figures in this file used the orifice source model and were up to
+five times larger. They are superseded. Sensitivity studies on crater
+size, source binning, output interval and release timescale are retained
+under `data/processed/rupture_scenarios/sensitivity/`.
 
 ## Two findings from completing the plan
 
@@ -59,54 +61,37 @@ radius; punctures 0.1–0.3% of the matching FBR; thresholds nested.
    hospital" result for Arrowe Park D5. Arrivals now use a 50 m radius
    and reports carry `receptor_max_pct`.
 
-## Source term is outside the model's regime (blocking issue)
+## Source term history (resolved)
 
-Found 2026-08-12 by testing whether the banding visible in the SW4
-footprint was a sampling artifact. It is not.
+Two source-term problems were found and fixed after the plan completed.
+Recorded because the numbers in git history change because of them.
 
-`setsrc.f90` treats a `KG_SEC` entry as a point source and converts our
-mass rate into an upward gas velocity:
+1. **Wrong units flag.** `write_source` emitted `KG_SEC`, which
+   `setsrc.f90` handles as a point source: it derives an upward velocity
+   of `rate/(rho*dxs*dys)` but applies it to the single grid cell holding
+   the source point. Mass entering the domain scaled as `(cell/patch)^2`,
+   so a larger crater silently discarded gas, and the whole release was
+   injected through one 20 m cell at 8.9 m/s upward against a 2 to 5 m/s
+   wind, outside the shallow-layer regime. Now `KG_M2_SEC`, which takes
+   the extended-source branch and conserves mass.
+2. **Orifice source term.** The release assumed choked flow from an
+   unlimited reservoir at 10,014 kg/s. A Darcy-Weisbach check gives 761
+   to 1,067 kg/s through the 8 km flow path, and the implemented
+   friction model gives 1,285 kg/s. Footprints fell by roughly three
+   times.
 
-    ups = rate / (rho_gas * dxs * dys)
+With the units fixed, crater size barely matters: 20 m to 200 m moves the
+4% footprint only 4.34 to 3.90 km² and postcodes 351 to 310. That question
+is closed. The release timescale mattered far more, which is what the
+friction model addresses.
 
-With the 20 m patch in `write_source` and the peak rate of about 8,500
-kg/s, that injects gas upward at **8.9 m/s**, against a wind of 2 to 5
-m/s. TWODEE is a shallow-layer model: it assumes vertical velocity is
-small compared with horizontal spreading. We are violating that
-assumption at the source.
-
-The symptom is that the 4% footprint does not converge under source
-discretisation, because finer bins resolve a higher initial spike:
-
-| Source bin | first-bin rate | injected up velocity | 4% km² |
-|---|---|---|---|
-| 30 s | 8,549 kg/s | 8.87 m/s | 4.22 |
-| 10 s | 9,548 kg/s | 9.91 m/s | 3.14 |
-| 5 s | 9,823 kg/s | 10.19 m/s | 3.69 |
-
-Mass released is identical (949.69 t) in all three, so this is not
-leakage. The area moves 26% down then 18% up, which is a solver
-responding to an out-of-regime forcing rather than converging.
-
-Two things this rules out:
-
-- **Output interval is irrelevant.** `CM_0150CM` accumulates at every
-  internal solver step, so 60 s and 20 s output give bit-identical
-  results. An earlier explanation blaming output sampling was wrong.
-- **Refining bins does not fix it.** It makes the spike worse.
-
-The likely fix is a physically sized crater. The Gexcon guidance for
-buried CO2 pipelines says the release type is always "release from
-crater", with the jet entraining air and exiting vertically. A patch
-100 to 200 m across brings the injected velocity to 0.1 to 0.4 m/s,
-comfortably inside the shallow-layer regime. Crater dimensions are an
-expert judgement and must not be invented to make the numbers behave:
-the patch size directly sets the initial cloud footprint.
-
-This is the same "crater as low-momentum area source" simplification the
-plan flagged for expert review. It is now demonstrated to be load-bearing
-rather than a theoretical caveat, and it is the first question to put to a
-dispersion expert.
+Remaining known gaps in the friction model, both affecting the first
+seconds: no sonic decompression wave travelling back along the line, and
+temperature held fixed rather than tracking Joule-Thomson cooling of the
+remaining inventory. It gives a 0.5 h release against Satartia's measured
+4 h, so it may still be too fast, which would mean the footprints here are
+upper bounds. See `satartia-reference-case.md` for why Satartia cannot
+validate this directly.
 
 ## Not done (resume here)
 
