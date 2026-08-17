@@ -156,3 +156,39 @@ Raw LIDAR and `data/processed/rupture_runs/` are gitignored. Scenario GeoJSON an
 - `scripts/rupture_lib/scenarios.py` — Arrowe Park + Greasby domains
 - `scripts/rupture_lib/postprocess.py` — NetCDF → GeoJSON
 - `scripts/10_rupture_source.py` / `scripts/11_rupture_dispersion.py` — CLIs
+
+## What is actually missing (2026-08-17)
+
+TWODEE is not the problem. The binary builds, runs, conserves mass, and
+passes both physics acceptance tests. The manual and source are complete
+and the input data is sufficient. The gap is entirely in our own 171 line
+`blowdown.py`, which decides how fast the pipe empties.
+
+A Darcy-Weisbach check on isothermal compressible flow through 8 km of
+864 mm bore, which is the distance gas must travel from the segment
+midpoint to the break:
+
+| Darcy friction factor | Deliverable rate | vs our modelled peak |
+|---|---|---|
+| 0.010 | 1,067 kg/s | 0.11x |
+| 0.015 | 876 kg/s | 0.09x |
+| 0.020 | 761 kg/s | 0.08x |
+
+Our source term assumes 10,014 kg/s, the choked rate for a free orifice
+at line conditions. The pipe cannot deliver it. Friction over kilometres
+of bore limits the release to roughly a tenth of that, and the flow is
+fully turbulent at Re about 1e9 so the friction factor is well
+constrained.
+
+This corroborates the Satartia comparison from an independent direction.
+The measured 4 hour release needed tau_scale 20 to 50 to reproduce;
+friction independently says the initial rate is about 10x too high. Two
+unrelated lines of evidence point the same way, which is why the base
+case footprint is very likely an overestimate rather than merely
+uncertain.
+
+What this means in practice: the missing component is a friction-limited
+blowdown, not any TWODEE input. That is a real piece of engineering,
+solving compressible pipe flow with a moving pressure profile, and it is
+the single change that would collapse the current 20 to 351 postcode
+range into a defensible number.
