@@ -157,6 +157,13 @@ Park takes about 3 minutes per run, Greasby about 10.
 
 Raw LIDAR and `data/processed/rupture_runs/` are gitignored. Scenario GeoJSON and reports are committed. Rebuild TWODEE locally; do not commit `third_party/`.
 
+## Configuration reference
+
+`twodee-configuration.md` records every TWODEE input we set, what it physically
+represents, and whether it matches the manual. All NUMERIC values are the
+manual's defaults. It also lists two places where the manual disagrees with the
+shipped code, and an open question about `AVERAGED_TEMPERATURE`.
+
 ## Key modules
 
 - `scripts/rupture_lib/blowdown.py` — gas-phase source term
