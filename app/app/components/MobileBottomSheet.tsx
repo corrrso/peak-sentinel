@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { PostcodeData } from "../types";
-import type { ClickedFeature } from "./map-layers";
+import { HIDDEN_FEATURE_KEYS, type ClickedFeature } from "./map-layers";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "bg-red-900",
@@ -10,12 +10,6 @@ const RISK_COLORS: Record<string, string> = {
   medium: "bg-amber-500",
   low: "bg-green-500",
 };
-
-const HIDDEN_FEATURE_KEYS = new Set([
-  "lat", "lon", "easting", "northing", "geometry", "area_km2",
-  "target", "observer_height_m", "analysis_radius_km",
-  "constraint_type", "visible_cells", "section",
-]);
 
 function formatGBP(n: number) {
   return "\u00A3" + n.toLocaleString("en-GB");
@@ -192,6 +186,11 @@ function RiskAccordions({
 function FeatureProperties({ feature }: { feature: ClickedFeature }) {
   return (
     <div className="text-sm text-gray-300 space-y-1">
+      {feature.detail && (
+        <p className="text-xs text-gray-300 leading-relaxed pb-2">
+          {feature.detail}
+        </p>
+      )}
       {Object.entries(feature.properties)
         .filter(([k]) => !HIDDEN_FEATURE_KEYS.has(k))
         .slice(0, 8)

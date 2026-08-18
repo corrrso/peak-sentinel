@@ -1,9 +1,18 @@
 import { useRef, useState, useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { TooltipInfo } from "../components/MapTooltip";
-import { LAYER_INFO, type ClickedFeature } from "../components/map-layers";
+import {
+  LAYER_INFO,
+  collapseNestedLayers,
+  type ClickedFeature,
+} from "../components/map-layers";
 
 const KNOWN_LAYER_IDS = new Set(Object.keys(LAYER_INFO));
+
+/** Hover dwell before the tooltip opens. Long enough that crossing the map to
+ *  reach a control does not flash tooltips on the way, short enough that
+ *  pointing at something feels like it answers immediately. */
+const HOVER_DELAY_MS = 250;
 
 export default function useMapInteractions(
   mapRef: React.RefObject<MapRef | null>,
@@ -55,12 +64,15 @@ export default function useMapInteractions(
       const py = event.point.y;
 
       hoverTimerRef.current = setTimeout(() => {
+        const visible = new Set(
+          collapseNestedLayers(matched.map((f) => f.layer.id)),
+        );
         const seen = new Set<string>();
         const items: { label: string; color: string; detail?: string }[] = [];
         for (const f of matched) {
           const layerId = f.layer.id;
           const info = LAYER_INFO[layerId];
-          if (!info || seen.has(layerId)) continue;
+          if (!info || seen.has(layerId) || !visible.has(layerId)) continue;
           seen.add(layerId);
           const detail = info.detail
             ? info.detail((f.properties || {}) as Record<string, unknown>)
@@ -70,7 +82,7 @@ export default function useMapInteractions(
         if (items.length > 0) {
           setTooltip({ x: px, y: py, items });
         }
-      }, 1000);
+      }, HOVER_DELAY_MS);
     };
 
     const onLeave = () => {
@@ -142,17 +154,23 @@ export default function useMapInteractions(
       }
 
       const features = map.queryRenderedFeatures(event.point);
-      const matched = features?.filter((f) => KNOWN_LAYER_IDS.has(f.layer.id));
+      const known = features?.filter((f) => KNOWN_LAYER_IDS.has(f.layer.id));
+      const visibleIds = new Set(
+        collapseNestedLayers((known ?? []).map((f) => f.layer.id)),
+      );
+      const matched = known?.filter((f) => visibleIds.has(f.layer.id));
 
       if (matched && matched.length > 0) {
         const f = matched[0];
         const info = LAYER_INFO[f.layer.id];
         if (info) {
+          const properties = (f.properties || {}) as Record<string, unknown>;
           setClickLocation({ longitude: event.lngLat.lng, latitude: event.lngLat.lat });
           onFeatureClickRef.current?.({
             layerLabel: info.label,
             color: info.color,
-            properties: (f.properties || {}) as Record<string, unknown>,
+            detail: info.detail?.(properties),
+            properties,
             longitude: event.lngLat.lng,
             latitude: event.lngLat.lat,
           });

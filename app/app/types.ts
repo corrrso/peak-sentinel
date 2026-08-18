@@ -25,6 +25,7 @@ export type PostcodeIndex = Record<string, PostcodeData>;
 
 export type LayerVisibility = {
   corridor: boolean;
+  buffers: boolean;
   environmental: boolean;
   visual: boolean;
   safety: boolean;

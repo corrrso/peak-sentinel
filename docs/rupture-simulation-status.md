@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/rupture-sim-feasibility-870f`  
 **PR:** https://github.com/corrrso/peak-sentinel/pull/2  
-**Last saved:** 2026-08-09 (plan completed)
+**Last saved:** 2026-08-18 (frontend landed)
 
 ## Done
 
@@ -12,6 +12,7 @@
 - Tasks 1–6 implemented and tested (22 unit tests plus 2 physics integration tests)
 - TWODEE-2.3 builds via `scripts/setup_twodee.sh` on Linux and macOS
 - Full Arrowe Park + Greasby matrix plus pressure sensitivity in `data/processed/rupture_scenarios/`
+- Frontend: scenario picker and cloud layer, published by `scripts/12_rupture_publish.py`
 
 ## Scenario results (4% footprint)
 
@@ -93,17 +94,40 @@ remaining inventory. It gives a 0.5 h release against Satartia's measured
 upper bounds. See `satartia-reference-case.md` for why Satartia cannot
 validate this directly.
 
+## Frontend (done 2026-08-18)
+
+`scripts/12_rupture_publish.py` writes per-scenario GeoJSON plus
+`manifest.json` to `app/public/data/rupture/`. The map reads the manifest for
+the picker and lazily fetches a scenario's contours only when selected, so
+adding scenarios needs no frontend change.
+
+- Layer toggle "Rupture CO₂ Cloud", off by default because the filled cloud
+  covers the other layers.
+- Buffer zones have their own toggle, split from the corridor. Their broad
+  translucent fills washed out the cloud, and the corridor toggle was
+  previously inert.
+- Threshold contours describe physiological effect, not just concentration.
+  Nested contours collapse to the most severe via `collapseNestedLayers`, so a
+  point inside 10% no longer reports 7% and 4% as well.
+- Picker defaults to the full-bore case affecting the most postcodes, which is
+  Greasby SW4. Ordering by area would pick a larger footprint over open ground
+  and understate the human impact.
+
 ## Not done (resume here)
 
-1. **Frontend** (deferred by the plan): scenario picker and cloud layer.
-2. **P1 gathering**: meteorology, toxicological reference page, Satartia
+1. **P1 gathering**: meteorology, toxicological reference page, Satartia
    validation materials.
-3. **Expert review** of `scripts/rupture_lib/blowdown.py` before
+2. **Expert review** of `scripts/rupture_lib/blowdown.py` before
    publishing numbers. This is the one part that stays expert-dependent:
    exponential blowdown and the crater as a low-momentum area source.
-4. Deferred items listed in the plan: Britter-McQuaid cross-check,
+   The frontend now displays these figures, so this gates publication.
+3. Deferred items listed in the plan: Britter-McQuaid cross-check,
    Thorney Island benchmark, MIDAS wind roses, spatially varying
    roughness.
+4. The vehicle-stalling detail in the 10% tooltip cites Satartia. The stalled
+   engines and 45 hospitalisations are documented in
+   `satartia-reference-case.md`, but no concentration is attached to the
+   stalling there. Check against PHMSA before quoting a figure.
 
 ## How to resume
 

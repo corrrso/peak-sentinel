@@ -4,6 +4,7 @@ import type { LayerVisibility } from "../types";
 
 const LAYER_CONFIG = [
   { key: "corridor" as const, label: "Pipeline Corridor", color: "#FF4500" },
+  { key: "buffers" as const, label: "Buffer Zones", color: "#FDC700" },
   { key: "environmental" as const, label: "Protected Sites", color: "#22C55E" },
   { key: "visual" as const, label: "Visual Impact", color: "#A855F7" },
   { key: "safety" as const, label: "CO\u2082 Sinks", color: "#DC2626" },

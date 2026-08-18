@@ -150,8 +150,10 @@ export default function Map({
 
         {hasData && (
           <>
-            {/* Layer 1: Pipeline Corridor (always visible) */}
-            {data.corridor_buffered && (
+            {/* Layer 1a: Buffer zones. Separate from the corridor toggle
+                because their washed-out fills sit over most of the map and
+                obscure the rupture cloud. */}
+            {layers.buffers && data.corridor_buffered && (
               <Source
                 id="corridor-buffered"
                 type="geojson"
@@ -207,7 +209,8 @@ export default function Map({
                 />
               </Source>
             )}
-            {data.corridor && (
+            {/* Layer 1b: Pipeline corridor and its named route sections. */}
+            {layers.corridor && data.corridor && (
               <Source id="corridor" type="geojson" data={data.corridor}>
                 <Layer
                   id="corridor-fill"
@@ -225,7 +228,7 @@ export default function Map({
                 />
               </Source>
             )}
-            {data.route_sections && (
+            {layers.corridor && data.route_sections && (
               <Source id="sections" type="geojson" data={data.route_sections}>
                 <Layer
                   id="sections-line"

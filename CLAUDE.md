@@ -31,6 +31,16 @@ The corridor lives in `data/manual/corridor_aligned.geojson` (1 MultiPolygon fea
 7. **`08_postcode_index.py`** — Aggregates all layers into a per-postcode JSON lookup (`postcode_index.json`) used by the frontend for instant risk cards.
 8. **`09_objections.py`** — Generates objection letter templates and Planning Inspectorate scoping paragraph references.
 
+### Rupture dispersion (separate chain)
+
+Scripts 10–12 model CO2 dispersion after a pipeline failure. They do not run as part of the numbered pipeline above: they need a locally built TWODEE binary and take minutes per scenario, so results are committed and regenerated only when the physics changes.
+
+9. **`10_rupture_source.py`** — Friction-limited blowdown source term from `data/manual/pipeline_parameters.json`. Raises `GasPhaseError` above ~44 barg, where CO2 is no longer gas at the assumed 10 °C.
+10. **`11_rupture_dispersion.py`** — Runs TWODEE per scenario (site, release mode, weather), converts NetCDF output to 4%/7%/10% contour GeoJSON. Needs `TWODEE_BIN` and LIDAR tiles.
+11. **`12_rupture_publish.py`** — Copies scenario GeoJSON to `app/public/data/rupture/` and writes `manifest.json`, which drives the frontend picker.
+
+Read `docs/rupture-simulation-status.md` before touching any of this. The numbers are not cleared for publication: `scripts/rupture_lib/blowdown.py` still needs expert review, and the model empties the line faster than Satartia's measured release, so current footprints are likely upper bounds.
+
 ### Corridor data source
 
 The corridor polygon was downloaded from Peak Cluster's own ArcGIS service, discovered via their consultation site (`peakcluster-consultation.co.uk`). The service URL is:
@@ -49,3 +59,4 @@ Current tiles cover BNG grid squares SJ18–SJ57 (Wirral through east Cheshire).
 - `data/raw/` — Cached API responses, LIDAR tiles, schools CSV (gitignored)
 - `data/processed/` — Pipeline output GeoJSON/JSON (committed)
 - `app/public/data/` — Frontend copies of processed data (committed)
+- `data/processed/rupture_scenarios/` — Rupture contours and per-run reports (committed). Raw TWODEE output in `data/processed/rupture_runs/` is gitignored.

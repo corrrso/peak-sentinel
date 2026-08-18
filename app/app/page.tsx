@@ -8,6 +8,7 @@ import PostcodeLookup from "./components/PostcodeLookup";
 import RiskCard from "./components/RiskCard";
 import StreetViewModal from "./components/StreetViewModal";
 import type { ClickedFeature } from "./components/Map";
+import { HIDDEN_FEATURE_KEYS } from "./components/map-layers";
 import type { LayerVisibility, PostcodeData } from "./types";
 import { usePostcodeIndex } from "./hooks/usePostcodeIndex";
 import { useStreetViewHotspots } from "./hooks/useStreetViewHotspots";
@@ -26,6 +27,7 @@ function HomeContent() {
 
   const [layers, setLayers] = useState<LayerVisibility>({
     corridor: true,
+    buffers: true,
     environmental: true,
     visual: true,
     safety: true,
@@ -192,25 +194,14 @@ function HomeContent() {
                   &times;
                 </button>
               </div>
+              {clickedFeature.detail && (
+                <p className="text-xs text-gray-300 leading-relaxed mb-3">
+                  {clickedFeature.detail}
+                </p>
+              )}
               <div className="text-sm text-gray-300 space-y-1">
                 {Object.entries(clickedFeature.properties)
-                  .filter(
-                    ([k]) =>
-                      ![
-                        "lat",
-                        "lon",
-                        "easting",
-                        "northing",
-                        "geometry",
-                        "area_km2",
-                        "target",
-                        "observer_height_m",
-                        "analysis_radius_km",
-                        "constraint_type",
-                        "visible_cells",
-                        "section",
-                      ].includes(k),
-                  )
+                  .filter(([k]) => !HIDDEN_FEATURE_KEYS.has(k))
                   .slice(0, 8)
                   .map(([key, value]) => (
                     <div key={key} className="flex justify-between gap-2">

@@ -1,8 +1,18 @@
 export const ACCENT = "#FDC700";
 
+/** Geometry, provenance and internal keys, all covered by the layer label or
+ *  its description, so showing them raw only adds noise. */
+export const HIDDEN_FEATURE_KEYS = new Set([
+  "lat", "lon", "easting", "northing", "geometry", "area_km2",
+  "target", "observer_height_m", "analysis_radius_km",
+  "constraint_type", "visible_cells", "section",
+  "kind", "threshold_pct",
+]);
+
 export type ClickedFeature = {
   layerLabel: string;
   color: string;
+  detail?: string;
   properties: Record<string, unknown>;
   longitude: number;
   latitude: number;
@@ -13,6 +23,31 @@ export type LayerInfo = {
   color: string;
   detail?: (props: Record<string, unknown>) => string;
 };
+
+/** Layers that are nested by construction, so a point inside the innermost one
+ *  also falls inside every outer one. Listing them worst-first lets a hit on
+ *  several collapse to the single most severe, which is the only one a reader
+ *  needs. */
+const EXCLUSIVE_GROUPS: string[][] = [
+  ["rupture-10pct-fill", "rupture-7pct-fill", "rupture-4pct-fill"],
+];
+
+/**
+ * Drops layers that are superseded by a more severe one at the same point.
+ * Preserves the incoming order of everything else.
+ */
+export function collapseNestedLayers(layerIds: string[]): string[] {
+  const present = new Set(layerIds);
+  const suppressed = new Set<string>();
+  for (const group of EXCLUSIVE_GROUPS) {
+    const winner = group.find((id) => present.has(id));
+    if (!winner) continue;
+    for (const id of group) {
+      if (id !== winner) suppressed.add(id);
+    }
+  }
+  return layerIds.filter((id) => !suppressed.has(id));
+}
 
 export const LAYER_INFO: Record<string, LayerInfo> = {
   "corridor-fill": {
@@ -79,20 +114,30 @@ export const LAYER_INFO: Record<string, LayerInfo> = {
     },
   },
   "rupture-4pct-fill": {
-    label: "CO₂ Cloud, 4% (dangerous to life)",
+    label: "CO₂ Cloud, 4% (dangerous)",
     color: "#F97316",
     detail: () =>
-      "Peak CO₂ above 4% by volume at head height. Immediately dangerous to life and health.",
+      "Peak CO₂ reached 4% by volume at head height. This is the NIOSH threshold " +
+      "for immediate danger to life and health: laboured breathing, headache, " +
+      "confusion and impaired judgement within minutes. People here would " +
+      "struggle to understand what is happening or to decide where to go.",
   },
   "rupture-7pct-fill": {
-    label: "CO₂ Cloud, 7%",
+    label: "CO₂ Cloud, 7% (life-threatening)",
     color: "#EF4444",
-    detail: () => "Peak CO₂ above 7% by volume. Loss of consciousness within minutes.",
+    detail: () =>
+      "Peak CO₂ reached 7% by volume. Dizziness, visual disturbance and loss of " +
+      "consciousness within a few minutes. Anyone who collapses here cannot " +
+      "escape, and because CO₂ is denser than air it is thickest at ground level.",
   },
   "rupture-10pct-fill": {
-    label: "CO₂ Cloud, 10%",
+    label: "CO₂ Cloud, 10% (potentially fatal)",
     color: "#B91C1C",
-    detail: () => "Peak CO₂ above 10% by volume. Rapidly fatal.",
+    detail: () =>
+      "Peak CO₂ reached 10% by volume. Convulsions and rapid unconsciousness, " +
+      "fatal without immediate rescue. Petrol and diesel engines also stall in " +
+      "air this deprived of oxygen, which at Satartia in 2020 left residents " +
+      "unable to drive out and delayed emergency vehicles reaching them.",
   },
   "agi-circles": {
     label: "Potential AGI Location",
